@@ -1,0 +1,13 @@
+@import '../scss/Variables.scss';
+
+.a-card {
+  &:hover {
+    box-shadow: $shadow-4;
+    cursor: pointer;
+  }
+}
+
+.a-card-body {
+  background: $tertiary-bg-color;
+  border-radius: 0 0 5px 5px;
+}

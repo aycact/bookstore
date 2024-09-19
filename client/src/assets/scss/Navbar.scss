@@ -1,0 +1,40 @@
+@import '../scss/Variables.scss';
+
+.navbar-custom {
+  font-weight: 600;
+  background-color: $primary-bg-color; /* Màu nền tùy chỉnh */
+  box-shadow: $shadow-4;
+  top: 0;
+  width: 100%;
+  z-index: 10;
+  .nav-link {
+    color: $secondary-bg-color;
+    margin: 0 5px;
+    border-radius: 10px;
+    &:hover {
+      background-color: $primary-bg-color-hover; // Thay đổi màu khi hover
+      color: $tertiary-bg-color;
+    }
+    &:focus,
+    &:active {
+      background-color: $primary-bg-color-hover; // Thay đổi màu khi hover
+      color: $tertiary-bg-color;
+    }
+  }
+  .nav-link.active {
+    color: $secondary-bg-color;
+  }
+  .nav-link.show {
+    color: $secondary-bg-color;
+  }
+  .dropdown-menu {
+    background-color: $quaternary-bg-color;
+
+    .dropdown-item {
+      background-color: $quaternary-bg-color;
+      &:hover {
+        background-color: $quaternary-bg-color-hover; // Thay đổi màu khi hover
+      }
+    }
+  }
+}

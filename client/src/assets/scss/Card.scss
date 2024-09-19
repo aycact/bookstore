@@ -1,0 +1,80 @@
+@import '../scss/Variables.scss';
+
+.b-card {
+  &:hover {
+    box-shadow: $shadow-4;
+    cursor: pointer;
+  }
+}
+
+.b-card-body {
+  background: $tertiary-bg-color;
+  border-radius: 0 0 5px 5px;
+}
+
+.a-card {
+  height: 283px!important;
+  padding: 40px 32px;
+  gap: 1rem;
+  justify-content: center;
+  align-items: center;
+  background: $quaternary-bg-color !important;
+  &:hover {
+    box-shadow: $shadow-4;
+    cursor: pointer;
+  }
+  .card-icon {
+    line-height: 5rem;
+    text-align: center;
+    background-color: $quaternary-bg-color-light;
+    font-size: 3rem;
+    height: 100px;
+    width: 100px;
+  }
+}
+
+.a-card-body {
+  border-radius: 0 0 5px 5px;
+  .card-title {
+    font-size: 2rem;
+    text-shadow: $shadow-4;
+    margin-bottom: 1rem;
+  }
+}
+
+.card-container {
+  display: flex;
+  flex-direction: row;
+  gap: 5rem;
+  height: 18rem;
+}
+
+.flip-card {
+  width: 300px;
+  height: 200px;
+  perspective: 1000px; // Remove this if you don't want the 3D effect
+
+  &-inner {
+    position: relative;
+    width: 100%;
+    height: 100%;
+    transition: transform 0.8s;
+    transform-style: preserve-3d;
+
+    &:hover {
+      transform: rotateY(180deg);
+    }
+  }
+
+  &-front, &-back {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    -webkit-backface-visibility: hidden; // Safari
+    backface-visibility: hidden;
+  }
+  &-back {
+    transform: rotateY(180deg);
+  }
+}
+
