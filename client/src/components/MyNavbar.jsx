@@ -54,7 +54,7 @@ const MyNavbar = () => {
             <Nav className="mx-auto">
               <Nav.Link href="/">Trang chủ</Nav.Link>
               <Nav.Link href="/about">Thông tin</Nav.Link>
-              <Nav.Link href="/library">Nhà sách</Nav.Link>
+              <Nav.Link href="/library">Kho sách</Nav.Link>
               {(user === null || user?.role === 'user') && (
                 <Nav.Link href="/cart">Giỏ hàng</Nav.Link>
               )}

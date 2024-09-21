@@ -85,10 +85,26 @@ const createPaypalOrder = async (cart) => {
       'Have different in total price between client and server!'
     )
 
+  await Order.create({
+    id: orderId,
+    customer_email,
+    shipping_address,
+    recipient_name,
+    recipient_phone,
+    payment_method,
+    book_list: orderItems,
+    subtotal,
+    shipping_fee,
+    tax,
+    total,
+    user_id,
+  })
+
   const payload = {
     intent: 'CAPTURE',
     purchase_units: [
       {
+        reference_id: orderId,
         amount: {
           currency_code: 'USD',
           value: subtotal,
@@ -148,8 +164,6 @@ const capturePaypalOrder = async (orderID, userId) => {
 }
 
 const createOrder = async (req, res) => {
-  const orderId = crypto.randomBytes(10).toString('hex')
-
   const {
     book_list,
     tax,
@@ -210,7 +224,6 @@ const createOrder = async (req, res) => {
   // get client secret
   if (payment_method === 'COD') {
     const order = await Order.create({
-      id: orderId,
       customer_email,
       shipping_address,
       recipient_name,

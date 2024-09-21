@@ -1,7 +1,7 @@
 import { useLoaderData, Link } from 'react-router-dom'
 import { useState } from 'react'
 import { addItem } from '../../features/cart/cartSlice'
-import { useDispatch } from 'react-redux'
+import { useDispatch, useSelector } from 'react-redux'
 import styled from 'styled-components'
 import { customFetch } from '../../utils/axios'
 import { MyBreadCrumb, SelectInput } from '../../components'
@@ -34,6 +34,7 @@ export const loader =
 const SingleBook = () => {
   const defaultImg = 'https://via.placeholder.com/150'
   // data
+  const { user } = useSelector((store) => store.user)
   const { book } = useLoaderData()
   const {
     book_img,
@@ -107,22 +108,32 @@ const SingleBook = () => {
               <p className="publisher-name">{`Nhà xuất bản: ${publisher.name}`}</p>
               <p className="category">{`Thể loại: ${category.name}`}</p>
               <p className="price">
-                Giá bán: <span className='fw-bold'>{formatPrice(price)}</span>
+                Giá bán: <span className="fw-bold">{formatPrice(price)}</span>
               </p>
+              {user.role === 'admin' && (
+                <p className="book-amount ">
+                  Số lượng hiện có:{' '}
+                  <span className="fw-bold">{available_copies} quyển</span>
+                </p>
+              )}
             </div>
             {/* AMOUNT */}
-            <div className="">
-              <SelectInput
-                list={list}
-                name="Amount"
-                handleChoose={handleSelectAmount}
-                defaultValue={1}
-              />
-            </div>
+            {user.role !== 'admin' && (
+              <div className="">
+                <SelectInput
+                  list={list}
+                  name="Amount"
+                  handleChoose={handleSelectAmount}
+                  defaultValue={1}
+                />
+              </div>
+            )}
             {/* SUBMIT BTN */}
-            <button className="btn" onClick={addToCart}>
-              Thêm vào giỏ hàng
-            </button>
+            {user.role !== 'admin' && (
+              <button className="btn" onClick={addToCart}>
+                Thêm vào giỏ hàng
+              </button>
+            )}
           </div>
         </div>
         <div className="row">

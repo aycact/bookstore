@@ -26,9 +26,7 @@ const register = async (req, res) => {
   // tạo token xác thực qua mail
   const verificationToken = crypto.randomBytes(40).toString('hex')
 
-  const userId = crypto.randomBytes(10).toString('hex')
   const user = await User.create({
-    id: userId,
     name,
     email,
     password,

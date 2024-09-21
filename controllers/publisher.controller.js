@@ -17,8 +17,7 @@ const findSinglePublisher = asyncWrapper(async (req, res) => {
 })
 
 const createPublisher = asyncWrapper(async (req, res) => {
-  const pubId = crypto.randomBytes(10).toString('hex')
-  const publisher = await Publisher.create({ ...req.body, id: pubId })
+  const publisher = await Publisher.create({ ...req.body})
   res.status(201).json({ publisher })
 })
 

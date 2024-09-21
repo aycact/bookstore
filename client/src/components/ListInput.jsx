@@ -51,6 +51,7 @@ const Wrapper = styled.section`
   .list-label {
     color: ${boldTextColor};
     font-weight: bold;
+    text-transform: none;
   }
 `
 

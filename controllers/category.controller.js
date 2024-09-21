@@ -16,8 +16,7 @@ const findSingleCategory = asyncWrapper(async (req, res) => {
 })
 
 const createCategory = asyncWrapper(async (req, res) => {
-  const catId = crypto.randomBytes(10).toString('hex')
-  const category = await Category.create({ ...req.body, id: catId })
+  const category = await Category.create({ ...req.body })
   res.status(201).json({ category })
 })
 

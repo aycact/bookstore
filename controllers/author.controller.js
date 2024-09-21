@@ -20,7 +20,6 @@ const findSingleAuthor = asyncWrapper(async (req, res) => {
 })
 
 const createAuthor = asyncWrapper(async (req, res) => {
-  const authorId = crypto.randomBytes(10).toString('hex')
   let img = null
   if (req.files?.authorImg) {
     const result = await cloudinary.uploader.upload(
@@ -32,7 +31,6 @@ const createAuthor = asyncWrapper(async (req, res) => {
   }
 
   const author = await Author.create({
-    id: authorId,
     ...req.body,
     authorImg: img,
   })

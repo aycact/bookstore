@@ -36,6 +36,7 @@ const Wrapper = styled.section`
   .select-label {
     color: ${boldTextColor};
     font-weight: bold;
+    text-transform: none;
   }
   
   .select-input {

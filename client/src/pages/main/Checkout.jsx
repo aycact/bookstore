@@ -19,6 +19,7 @@ import { createOrder, updateOrder } from '../../features/orders/orderSlice'
 import { clearCart } from '../../features/cart/cartSlice'
 import { PayPalScriptProvider, PayPalButtons } from '@paypal/react-paypal-js'
 import { customFetch } from '../../utils/axios'
+import { toast } from 'react-toastify'
 
 const client_id = import.meta.env.VITE_PAYPAL_CLIENT_ID
 const client_secret = import.meta.env.VITE_PAYPAL_CLIENT_SECRET
@@ -34,13 +35,6 @@ const initialOptions = {
   'data-sdk-integration-source': 'developer-studio',
 }
 
-const initialState = {
-  recipientName: '',
-  recipientAddress: '',
-  recipientPhoneNumber: '',
-  paymentMethods: 'COD',
-}
-
 const paymentMethods = [
   'COD',
   'Credit Card',
@@ -51,8 +45,15 @@ const paymentMethods = [
 
 const Checkout = () => {
   const [message, setMessage] = useState('')
-  const [values, setValues] = useState(initialState)
   const { user } = useSelector((store) => store.user)
+  const [values, setValues] = useState({
+    recipientName: user.name,
+    recipientAddress: user.address,
+    recipientPhoneNumber: user.phoneNumber,
+    paymentMethods: 'COD',
+  })
+  console.log(user)
+
   const { cartItems, cartTotal, shipping, tax, orderTotal } = useSelector(
     (store) => store.cart
   )
@@ -61,7 +62,7 @@ const Checkout = () => {
   useEffect(() => {
     const radios = document.getElementsByName('paymentMethods')
     radios.forEach((radio) => {
-      if (radio.value === 'COD') {
+      if (radio.value === values.paymentMethods) {
         radio.checked = true
       }
     })
@@ -89,6 +90,13 @@ const Checkout = () => {
         recipient_phone: values.recipientPhoneNumber || user.phoneNumber,
       }
 
+      if (
+        !order.shipping_address ||
+        !order.recipient_name ||
+        !order.recipient_phone
+      )
+        toast.warning('Xin hãy điền đầy đủ thông tin thanh toán!')
+
       const response = await customFetch.post(
         '/orders/paypal/createOrder',
         order,
@@ -98,7 +106,6 @@ const Checkout = () => {
           },
         }
       )
-      console.log(response.data)
       const orderData = await response.data
       if (orderData.id) {
         return orderData.id
@@ -179,6 +186,15 @@ const Checkout = () => {
       recipient_phone: values.recipientPhoneNumber || user.phoneNumber,
     }
 
+    if (
+      !order.shipping_address ||
+      !order.recipient_name ||
+      !order.recipient_phone
+    ) {
+      toast.warning('Xin hãy điền đầy đủ thông tin thanh toán!')
+      return
+    }
+
     if (order.payment_method === 'COD') {
       dispatch(createOrder(order))
       dispatch(clearCart())
@@ -224,141 +240,53 @@ const Checkout = () => {
               type="text"
               label="Địa chỉ nhận hàng"
               name="recipientAddress"
-              value={values.address}
+              value={values.recipientAddress}
               handleChange={handleChange}
             />
-            <p className="font-italic m-0">
-              * Cần cung cấp thông tin trong trường hợp cần người quen nhận
-              hàng.
-            </p>
-            <p className="radio-label">Hình thức thanh toán:</p>
-            {/* COD */}
-            <div className="form-check">
-              <div>
-                <input
-                  name={'paymentMethods'}
-                  className="form-check-input"
-                  type="radio"
-                  value={paymentMethods[0]}
-                  id={`radio-${paymentMethods[0]}`}
-                  onChange={handleChange}
+            <p className="radio-label mt-3">Hình thức thanh toán:</p>
+            {paymentMethods.map((paymentMethod) => {
+              return (
+                <RadiosInput
+                  key={paymentMethod}
+                  name="paymentMethods"
+                  value={paymentMethod}
+                  label={paymentMethod}
+                  handleCheck={handleChange}
                 />
-                <label
-                  className="form-check-label"
-                  htmlFor={`radio-${paymentMethods[0]}`}
-                >
-                  Thanh toán khi nhận hàng
-                </label>
-              </div>
-
-              <div
-                className="btn-container"
-                style={{
-                  height: values.paymentMethods === 'COD' ? '2rem' : '0rem',
-                }}
+              )
+            })}
+            <div
+              className="btn-container"
+              style={{
+                width: values.paymentMethods === 'COD' ? '80%' : '0rem',
+                height: '2rem',
+              }}
+            >
+              <button className="btn" onClick={handleSubmit}>
+                Đặt hàng
+              </button>
+            </div>
+            <div
+              className="btn-container"
+              style={{
+                width: values.paymentMethods === 'E-Wallet' ? '100%' : '0rem',
+              }}
+            >
+              <PayPalScriptProvider
+                options={initialOptions}
+                key={JSON.stringify(values)}
               >
-                <button className="btn" onClick={handleSubmit}>
-                  Đặt hàng
-                </button>
-              </div>
-            </div>
-            {/* Credit Card */}
-            <div className="form-check">
-              <div>
-                <input
-                  name={'paymentMethods'}
-                  className="form-check-input"
-                  type="radio"
-                  value={paymentMethods[1]}
-                  id={`radio-${paymentMethods[1]}`}
-                  onChange={handleChange}
+                <PayPalButtons
+                  style={{
+                    shape: 'rect',
+                    layout: 'vertical',
+                    color: 'gold',
+                    label: 'paypal',
+                  }}
+                  createOrder={createPaypalOrder}
+                  onApprove={approvePaypalOrder}
                 />
-                <label
-                  className="form-check-label"
-                  htmlFor={`radio-${paymentMethods[1]}`}
-                >
-                  {paymentMethods[1]}
-                </label>
-              </div>
-            </div>
-            {/* Debit Card */}
-            <div className="form-check">
-              <div>
-                <input
-                  name={'paymentMethods'}
-                  className="form-check-input"
-                  type="radio"
-                  value={paymentMethods[2]}
-                  id={`radio-${paymentMethods[2]}`}
-                  onChange={handleChange}
-                />
-                <label
-                  className="form-check-label"
-                  htmlFor={`radio-${paymentMethods[2]}`}
-                >
-                  {paymentMethods[2]}
-                </label>
-              </div>
-            </div>
-            {/* E-Wallet */}
-            <div className="form-check">
-              <div>
-                <input
-                  name={'paymentMethods'}
-                  className="form-check-input"
-                  type="radio"
-                  value={paymentMethods[3]}
-                  id={`radio-${paymentMethods[3]}`}
-                  onChange={handleChange}
-                />
-                <label
-                  className="form-check-label"
-                  htmlFor={`radio-${paymentMethods[3]}`}
-                >
-                  {paymentMethods[3]}
-                </label>
-              </div>
-              <div
-                className="btn-container"
-                style={{
-                  height:
-                    values.paymentMethods === 'E-Wallet' ? '2rem' : '0rem',
-                }}
-              >
-                {values.paymentMethods === 'E-Wallet' && (
-                  <PayPalScriptProvider options={initialOptions}>
-                    <PayPalButtons
-                      style={{
-                        shape: 'rect',
-                        layout: 'vertical',
-                        color: 'gold',
-                        label: 'paypal',
-                      }}
-                      createOrder={createPaypalOrder}
-                      onApprove={approvePaypalOrder}
-                    />
-                  </PayPalScriptProvider>
-                )}
-              </div>
-            </div>
-            {/* Bank Tranfer */}
-            <div className="form-check">
-              <div>
-                <input
-                  name={'paymentMethods'}
-                  className="form-check-input"
-                  type="radio"
-                  value={paymentMethods[4]}
-                  id={`radio-${paymentMethods[4]}`}
-                  onChange={handleChange}
-                />
-                <label
-                  className="form-check-label"
-                  htmlFor={`radio-${paymentMethods[4]}`}
-                >
-                  {paymentMethods[4]}
-                </label>
-              </div>
+              </PayPalScriptProvider>
             </div>
           </div>
         </div>
@@ -383,8 +311,7 @@ const Wrapper = styled.section`
     margin: 2rem 0;
   }
   .btn-container {
-    margin-left: 3rem;
-    transition: ${transition};
+    margin-top: 1rem;
     overflow: hidden;
     float: left;
   }
@@ -419,10 +346,9 @@ const Wrapper = styled.section`
   }
   .form-check {
     margin-bottom: 1rem 0;
-    display: flex;
-    flex-direction: row;
-    align-items: center;
     width: 27rem;
-    justify-content: space-between;
+  }
+  .paypal-buttons {
+    z-index: 1;
   }
 `

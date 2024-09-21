@@ -22,21 +22,21 @@ Book.init(
       type: DataTypes.TEXT,
     },
     author_id: {
-      type: DataTypes.INTEGER,
+      type: DataTypes.UUID,
       references: {
         model: 'author',
         key: 'id',
       },
     },
     category_id: {
-      type: DataTypes.INTEGER,
+      type: DataTypes.UUID,
       references: {
         model: 'category',
         key: 'id',
       },
     },
     publisher_id: {
-      type: DataTypes.INTEGER,
+      type: DataTypes.UUID,
       references: {
         model: 'publisher',
         key: 'id',

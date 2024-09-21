@@ -87,8 +87,6 @@ const findSingleBook = asyncWrapper(async (req, res) => {
 })
 
 const createBook = asyncWrapper(async (req, res) => {  
-  const bookId = crypto.randomBytes(10).toString('hex')
-  
   // const now = new Date()
   // const day = String(now.getDate()).padStart(2, '0')
   // const month = String(now.getMonth() + 1).padStart(2, '0')
@@ -106,7 +104,6 @@ const createBook = asyncWrapper(async (req, res) => {
   }
 
   const book = await Book.create({
-    id: bookId,
     ...req.body,
     book_img: img,
   })
