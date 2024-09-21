@@ -51,7 +51,7 @@ const BookList = () => {
     <Wrapper>
       <div className="segment">
         <h3 className="mx-5 segment-heading mb-3">
-          {totalBooks} Sách
+          {totalBooks} Kết quả
         </h3>
 
         <Row xs={1} md={2} lg={3} className="g-5 mx-3">

@@ -5,9 +5,18 @@ import { quaternaryBgColor } from '../../assets/js/variables'
 import { useEffect } from 'react'
 import { formatPrice } from '../../utils'
 import Badge from 'react-bootstrap/Badge'
+import { customFetch } from '../../utils/axios'
+import { useLoaderData } from 'react-router-dom'
 day.extend(advancedFormat)
 
-const OrdersList = ({ orders, meta }) => {
+const TotalOrdersList = () => {
+
+  const getTotalOrders = async () => {
+    const resp = await customFetch('orders')
+    return 
+  }
+
+  const { orders } = useLoaderData()
   const tr = document.getElementsByTagName('tr')
 
   useEffect(() => {
@@ -22,7 +31,7 @@ const OrdersList = ({ orders, meta }) => {
 
   return (
     <div className="table-container">
-      <h4 className="total-item">Đã đặt hàng : {meta.totalOrders}</h4>
+      <h4 className="total-item">Total Orders : {meta.totalOrders}</h4>
       {/* Table */}
       <div>
         <Table>
@@ -83,4 +92,4 @@ const OrdersList = ({ orders, meta }) => {
     </div>
   )
 }
-export default OrdersList
+export default TotalOrdersList

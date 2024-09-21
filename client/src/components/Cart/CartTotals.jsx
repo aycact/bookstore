@@ -20,19 +20,19 @@ const CartTotals = () => {
         <Card.Body>
           <ListGroup>
             <ListGroup.Item>
-              <span className="label">Subtotal</span>
+              <span className="label">Tổng tiền hàng</span>
               <span>{formatPrice(cartTotal)}</span>
             </ListGroup.Item>
             <ListGroup.Item>
-              <span className="label">Shipping</span>
+              <span className="label">Phí ship</span>
               <span>{formatPrice(shipping)}</span>
             </ListGroup.Item>
             <ListGroup.Item>
-              <span className="label">Tax</span>
+              <span className="label">Thuế</span>
               <span>{formatPrice(tax)}</span>
             </ListGroup.Item>
             <ListGroup.Item className="last-item">
-              <span className="label">Order Total</span>
+              <span className="label">Tổng thanh toán</span>
               <span>{formatPrice(orderTotal)}</span>
             </ListGroup.Item>
           </ListGroup>

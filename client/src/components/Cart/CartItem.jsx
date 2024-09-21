@@ -55,7 +55,7 @@ const CartItem = ({ cartItem }) => {
             handleChoose={handleAmount}
           />
           <a className="remove-btn" onClick={removeItemFromTheCart}>
-            remove
+            Xóa
           </a>
         </div>
         <h3 className="col-3 price-tag text-center">{`${formatPrice(price)}`}</h3>

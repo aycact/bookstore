@@ -61,6 +61,7 @@ export const logoutUserThunk = async (url, thunkAPI) => {
     const resp = await customFetch.delete(`${url}`)
     return resp.data
   } catch (error) {
-    return checkForUnauthorizedResponse(error, thunkAPI)
+     const message = error.response?.data?.msg || 'Logout error!'
+     return thunkAPI.rejectWithValue(message)
   }
 }

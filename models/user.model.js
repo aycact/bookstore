@@ -68,7 +68,7 @@ User.init(
         'Nữ',
         'Khác',
       ),
-      allowNull: false,
+      defaultValue: 'Nam'
     },
   },
   {

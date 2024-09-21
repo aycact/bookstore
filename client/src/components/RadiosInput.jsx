@@ -1,3 +1,5 @@
+import styled from "styled-components"
+
 const RadiosInput = ({ name, value, handleCheck, label }) => {
   return (
     <div className="form-check">
@@ -16,3 +18,7 @@ const RadiosInput = ({ name, value, handleCheck, label }) => {
   )
 }
 export default RadiosInput
+
+const Wrapper = styled.section`
+  
+`

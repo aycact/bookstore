@@ -17,16 +17,15 @@ const Cart = () => {
     return (
       <Wrapper>
         <div className="d-flex justify-content-center align-items-center flex-column">
-          <h2>Your cart is empty!</h2>
+          <h2>Giỏ hàng của bạn đang trống!</h2>
           <img src={emptyCart} alt="empty-cart" className="empty-cart-img" />
-          <h2>Please put in some books</h2>
         </div>
       </Wrapper>
     )
 
   return (
     <Wrapper>
-      <SectionTitle text="Your Cart" />
+      <SectionTitle text="Giỏ hàng của bạn" />
       {/* chia thành 12 cột */}
       <div className="row cart-container">
         {/* Item chiếm 8 cột */}
@@ -39,11 +38,11 @@ const Cart = () => {
             <CartTotals />
             {user ? (
               <Link to="/checkout" className="btn">
-                proceed to checkout
+                Đặt hàng
               </Link>
             ) : (
               <Link to="/login" className="btn">
-                please login
+                Đăng nhập
               </Link>
             )}
           </div>

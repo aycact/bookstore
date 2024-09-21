@@ -6,9 +6,9 @@ const About = () => {
   return (
     <section className="about-section section" id="about">
       <h1 className="about-heading">
-        about{' '}
+        Nhà sách {' '}
         <Badge className='about-badge'>
-          <span>us</span>
+          <span>trực tuyến</span>
         </Badge>
       </h1>
       <div className="about-container general-container">

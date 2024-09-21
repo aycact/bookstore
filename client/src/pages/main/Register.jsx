@@ -11,7 +11,7 @@ import {
   quaternaryBgColor,
   quaternaryBgColorLight,
   primaryBgColorHover,
-  shadow1
+  shadow1,
 } from '../../assets/js/variables'
 
 const initialState = {
@@ -61,11 +61,11 @@ function Register() {
   return (
     <Wrapper className="full-page">
       <form className="form" onSubmit={onSubmit}>
-        <h3>{values.isMember ? 'Login' : 'Register'}</h3>
+        <h3>{values.isMember ? 'ĐĂNG NHẬP' : 'ĐĂNG XUẤT'}</h3>
         {/* name field */}
         {!values.isMember && (
           <FormInput
-          label="name"
+            label="Họ tên"
             type="text"
             name="name"
             value={values.name}
@@ -74,7 +74,7 @@ function Register() {
         )}
         {/* email field */}
         <FormInput
-        label="email"
+          label="Email"
           type="email"
           name="email"
           value={values.email}
@@ -82,15 +82,15 @@ function Register() {
         />
         {/* password field */}
         <FormInput
-        label="password"
+          label="Mật khẩu"
           type="password"
           name="password"
           value={values.password}
           handleChange={handleChange}
         />
-        <div className='btn-container'>
+        <div className="btn-container">
           <Button type="submit" className="btn" disabled={isLoading}>
-            {isLoading ? 'loading...' : 'submit'}
+            {isLoading ? 'loading...' : values.isMember? 'Đăng nhập' : 'Đăng xuất'}
           </Button>
           <Button
             className="btn"
@@ -105,9 +105,9 @@ function Register() {
           </Button>
         </div>
         <p>
-          {values.isMember ? 'Not a member yet?' : 'Already a member?'}
+          {values.isMember ? 'Chưa có tài khoản?' : 'Đã có tài khoản?'}
           <Button onClick={toggleMember} className="member-btn">
-            {values.isMember ? 'Register' : 'Login'}
+            {values.isMember ? 'Đăng xuất' : 'Đăng nhập'}
           </Button>
         </p>
       </form>
@@ -156,6 +156,7 @@ const Wrapper = styled.section`
     color: ${primaryBgColor};
   }
   .member-btn {
+    margin-bottom: 5px;
     background: transparent;
     border: transparent;
     color: ${primaryBgColor};

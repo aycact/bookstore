@@ -79,8 +79,8 @@ const SingleBook = () => {
   }
 
   const breadcrumbItems = [
-    { label: 'Home', path: '/', active: false },
-    { label: 'Library', path: '/library', active: false },
+    { label: 'Trang chủ', path: '/', active: false },
+    { label: 'Nhà sách', path: '/library', active: false },
     { label: title, path: `/${title}`, active: true },
   ]
 

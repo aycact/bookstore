@@ -1,6 +1,6 @@
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit'
 import { toast } from 'react-toastify'
-import { getUserOrderThunk, createOrderThunk, updateOrderThunk } from './orderThunk'
+import { getUserOrderThunk, createOrderThunk, updateOrderThunk, getAllOrdersThunk } from './orderThunk'
 
 
 const initialState = {
@@ -9,7 +9,9 @@ const initialState = {
   totalOrders: 0,
   numOfPages: 1,
   page: 1,
+
 }
+
 
 export const createOrder = createAsyncThunk(
   'order/createOrder',
@@ -27,6 +29,10 @@ export const updateOrder = createAsyncThunk(
 export const getUserOrder = createAsyncThunk(
   'orders/getUserOrders',
   getUserOrderThunk
+)
+export const getAllOrders = createAsyncThunk(
+  'orders/getAllOrdersThunk',
+  getAllOrdersThunk
 )
 
 const orderSlice = createSlice({
@@ -86,6 +92,19 @@ const orderSlice = createSlice({
         state.totalOrders = payload.meta.totalOrders
       })
       .addCase(getUserOrder.rejected, (state, { payload }) => {
+        state.isLoading = false
+        toast.error(payload)
+      })
+      .addCase(getAllOrders.pending, (state) => {
+        state.isLoading = true
+      })
+      .addCase(getAllOrders.fulfilled, (state, { payload }) => {
+        state.isLoading = false
+        state.orders = payload.orders
+        state.numOfPages = payload.meta.numOfPages
+        state.totalOrders = payload.meta.totalOrders
+      })
+      .addCase(getAllOrders.rejected, (state, { payload }) => {
         state.isLoading = false
         toast.error(payload)
       })

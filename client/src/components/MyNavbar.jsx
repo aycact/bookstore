@@ -53,24 +53,24 @@ const MyNavbar = () => {
           <Navbar.Toggle aria-controls="basic-navbar-nav" />
           <Navbar.Collapse id="basic-navbar-nav">
             <Nav className="mx-auto">
-              <Nav.Link href="/">Home</Nav.Link>
-              <Nav.Link href="/about">About</Nav.Link>
-              <Nav.Link href="/library">Library</Nav.Link>
-              <Nav.Link href="/cart">Cart</Nav.Link>
-              {user && <Nav.Link href="/checkout">Checkout</Nav.Link>}
-              {user && <Nav.Link href="/order">Order</Nav.Link>}
-              {(user && user.role === 'admin') && <Nav.Link href="/manager">Manager</Nav.Link>}
+              <Nav.Link href="/">Trang chủ</Nav.Link>
+              <Nav.Link href="/about">Thông tin</Nav.Link>
+              <Nav.Link href="/library">Nhà sách</Nav.Link>
+              {(user === null || user?.role === 'user') && <Nav.Link href="/cart">Giỏ hàng</Nav.Link>}
+              {(user && user.role === 'user') && <Nav.Link href="/checkout">Thanh toán</Nav.Link>}
+              {user && <Nav.Link href="/order">Đơn hàng</Nav.Link>}
+              {(user && user.role === 'admin') && <Nav.Link href="/manager">Quản lý</Nav.Link>}
             </Nav>
             {user ? (
               <Navbar.Text>
-                Hello, <a href="/user">{user.name}</a>
+                <a href="/user">{user.name}</a>
                 <button onClick={handleLogout} className="auth-btn">
-                  Logout
+                  Đăng xuất
                 </button>
               </Navbar.Text>
             ) : (
               <button className="auth-btn">
-                <Link to="/register">Login / Register</Link>
+                <Link to="/register">Đăng nhập / Đăng xuất</Link>
               </button>
             )}
           </Navbar.Collapse>
@@ -93,7 +93,7 @@ const Wrapper = styled.section`
   }
   .navbar-custom .nav-link {
     color: ${secondaryBgColor};
-    margin: 0 5px;
+    margin: 0;
     border-radius: 10px;
   }
   .navbar-custom .nav-link:hover {

@@ -1,5 +1,5 @@
 import axios from 'axios'
-import { clearStore, logoutUser } from '../features/users/userSlice'
+import { clearStore } from '../features/users/userSlice'
 
 const bookUrl = import.meta.env.VITE_APP_BASE_URL
 

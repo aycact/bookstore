@@ -10,7 +10,6 @@ import {
   quaternaryBgColor,
   primaryBgColorHover,
 } from '../assets/js/variables'
-import Button from 'react-bootstrap/esm/Button'
 
 export const loader = async ({ request }) => {
   const params = Object.fromEntries([

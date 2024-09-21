@@ -4,6 +4,8 @@ const checkPermissions = require('./checkPermissions')
 const sendVerificationEmail = require('./sendVerificationEmail')
 const sendResetPasswordEmail = require('./sendResetPasswordEmail')
 const hashString = require('./createHash')
+const handleResponse = require('./handleResponse')
+const generateAccessTokenPaypal = require('./generateAccessTokenPaypal')
 module.exports = {
   createJWT,
   isTokenValid,
@@ -13,4 +15,6 @@ module.exports = {
   sendVerificationEmail,
   sendResetPasswordEmail,
   hashString,
+  handleResponse,
+  generateAccessTokenPaypal,
 }

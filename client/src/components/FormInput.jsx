@@ -17,9 +17,6 @@ const FormInput = ({
     <Wrapper className="mb-2">
       <Form.Label
         htmlFor={label}
-        style={{
-          textTransform: 'capitalize',
-        }} 
       >
         {label}
       </Form.Label>

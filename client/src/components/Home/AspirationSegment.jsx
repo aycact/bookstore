@@ -9,25 +9,25 @@ const AspirationSegment = () => {
   return (
     <div className="segmentX d-flex flex-column align-items-center">
       <h3 className="mx-5 segment-heading">
-        Our <Badge>Aspiration</Badge>
+        <Badge>Mục tiêu</Badge> của chúng tôi
       </h3>
       <div className="card-container ">
         {/* card 1 */}
         <FlipCard
           IconComponent={GiTiedScroll}
-          title={'Mission'}
+          title={'Sách'}
           description={description}
         />
         {/* card 2 */}
         <FlipCard
           IconComponent={FaRegEye}
-          title={'Vision'}
+          title={'Bạn đọc'}
           description={description}
         />
         {/* card 3 */}
         <FlipCard
           IconComponent={GiBullseye}
-          title={'Goal'}
+          title={'Nhà sách'}
           description={description}
         />
       </div>

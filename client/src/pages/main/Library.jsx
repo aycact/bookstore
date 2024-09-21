@@ -38,8 +38,8 @@ export const loader =
 
 const Library = () => {
   const breadcrumbItems = [
-    { label: 'Home', path: '/', active: false },
-    { label: 'Library', path: '/library', active: true },
+    { label: 'Trang chủ', path: '/', active: false },
+    { label: 'Sách', path: '/library', active: true },
   ]
   return (
     <div className="library">

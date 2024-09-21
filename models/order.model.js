@@ -6,16 +6,8 @@ class Order extends Model {}
 
 Order.init(
   {
-    customer_name: {
-      type: DataTypes.STRING,
-      allowNull: false,
-    },
     customer_email: {
       type: DataTypes.STRING,
-      allowNull: false,
-    },
-    customer_phone: {
-      type: DataTypes.STRING(15),
       allowNull: false,
     },
     shipping_address: {

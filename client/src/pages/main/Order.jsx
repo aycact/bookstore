@@ -1,21 +1,34 @@
 import React from 'react'
 import { PaginationContainer, SectionTitle } from '../../components'
 import { OrdersList } from '../../components'
-import { handleChange, getUserOrder } from '../../features/orders/orderSlice'
+import {
+  handleChange,
+  getUserOrder,
+  getAllOrders,
+} from '../../features/orders/orderSlice'
 import { useSelector, useDispatch } from 'react-redux'
 import { useEffect } from 'react'
-import { boldTextColor, primaryBgColor, quaternaryBgColor, quaternaryBgColorLight, shadow1 } from '../../assets/js/variables'
+import {
+  boldTextColor,
+  primaryBgColor,
+  quaternaryBgColor,
+  quaternaryBgColorLight,
+  shadow1,
+} from '../../assets/js/variables'
 import styled from 'styled-components'
 import Badge from 'react-bootstrap/Badge'
-
 
 const Orders = () => {
   const { totalOrders, numOfPages, page, orders } = useSelector(
     (store) => store.order
   )
+  const { user } = useSelector((store) => store.user)
+
   const dispatch = useDispatch()
   useEffect(() => {
-    dispatch(getUserOrder())
+    if (user.role === 'admin') {
+      dispatch(getAllOrders())
+    } else dispatch(getUserOrder())
   }, [page])
 
   const meta = { page, totalOrders, numOfPages }
@@ -23,10 +36,12 @@ const Orders = () => {
     <Wrapper>
       <h1 className="heading">
         <Badge className="heading-badge">
-          <span>Your Order</span>
+          <span>Đơn hàng</span>
         </Badge>
       </h1>
+      {/* order list */}
       <OrdersList meta={meta} orders={orders} />
+      {/* pagination */}
       <PaginationContainer
         meta={meta}
         handleChange={handleChange}
