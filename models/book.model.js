@@ -62,5 +62,4 @@ Book.init(
 )
 
 // the defined model is the class itself
-console.log(Book === sequelize.models.Book) // true
 module.exports = Book

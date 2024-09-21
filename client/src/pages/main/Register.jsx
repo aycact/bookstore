@@ -61,7 +61,7 @@ function Register() {
   return (
     <Wrapper className="full-page">
       <form className="form" onSubmit={onSubmit}>
-        <h3>{values.isMember ? 'ĐĂNG NHẬP' : 'ĐĂNG XUẤT'}</h3>
+        <h3>{values.isMember ? 'ĐĂNG NHẬP' : 'ĐĂNG KÝ'}</h3>
         {/* name field */}
         {!values.isMember && (
           <FormInput
@@ -90,7 +90,7 @@ function Register() {
         />
         <div className="btn-container">
           <Button type="submit" className="btn" disabled={isLoading}>
-            {isLoading ? 'loading...' : values.isMember? 'Đăng nhập' : 'Đăng xuất'}
+            {isLoading ? 'loading...' : values.isMember? 'Đăng nhập' : 'Đăng ký'}
           </Button>
           <Button
             className="btn"
