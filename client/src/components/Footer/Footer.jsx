@@ -29,7 +29,7 @@ const Footer = () => {
         </div>
         <div className="d-flex flex-row gap-lg-5 justify-content-around align-items-center segment me-3">
           <FooterInfoBtn />
-          <img src={logo} alt="logo" width="180" height="40" />
+          <img src={logo} alt="logo" height="150px" />
           <p className="text-center m-0 ms-lg-4 right-line">
             &copy; {year}, All Rights Reserved
           </p>

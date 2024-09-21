@@ -2,7 +2,7 @@ import React from 'react'
 import Container from 'react-bootstrap/Container'
 import Nav from 'react-bootstrap/Nav'
 import Navbar from 'react-bootstrap/Navbar'
-import logo from '../assets/images/logo.png'
+import { logo } from '../assets/images'
 import { useSelector, useDispatch } from 'react-redux'
 import { Link, useNavigate } from 'react-router-dom'
 import { useQueryClient } from '@tanstack/react-query'
@@ -44,8 +44,7 @@ const MyNavbar = () => {
           >
             <img
               src={logo}
-              width="180"
-              height="40"
+              height="100%"
               className="d-inline-block position-absolute top-0 start-20"
               alt="book app logo"
             />
@@ -56,10 +55,16 @@ const MyNavbar = () => {
               <Nav.Link href="/">Trang chủ</Nav.Link>
               <Nav.Link href="/about">Thông tin</Nav.Link>
               <Nav.Link href="/library">Nhà sách</Nav.Link>
-              {(user === null || user?.role === 'user') && <Nav.Link href="/cart">Giỏ hàng</Nav.Link>}
-              {(user && user.role === 'user') && <Nav.Link href="/checkout">Thanh toán</Nav.Link>}
+              {(user === null || user?.role === 'user') && (
+                <Nav.Link href="/cart">Giỏ hàng</Nav.Link>
+              )}
+              {user && user.role === 'user' && (
+                <Nav.Link href="/checkout">Thanh toán</Nav.Link>
+              )}
               {user && <Nav.Link href="/order">Đơn hàng</Nav.Link>}
-              {(user && user.role === 'admin') && <Nav.Link href="/manager">Quản lý</Nav.Link>}
+              {user && user.role === 'admin' && (
+                <Nav.Link href="/manager">Quản lý</Nav.Link>
+              )}
             </Nav>
             {user ? (
               <Navbar.Text>
