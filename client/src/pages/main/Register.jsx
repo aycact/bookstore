@@ -90,7 +90,11 @@ function Register() {
         />
         <div className="btn-container">
           <Button type="submit" className="btn" disabled={isLoading}>
-            {isLoading ? 'loading...' : values.isMember? 'Đăng nhập' : 'Đăng ký'}
+            {isLoading
+              ? 'loading...'
+              : values.isMember
+              ? 'Đăng nhập'
+              : 'Đăng ký'}
           </Button>
           <Button
             className="btn"
@@ -107,7 +111,7 @@ function Register() {
         <p>
           {values.isMember ? 'Chưa có tài khoản?' : 'Đã có tài khoản?'}
           <Button onClick={toggleMember} className="member-btn">
-            {values.isMember ? 'Đăng xuất' : 'Đăng nhập'}
+            {values.isMember ? 'Đăng ký' : 'Đăng nhập'}
           </Button>
         </p>
       </form>
