@@ -12,7 +12,7 @@ import { useState } from 'react'
 import { customFetch } from '../../utils/axios'
 import { toast } from 'react-toastify'
 
-const AddAttribute = () => {
+const AddAttribute = ({ onAddData }) => {
   const [loading, setLoading] = useState(false)
   const [authorPreview, setAuthorPreview] = useState(null)
   const [authorValues, setAuthorValues] = useState({
@@ -70,6 +70,7 @@ const AddAttribute = () => {
         authorImg: null,
       })
       setAuthorPreview(null)
+      onAddData()
     } catch (error) {
       toast.error('Add author failed')
     } finally {
@@ -86,6 +87,7 @@ const AddAttribute = () => {
       setCatValues({
         name: '',
       })
+      onAddData()
     } catch (error) {
       toast.error('Add category failed')
     } finally {
@@ -109,8 +111,8 @@ const AddAttribute = () => {
     }
   }
 
-  if(loading) {
-    return <Loading/>
+  if (loading) {
+    return <Loading />
   }
 
   return (

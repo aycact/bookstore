@@ -39,7 +39,6 @@ router
     try {
       const { orderID } = req.params
       const { jsonResponse, httpStatusCode } = await capturePaypalOrder(orderID, req.user.UserId)
-      console.log(jsonResponse)
       res.status(httpStatusCode).json(jsonResponse)
     } catch (error) {
       console.error('Failed to create order:', error)

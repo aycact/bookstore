@@ -37,8 +37,7 @@ const initialOptions = {
 
 const paymentMethods = [
   'COD',
-  'Credit Card',
-  'Debit Card',
+  'Card',
   'E-Wallet',
   'Bank Transfer',
 ]
@@ -52,7 +51,6 @@ const Checkout = () => {
     recipientPhoneNumber: user.phoneNumber,
     paymentMethods: 'COD',
   })
-  console.log(user)
 
   const { cartItems, cartTotal, shipping, tax, orderTotal } = useSelector(
     (store) => store.cart
@@ -72,6 +70,17 @@ const Checkout = () => {
     const name = e.target.name
     const value = e.target.value
     setValues({ ...values, [name]: value })
+  }
+
+  const getFundingSource = () => {
+    switch (values.paymentMethods) {
+      case 'E-Wallet':
+        return 'paypal'
+      case 'Card':
+        return 'card'
+      default:
+        return 'card'
+    }
   }
 
   const createPaypalOrder = async () => {
@@ -161,6 +170,13 @@ const Checkout = () => {
           orderData,
           JSON.stringify(orderData, null, 2)
         )
+        if (
+          orderData?.purchase_units[0]?.payments?.captures[0]?.status ===
+          'COMPLETED'
+        ) {
+          dispatch(clearCart())
+          toast.success('Thanh toán thành công. Vui lòng kiểm tra đơn hàng!')
+        }
       }
     } catch (error) {
       console.error(error)
@@ -269,7 +285,7 @@ const Checkout = () => {
             <div
               className="btn-container"
               style={{
-                width: values.paymentMethods === 'E-Wallet' ? '100%' : '0rem',
+                width: values.paymentMethods !== ('COD') ? '100%' : '0rem',
               }}
             >
               <PayPalScriptProvider
@@ -277,12 +293,7 @@ const Checkout = () => {
                 key={JSON.stringify(values)}
               >
                 <PayPalButtons
-                  style={{
-                    shape: 'rect',
-                    layout: 'vertical',
-                    color: 'gold',
-                    label: 'paypal',
-                  }}
+                  fundingSource={getFundingSource()}
                   createOrder={createPaypalOrder}
                   onApprove={approvePaypalOrder}
                 />

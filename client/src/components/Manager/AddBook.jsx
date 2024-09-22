@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import styled from 'styled-components'
 import {
   primaryBgColorHover,
@@ -24,39 +24,40 @@ import dayjs from 'dayjs'
 import { getCurrentDateTime } from '../../utils'
 
 const fetchCategories = () => {
-  const { isLoading, data, error, isError } = useQuery({
+  const { isLoading, data, error, isError, refetch } = useQuery({
     queryKey: ['categories'],
     queryFn: async () => {
       const { data } = await customFetch.get('/categories')
       return data
     },
   })
-  return { isLoading, data, error, isError }
+  return { isLoading, data, error, isError, refetch }
 }
 
 const fetchPublishers = () => {
-  const { isLoading, data, error, isError } = useQuery({
+  const { isLoading, data, error, isError, refetch } = useQuery({
     queryKey: ['publishers'],
     queryFn: async () => {
       const { data } = await customFetch.get('/publishers')
       return data
     },
   })
-  return { isLoading, data, error, isError }
+  return { isLoading, data, error, isError, refetch }
 }
 
 const fetchAuthors = () => {
-  const { isLoading, data, error, isError } = useQuery({
-    queryKey: ['auhtors'],
+  const { isLoading, data, error, isError, refetch } = useQuery({
+    queryKey: ['authors'],
     queryFn: async () => {
       const { data } = await customFetch.get('/authors')
       return data
     },
   })
-  return { isLoading, data, error, isError }
+  return { isLoading, data, error, isError, refetch }
 }
-const AddBook = () => {
-  const { isLoading:isBookLoading } = useSelector((store) => store.allBooks)
+
+const AddBook = ({ dataUpdated }) => {
+  const { isLoading: isBookLoading } = useSelector((store) => store.allBooks)
   const dispatch = useDispatch()
 
   const [preview, setPreview] = useState(null)
@@ -120,20 +121,32 @@ const AddBook = () => {
     data: categoriesData,
     error: errorCategories,
     isError: isErrorCategories,
+    refetch: refetchCategories,
   } = fetchCategories()
+
   const {
     isLoading: isLoadingPublishers,
     data: publishersData,
     error: errorPublishers,
     isError: isErrorPublishers,
+    refetch: refetchPublishers,
   } = fetchPublishers()
+
   const {
     isLoading: isLoadingAuthors,
     data: authorsData,
     error: errorAuthors,
     isError: isErrorAuthors,
+    refetch: refetchAuthors,
   } = fetchAuthors()
 
+  useEffect(() => {
+    if (dataUpdated) {
+      refetchCategories()
+      refetchPublishers()
+      refetchAuthors()
+    }
+  }, [dataUpdated, refetchCategories, refetchPublishers, refetchAuthors])
   if (isLoadingCategories) return <Loading />
   if (isErrorCategories)
     return <p style={{ marginTop: '1rem' }}>{errorCategories.message}</p>

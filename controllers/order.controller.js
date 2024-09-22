@@ -148,19 +148,24 @@ const capturePaypalOrder = async (orderID, userId) => {
     },
   })
 
-  // const invoice = await response.json
-  // // Lưu order vào postgres
-  // const order = await Order.create({
-  //   id: invoice.id,
-  //   customer_email: invoice.payer.email_address,
-  //   shipping_address: `${invoice.purchase_units.shipping.address.address_line_1}, ${invoice.purchase_units.shipping.address.admin_area_2}, ${invoice.purchase_units.shipping.country_code}`,
-  //   recipient_name: invoice.purchase_units.shipping.name.full_name,
-  //   payment_method: 'E-Wallet',
-  //   total: invoice.purchase_units.payments.captures.amount.value,
-  //   user_id: userId,
-  // })
+  const invoice = await response.json()
+  console.log(invoice.status);
+  
 
-  return handleResponse(response)
+  // // Cập nhật order vào postgres
+  const order = await Order.findByPk(invoice?.purchase_units[0]?.reference_id)
+  if (!order) {
+    throw new CustomAPIError.NotFoundError(
+      `No order with id : ${invoice?.purchase_units[0]?.reference_id}`
+    )
+  }
+  order.status = 'paid'
+  order.payment_intent_id = invoice?.purchase_units[0]?.payments?.captures?.id
+  await order.save()
+  return {
+    jsonResponse: invoice,
+    httpStatusCode: response.status,
+  }
 }
 
 const createOrder = async (req, res) => {

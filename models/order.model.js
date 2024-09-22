@@ -23,8 +23,7 @@ Order.init(
     payment_method: {
       type: DataTypes.ENUM(
         'COD',
-        'Credit Card',
-        'Debit Card',
+        'Card',
         'E-Wallet',
         'Bank Transfer'
       ),

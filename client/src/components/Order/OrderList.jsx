@@ -54,11 +54,15 @@ const OrdersList = ({ orders, meta }) => {
 
               return (
                 <tr key={order.id} id={index}>
-                  <td>{recipient_name || customer_name}</td>
-                  <td>{shipping_address}</td>
-                  <td>{recipient_phone || customer_phone}</td>
-                  <td>{formatPrice(cost)}</td>
-                  <td>{date}</td>
+                  <td className="text-center">
+                    {recipient_name || customer_name}
+                  </td>
+                  <td className="text-center">{shipping_address}</td>
+                  <td className="text-center">
+                    {recipient_phone || customer_phone}
+                  </td>
+                  <td className="text-center">{formatPrice(cost)}</td>
+                  <td className="text-center">{date}</td>
                   <td className="text-center">
                     <Badge
                       pill
