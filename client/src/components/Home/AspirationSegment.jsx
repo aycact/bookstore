@@ -15,20 +15,26 @@ const AspirationSegment = () => {
         {/* card 1 */}
         <FlipCard
           IconComponent={GiTiedScroll}
-          title={'Sách'}
-          description={description}
+          title={'Sách báo'}
+          description={
+            'Chúng tôi mang đến những đầu sách chất lượng, phong phú về nội dung và đa dạng về thể loại, phục vụ mọi lứa tuổi và sở thích.'
+          }
         />
         {/* card 2 */}
         <FlipCard
           IconComponent={FaRegEye}
-          title={'Bạn đọc'}
-          description={description}
+          title={
+            'Đọc giả'
+          }
+          description={'Xây dựng một cộng đồng đọc giả yêu sách, cùng nhau chia sẻ kiến thức và lan tỏa đam mê đọc sách đến mọi người.'}
         />
         {/* card 3 */}
         <FlipCard
           IconComponent={GiBullseye}
-          title={'Nhà sách'}
-          description={description}
+          title={'Sự gắn kết'}
+          description={
+            'Chúng tôi kết nối những tâm hồn yêu sách, tạo ra một không gian học hỏi và phát triển kiến thức bền vững.'
+          }
         />
       </div>
     </div>

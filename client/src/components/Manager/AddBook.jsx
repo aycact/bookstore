@@ -301,9 +301,7 @@ const Wrapper = styled.section`
   }
   .book-img {
     padding: 0 2rem;
-    border-radius: 5rem;
     width: 20rem;
-    height: 20rem;
     object-fit: cover;
   }
   .select-label {

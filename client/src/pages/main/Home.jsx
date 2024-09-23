@@ -3,24 +3,34 @@ import { FeaturedBook, MyCarousel, AspirationSegment } from '../../components'
 import styled from 'styled-components'
 import {
   shadow4,
-  tertiaryBgColor,
   quaternaryBgColor,
   quaternaryBgColorLight,
 } from '../../assets/js/variables'
 import { customFetch } from '../../utils/axios'
+import { useLoaderData } from 'react-router-dom'
 
 export const loader = async () => {
   const resp = await customFetch('books/findNewBooks')
-  return {newBooks: resp.data.newBooks}
+  return { newBooks: resp.data.newBooks }
 }
 
 const Home = () => {
+  const { newBooks } = useLoaderData()
   return (
     <Wrapper>
       <div className="mt-lg-5 position-relative">
         <MyCarousel />
         <div className="divider position-absolute">━━━━━━━━༻❁༺━━━━━━━━</div>
-        <FeaturedBook />
+        <div className='mx-5'>
+          <div>
+
+          <FeaturedBook
+            newBooks={newBooks}
+            title="Sách mới"
+            maxWidthItems={4}
+          />
+          </div>
+        </div>
         <AspirationSegment />
       </div>
     </Wrapper>

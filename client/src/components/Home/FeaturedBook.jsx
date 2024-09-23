@@ -1,14 +1,18 @@
 import Row from 'react-bootstrap/Row'
-import { useLoaderData, Link } from 'react-router-dom'
 import styled from 'styled-components'
 import BookItem from '../Library/BookItem'
+import { shadow4, quaternaryBgColorLight } from '../../assets/js/variables'
 
-const FeaturedBook = () => {
-  const { newBooks } = useLoaderData()
+const FeaturedBook = ({ newBooks, title, maxWidthItems, gap }) => {
   return (
     <Wrapper className="segment">
-      <h3 className="mx-5 segment-heading mb-3">Sách Mới</h3>
-      <Row xs={1} md={2} lg={4} className="g-5 mx-3">
+      <h3 className="segment-heading mb-3 featured-book-heading">{title}</h3>
+      <Row
+        xs={1}
+        md={2}
+        lg={maxWidthItems}
+        className={`${gap} g-5 justify-content-start`}
+      >
         {newBooks.map((book) => {
           return <BookItem book={book} key={book.id} />
         })}
@@ -21,5 +25,15 @@ export default FeaturedBook
 const Wrapper = styled.section`
   a {
     text-decoration: none;
+  }
+
+  .b-card:hover {
+    box-shadow: ${shadow4};
+    cursor: pointer;
+  }
+
+  .b-card-body {
+    background: ${quaternaryBgColorLight};
+    border-radius: 0 0 5px 5px;
   }
 `

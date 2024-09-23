@@ -45,6 +45,7 @@ const SingleBook = () => {
     publisher,
     author,
     category,
+    author_id,
   } = book
   //  generate option
   const list = Array.from({ length: available_copies }, (_, i) => ({
@@ -103,7 +104,13 @@ const SingleBook = () => {
           <div className="col-sm-6 col-12">
             {/* INFORMATION */}
             <h2 className="">{title}</h2>
-            <p className="author-name">{author.name}</p>
+            <Link
+              className="text-decoration-none author-link"
+              key={author_id}
+              to={`/author/${author_id}`}
+            >
+              <p className="author-name">{author.name}</p>
+            </Link>
             <div className="basic-info">
               <p className="publisher-name">{`Nhà xuất bản: ${publisher.name}`}</p>
               <p className="category">{`Thể loại: ${category.name}`}</p>
@@ -162,7 +169,6 @@ const Wrapper = styled.section`
   .book-img {
     border-radius: 2rem;
     height: 24rem;
-    width: 20rem;
   }
   .author-name {
     font-weight: bold;

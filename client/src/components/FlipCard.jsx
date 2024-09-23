@@ -19,7 +19,7 @@ const FlipCard = ({IconComponent, title, description}) => {
           <Card className="a-card">
             <Card.Body className="a-card-body">
               <Card.Title>{title}</Card.Title>
-              <Card.Text>
+              <Card.Text className="text-justify">
                 {description}
               </Card.Text>
             </Card.Body>

@@ -16,6 +16,15 @@ Author.init(
     authorImg: {
       type: DataTypes.STRING,
     },
+    born: {
+      type: DataTypes.DATEONLY,
+    },
+    job: {
+      type: DataTypes.STRING(50),
+    },
+    place_of_birth: {
+      type: DataTypes.STRING,
+    }
   },
   {
    

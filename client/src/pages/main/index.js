@@ -9,6 +9,7 @@ import Cart from "./Cart";
 import Order from "./Order";
 import UserInfo from "./UserInfo";
 import Manager from "./Manager";
+import SingleAuthor from "./SingleAuthor";
 
 export {
   SharedLayout,
@@ -18,6 +19,7 @@ export {
   Register,
   Checkout,
   SingleBook,
+  SingleAuthor,
   Cart,
   Order,
   UserInfo,

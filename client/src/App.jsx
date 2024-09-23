@@ -7,6 +7,7 @@ import {
   Register,
   Checkout,
   SingleBook,
+  SingleAuthor,
   Cart,
   Order,
   UserInfo,
@@ -21,6 +22,7 @@ import { ReactQueryDevtools } from '@tanstack/react-query-devtools'
 import { loader as libraryLoader } from './pages/main/Library'
 import { loader as verifyEmailLoader } from './pages/VerifyEmail'
 import { loader as singleBookLoader } from './pages/main/SingleBook'
+import { loader as singleAuthorLoader } from './pages/main/SingleAuthor'
 import { loader as newBookLoader} from './pages/main/Home'
 
 const queryClient = new QueryClient({
@@ -74,13 +76,18 @@ const router = createBrowserRouter([
         loader: singleBookLoader(queryClient),
       },
       {
+        path: 'author/:id',
+        element: <SingleAuthor />,
+        loader: singleAuthorLoader(queryClient),
+      },
+      {
         path: 'user',
         element: <UserInfo />,
       },
       {
         path: 'manager',
         element: <Manager />,
-      }
+      },
     ],
   },
   {

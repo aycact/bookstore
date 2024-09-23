@@ -93,7 +93,7 @@ const Wrapper = styled.section`
     background-color: ${primaryBgColor}; /* Màu nền tùy chỉnh */
     box-shadow: ${shadow4};
     top: 0;
-    width: 100%;
+    width: 100vw;
     z-index: 10;
   }
   .navbar-custom .nav-link {
