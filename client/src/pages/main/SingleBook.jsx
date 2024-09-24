@@ -46,6 +46,7 @@ const SingleBook = () => {
     author,
     category,
     author_id,
+    page_number,
   } = book
   //  generate option
   const list = Array.from({ length: available_copies }, (_, i) => ({
@@ -74,6 +75,7 @@ const SingleBook = () => {
     category,
     publisher,
     available_copies,
+    page_number
   }
   // Add to cart function
   const addToCart = () => {
@@ -105,7 +107,7 @@ const SingleBook = () => {
             {/* INFORMATION */}
             <h2 className="">{title}</h2>
             <Link
-              className="text-decoration-none author-link"
+              className="author-link"
               key={author_id}
               to={`/author/${author_id}`}
             >
@@ -114,6 +116,7 @@ const SingleBook = () => {
             <div className="basic-info">
               <p className="publisher-name">{`Nhà xuất bản: ${publisher.name}`}</p>
               <p className="category">{`Thể loại: ${category.name}`}</p>
+              <p className="page-number">{`Số trang: ${page_number}`}</p>
               <p className="price">
                 Giá bán: <span className="fw-bold">{formatPrice(price)}</span>
               </p>
@@ -168,7 +171,7 @@ const Wrapper = styled.section`
   }
   .book-img {
     border-radius: 2rem;
-    height: 24rem;
+    width: 24rem;
   }
   .author-name {
     font-weight: bold;
@@ -215,5 +218,12 @@ const Wrapper = styled.section`
   .first-row {
     margin-bottom: 1.5rem;
     padding-left: 5rem;
+  }
+  .author-link {
+    text-decoration: none;
+  }
+  .author-link:hover {
+    text-decoration: underline;
+    text-decoration-color: ${textColor};
   }
 `

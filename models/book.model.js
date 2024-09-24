@@ -16,6 +16,9 @@ Book.init(
     },
     available_copies: {
       type: DataTypes.INTEGER,
+      validate: {
+        min: 1,
+      },
       defaultValue: 0,
     },
     description: {
@@ -48,10 +51,17 @@ Book.init(
     price: {
       type: DataTypes.DECIMAL(10, 2),
       validate: {
-        min: 1
+        min: 1,
       },
       defaultValue: 9999,
-    }
+    },
+    page_number: {
+      type: DataTypes.INTEGER,
+      validate: {
+        min: 1,
+      },
+      defaultValue: 0,
+    },
   },
   {
     // Other model options go here

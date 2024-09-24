@@ -29,6 +29,7 @@ export const addBookThunk = async function (url, book, thunkAPI) {
     formData.append('book_img', book.book_img)
     formData.append('title', book.title)
     formData.append('publication_date', publicationDate)
+    formData.append('page_number', book.page_number)
     formData.append('available_copies', book.available_copies)
     formData.append('price', book.price)
     formData.append('category_id', book.category_id)

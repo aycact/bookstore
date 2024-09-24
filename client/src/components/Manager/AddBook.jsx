@@ -65,6 +65,7 @@ const AddBook = ({ dataUpdated }) => {
     title: '',
     price: 0,
     available_copies: 0,
+    page_number: 0,
     category_id: null,
     publisher_id: null,
     author_id: null,
@@ -106,6 +107,7 @@ const AddBook = ({ dataUpdated }) => {
       title: '',
       price: 0,
       available_copies: 0,
+      page_number: 0,
       category_id: null,
       publisher_id: null,
       author_id: null,
@@ -189,11 +191,22 @@ const AddBook = ({ dataUpdated }) => {
                   handleChange={handleChange}
                 />
               </div>
+              {/* publisher field */}
+              <div className="col-auto mt-2">
+                <SelectInput
+                  label="Nhà xuất bản"
+                  list={publishersData.publishers}
+                  name="publisher_id"
+                  handleChoose={handleChange}
+                />
+              </div>
+            </div>
+            <div className="row gap-2">
               {/* price field */}
               <div className="col-2">
                 <FormInput
                   label="Giá bán"
-                  type="text"
+                  type="number"
                   name="price"
                   value={values.price}
                   handleChange={handleChange}
@@ -204,9 +217,19 @@ const AddBook = ({ dataUpdated }) => {
               <div className="col-2">
                 <FormInput
                   label="Số lượng"
-                  type="text"
+                  type="number"
                   name="available_copies"
                   value={values.available_copies}
+                  handleChange={handleChange}
+                />
+              </div>
+              {/* page number */}
+              <div className="col-2">
+                <FormInput
+                  label="Số trang"
+                  type="number"
+                  name="page_number"
+                  value={values.page_number}
                   handleChange={handleChange}
                 />
               </div>
@@ -228,15 +251,6 @@ const AddBook = ({ dataUpdated }) => {
                   label="Thể loại"
                   list={categoriesData.categories}
                   name="category_id"
-                  handleChoose={handleChange}
-                />
-              </div>
-              {/* publisher field */}
-              <div className="col-auto mt-2">
-                <SelectInput
-                  label="Nhà xuất bản"
-                  list={publishersData.publishers}
-                  name="publisher_id"
                   handleChoose={handleChange}
                 />
               </div>
@@ -280,7 +294,7 @@ export default AddBook
 const Wrapper = styled.section`
   margin-top: 6rem;
   .form {
-    padding: 0 5rem;
+ 
     max-width: 50rem;
     min-width: 744px;
   }

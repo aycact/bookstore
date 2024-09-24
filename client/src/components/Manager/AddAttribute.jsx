@@ -1,6 +1,6 @@
 import styled from 'styled-components'
 import SectionTitle from '../SectionTitle'
-import { FormInput, FileInput, Loading } from '../../components'
+import { FormInput, FileInput, Loading, DateInput } from '../../components'
 import { defaultBookImg, defaultAvatar } from '../../assets/images'
 import {
   quaternaryBgColorLight,
@@ -11,6 +11,8 @@ import {
 import { useState } from 'react'
 import { customFetch } from '../../utils/axios'
 import { toast } from 'react-toastify'
+import dayjs from 'dayjs'
+import { getCurrentDateTime } from '../../utils'
 
 const AddAttribute = ({ onAddData }) => {
   const [loading, setLoading] = useState(false)
@@ -18,6 +20,9 @@ const AddAttribute = ({ onAddData }) => {
   const [authorValues, setAuthorValues] = useState({
     name: '',
     bio: '',
+    born: dayjs(getCurrentDateTime()),
+    job: '',
+    place_of_birth: '',
     authorImg: null,
   })
   const [catValues, setCatValues] = useState({
@@ -38,6 +43,14 @@ const AddAttribute = ({ onAddData }) => {
       reader.readAsDataURL(file)
     }
   }
+
+  const handleDateChange = (e) => {
+    setAuthorValues({
+      ...values,
+      born: e,
+    })
+  }
+
   const handleChangeAuthor = (e) => {
     const name = e.target.name
     const value = e.target.value
@@ -57,9 +70,16 @@ const AddAttribute = ({ onAddData }) => {
   const handleSubmitAuthor = async (e) => {
     e.preventDefault()
     try {
+      const dateOfBirth = `${authorValues.born.$M + 1}/${
+        authorValues.born.$D
+      }/${authorValues.born.$y}`
+
       setLoading(true)
       const formData = new FormData()
       formData.append('name', authorValues.name)
+      formData.append('job', authorValues.job)
+      formData.append('born', dateOfBirth)
+      formData.append('place_of_birth', authorValues.place_of_birth)
       formData.append('bio', authorValues.bio)
       formData.append('authorImg', authorValues.authorImg)
       await customFetch.post('/authors', formData)
@@ -67,6 +87,9 @@ const AddAttribute = ({ onAddData }) => {
       setAuthorValues({
         name: '',
         bio: '',
+        born: dayjs(getCurrentDateTime()),
+        job: '',
+        place_of_birth: '',
         authorImg: null,
       })
       setAuthorPreview(null)
@@ -136,7 +159,7 @@ const AddAttribute = ({ onAddData }) => {
           <form action="" className="col mt-4">
             {/* name field */}
             <div className="row gap-2">
-              <div className="col-7">
+              <div className="col-5">
                 <FormInput
                   label="Tên tác giả"
                   type="text"
@@ -145,10 +168,36 @@ const AddAttribute = ({ onAddData }) => {
                   handleChange={handleChangeAuthor}
                 />
               </div>
+              <div className="col-3">
+                <FormInput
+                  label="Nghề nghiệp"
+                  type="text"
+                  name="job"
+                  value={authorValues.job}
+                  handleChange={handleChangeAuthor}
+                />
+              </div>
+              <div className="col-3">
+                <FormInput
+                  label="Nơi sinh"
+                  type="text"
+                  name="place_of_birth"
+                  value={authorValues.place_of_birth}
+                  handleChange={handleChangeAuthor}
+                />
+              </div>
+            </div>
+            <div className="row">
+              <DateInput
+                label="Ngày sinh"
+                name="born"
+                value={authorValues.born}
+                handleChange={handleDateChange}
+              />
             </div>
 
             {/* description field */}
-            <div className="row description-container">
+            <div className="row description-container mt-3">
               <label className="mb-2" htmlFor="description">
                 Tiểu sử
               </label>
@@ -249,7 +298,6 @@ const Wrapper = styled.section`
   }
   .book-img {
     padding: 0 2rem;
-    border-radius: 5rem;
     width: 20rem;
     height: 20rem;
     object-fit: cover;
