@@ -9,7 +9,7 @@
     "server": "nodemon server",
     "client": "cd client && npm run dev",
     "dev": "concurrently --kill-others-on-fail \"npm run server\" \"npm run client\"",
-    "vercel-build": "npm run build"
+    "vercel-build": "npm install && npm run build"
   },
   "keywords": [],
   "author": "",
