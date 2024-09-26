@@ -23,9 +23,9 @@ const UserInfo = () => {
 
   const [values, setValues] = useState({
     name: user?.name,
-    phone_number: user?.phoneNumber,
+    phone_number: user?.phoneNumber || '',
     gender: user?.gender,
-    address: user?.address,
+    address: user?.address || '',
     user_img: null
   })
 

@@ -119,6 +119,7 @@ const Wrapper = styled.section`
     line-height: 2rem;
     letter-spacing: 0.05rem;
     text-align: justify;
+    font-size: 1.25rem;
   }
   .basic-info {
   }

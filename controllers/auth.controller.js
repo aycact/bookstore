@@ -12,7 +12,7 @@ const { StatusCodes } = require('http-status-codes')
 const CustomError = require('../errors')
 
 const register = async (req, res) => {
-  const { email, name, password } = req.body
+  const { email, name, password, gender } = req.body
 
   const emailAlreadyExists = await User.findOne({ where: { email: email } })
   if (emailAlreadyExists) {
@@ -32,6 +32,7 @@ const register = async (req, res) => {
     password,
     role,
     verificationToken,
+    gender
   })
 
   const origin = 'http://localhost:5173' // origin là host front-end ko nên nhầm lẫn với host phía back-end

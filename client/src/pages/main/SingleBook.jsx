@@ -188,6 +188,8 @@ const Wrapper = styled.section`
     letter-spacing: 0.05rem;
     padding: 0 6rem;
     text-align: justify;
+    font-size: 1.25rem;
+    font-weight: normal;
   }
   .basic-info {
     margin: 1rem 0;

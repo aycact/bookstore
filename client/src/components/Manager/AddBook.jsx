@@ -263,7 +263,7 @@ const AddBook = ({ dataUpdated }) => {
               <textarea
                 id="description"
                 name="description"
-                rows="4"
+                rows="10"
                 cols="50"
                 className="description-area"
                 value={values.description}
