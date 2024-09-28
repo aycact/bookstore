@@ -75,7 +75,7 @@ const login = async (req, res) => {
     )
   }
   // Kiểm tra xem user có xác thực qua email chưa
-  if (!user. email_is_verified)
+  if (!user.email_is_verified)
     throw new CustomError.UnauthenticatedError('Please verify your email')
 
   const tokenUser = createTokenUser(user) // đống gói một số thông tin cần thiết để đưa vào payload
