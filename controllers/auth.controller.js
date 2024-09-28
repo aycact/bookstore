@@ -75,7 +75,7 @@ const login = async (req, res) => {
     )
   }
   // Kiểm tra xem user có xác thực qua email chưa
-  if (!user.isVerified)
+  if (!user. email_is_verified)
     throw new CustomError.UnauthenticatedError('Please verify your email')
 
   const tokenUser = createTokenUser(user) // đống gói một số thông tin cần thiết để đưa vào payload
@@ -92,7 +92,7 @@ const login = async (req, res) => {
     attachCookiesToResponse({ res, user: tokenUser, refreshToken }) // tiếp tọc sử dụng refresh token đó
     res
       .status(StatusCodes.OK)
-      .json({ user: { ...tokenUser, isVerified: user.isVerified } })
+      .json({ user: { ...tokenUser,  email_is_verified: user. email_is_verified } })
     return
   }
   // trường hợp chưa tồn tại refresh token
@@ -133,7 +133,7 @@ const verifyEmail = async (req, res) => {
   const user = await User.findOne({ where: { email } })
   if (!user)
     throw new CustomError.UnauthenticatedError(`No user with email: ${email}`)
-  if (user.isVerified) {
+  if (user. email_is_verified) {
     throw new CustomError.BadRequestError(
       `Your email has already been verified`
     )
@@ -143,8 +143,8 @@ const verifyEmail = async (req, res) => {
     throw new CustomError.UnauthenticatedError(
       `User token does not match verification token: ${verificationToken}`
     )
-  user.isVerified = true
-  user.verified = Date.now()
+  user. email_is_verified = true
+  user.email_verified_date = Date.now()
   user.verificationToken = ''
   await user.save()
   res.status(StatusCodes.OK).json({ msg: "Email's verified completely!" })

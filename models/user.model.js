@@ -27,7 +27,7 @@ User.init(
     userType: {
       type: DataTypes.ENUM,
       allowNull: false,
-      values: ['common', 'student'],
+      values: ['common', 'customer'],
       defaultValue: 'common',
     },
     role: {
@@ -39,12 +39,12 @@ User.init(
     verificationToken: {
       type: DataTypes.STRING,
     },
-    isVerified: {
+    email_is_verified: {
       type: DataTypes.BOOLEAN,
       allowNull: false,
       defaultValue: false,
     },
-    verified: {
+    email_verified_date: {
       type: DataTypes.DATE,
     },
     passwordToken: {
@@ -63,12 +63,19 @@ User.init(
       type: DataTypes.STRING,
     },
     gender: {
-      type: DataTypes.ENUM(
-        'Nam',
-        'Nữ',
-        'Khác',
-      ),
-      defaultValue: 'Nam'
+      type: DataTypes.ENUM('Nam', 'Nữ', 'Khác'),
+      defaultValue: 'Nam',
+    },
+    identity_is_verified: {
+      type: DataTypes.BOOLEAN,
+      allowNull: false,
+      defaultValue: false,
+    },
+    identity_verified_date: {
+      type: DataTypes.DATE,
+    },
+    cccd: {
+      type: DataTypes.STRING,
     },
   },
   {
@@ -85,9 +92,14 @@ User.init(
     },
     hooks: {
       beforeSave: async (user) => {
-        if (!user.changed('password')) return
-        const salt = await bcrypt.genSalt(10)
-        user.password = await bcrypt.hash(user.password, salt)
+        if (user.changed('password')) {
+          const salt = await bcrypt.genSalt(10)
+          user.password = await bcrypt.hash(user.password, salt)
+        }
+        else if (user.changed('cccd')) {
+          
+        }
+        return
       },
     },
     timestamps: false,
