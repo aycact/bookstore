@@ -1,6 +1,7 @@
-import { defineConfig } from 'vite'
-import react from '@vitejs/plugin-react'
-import path from 'path'
+import { defineConfig } from "vite";
+import react from "@vitejs/plugin-react";
+import path from "path";
+require("dotenv").config();
 // https://vitejs.dev/config/
 
 import 'dotenv/config'
@@ -18,7 +19,7 @@ export default defineConfig({
   },
   resolve: {
     alias: {
-      '~bootstrap': path.resolve(__dirname, 'node_modules/bootstrap'),
+      "~bootstrap": path.resolve(__dirname, "node_modules/bootstrap"),
     },
   },
-})
+});
