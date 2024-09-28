@@ -97,7 +97,7 @@ User.init(
           user.password = await bcrypt.hash(user.password, salt)
         }
         else if (user.changed('cccd')) {
-          
+          user.identity_verified_date = Date.now()
         }
         return
       },
