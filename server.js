@@ -6,9 +6,10 @@ const app = express()
 var morgan = require('morgan')
 const path = require('path')
 
-const fileUpload = require('express-fileupload') // xử lí các file được up lên 
+const fileUpload = require('express-fileupload') // xử lí các file được up lên
 const cloudinary = require('cloudinary').v2
-cloudinary.config({ // có thể lấy 3 giá trị này trên account cloudinary 
+cloudinary.config({
+  // có thể lấy 3 giá trị này trên account cloudinary
   cloud_name: process.env.CLOUD_NAME, //Tên của tài khoản Cloudinary của bạn.
   api_key: process.env.CLOUD_API_KEY, //Khóa API (API Key) của bạn để xác thực với dịch vụ Cloudinary.
   api_secret: process.env.CLOUD_API_SECRET, // Khóa bí mật (API Secret) của bạn để ký và xác thực các yêu cầu đến Cloudinary API
@@ -23,7 +24,7 @@ const categoryRouter = require('./routes/category.router')
 const userRouter = require('./routes/user.router')
 const authRouter = require('./routes/auth.router')
 const publisherRouter = require('./routes/publisher.router')
-const orderRouter = require('./routes/order.router') 
+const orderRouter = require('./routes/order.router')
 
 // middleware
 const notFoundMiddleware = require('./middleware/not-found')
@@ -46,18 +47,21 @@ app.set('trust proxy', 1)
 //   })
 // )
 app.use(helmet())
-app.use(cors({ origin: 'http://localhost:5173', credentials: true }))
+app.use(
+  cors({
+    origin: ['http://localhost:5173', 'https://bookstore.ayclqt.id.vn'],
+    credentials: true,
+  })
+)
 app.use(xss())
 app.use(mongoSanitize())
 
 // app.use(express.static(path.resolve(__dirname, './client/dist', 'index.html')))
 app.use(express.static(path.resolve(__dirname, './client/dist')))
 app.use(express.json())
-app.use(fileUpload({useTempFiles:true})) // các file dc up lên sẽ lưu trữ trong folder temp
+app.use(fileUpload({ useTempFiles: true })) // các file dc up lên sẽ lưu trữ trong folder temp
 app.use(cookieParser(process.env.JWT_SECRET))
 // Trong cookie-parser, đối số đầu tiên được truyền vào là secret key, và nó được sử dụng để ký (sign) cookie. Việc ký cookie giúp đảm bảo tính toàn vẹn của cookie và ngăn chặn bất kỳ sửa đổi nào từ phía máy khách.
-
-
 
 app.use('/api/v1/books', bookRouter)
 app.use('/api/v1/authors', authorRouter)
