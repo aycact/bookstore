@@ -35,7 +35,6 @@ export const updateUserThunk = async (url, user, thunkAPI) => {
      formData.append('address', user.address)
      formData.append('user_img', user.user_img)
     const resp = await customFetch.patch(url, formData)
-    console.log(resp);
     return resp.data
   } catch (error) {
     return checkForUnauthorizedResponse(error, thunkAPI)

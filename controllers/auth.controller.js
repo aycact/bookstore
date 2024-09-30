@@ -45,8 +45,8 @@ const register = async (req, res) => {
   const forwardedProtocol = req.get('x-forwarded-proto')
 
   await sendVerificationEmail({
-    name: user.name,
-    email: user.email,
+    name,
+    email,
     verificationToken,
     origin,
   }) // truyền vào thông tin người nhận, token xác thực và host của front-end

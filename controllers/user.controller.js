@@ -5,9 +5,11 @@ const {
   createTokenUser,
   attachCookiesToResponse,
   checkPermissions,
+  isValidCCCD,
 } = require('../utils')
 const cloudinary = require('cloudinary').v2
 const fs = require('fs')
+const tesseract = require('node-tesseract-ocr')
 
 const asyncWrapper = require('../middleware/async')
 
@@ -51,6 +53,7 @@ const updateUser = asyncWrapper(async (req, res) => {
   user.address = address
 
   await user.save()
+  await user.reload()
 
   const existingToken = await Token.findOne({
     where: {
@@ -66,6 +69,43 @@ const updateUser = asyncWrapper(async (req, res) => {
   })
   res.status(StatusCodes.OK).json({ user: tokenUser })
 })
+
+const updateUserIdCard = async (req, res) => {
+  const config = {
+    lang: 'vie',
+    oem: 1,
+    psm: 3,
+  }
+
+  const { cccd } = req.body
+  if (!cccd) {
+    throw new CustomError.BadRequestError('Xin hãy nhập số CCCD!')
+  }
+  if (!isValidCCCD(cccd)) {
+    throw new CustomError.BadRequestError('Số CCCD không hợp lệ!')
+  }
+  if (!req.files?.cccd_img) {
+    throw new CustomError.BadRequestError('Xin hãy tải ảnh CCCD!')
+  }
+
+  const text = await tesseract.recognize(
+    req.files.cccd_img?.tempFilePath,
+    config
+  )
+
+  if (!text.includes(cccd)) {
+    throw new CustomError.BadRequestError(
+      'Số CCCD đã điền và trên ảnh không trùng khớp hoặc ảnh bị mờ. Xin hãy tải lại!'
+    )
+  }
+
+  const user = await User.findOne({ where: { id: req.user.userId } })
+  user.cccd = cccd
+  user.userType = 'customer'
+  await user.save()
+  await user.reload()
+  res.status(StatusCodes.OK).json({msg: 'Định danh thành công'})
+}
 
 const updateUserPassword = async (req, res) => {
   const { oldPassword, newPassword } = req.body
@@ -94,6 +134,7 @@ module.exports = {
   showCurrentUser,
   updateUser,
   updateUserPassword,
+  updateUserIdCard,
 }
 
 // update user with findOneAndUpdate

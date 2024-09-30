@@ -2,6 +2,14 @@ import React from 'react'
 import styled from 'styled-components'
 import { useEffect, useState } from 'react'
 import { FormInput, RadiosInput, FileInput, Loading } from '../../components'
+import { useSelector, useDispatch } from 'react-redux'
+import { updateUser } from '../../features/users/userSlice'
+import { defaultAvatar } from '../../assets/images'
+import Form from 'react-bootstrap/Form'
+import Modal from 'react-bootstrap/Modal'
+import { toast } from 'react-toastify'
+import { customFetch } from '../../utils/axios'
+
 import {
   textColor,
   quaternaryBgColorLight,
@@ -12,12 +20,14 @@ import {
   primaryBgColorHover,
   quaternaryBgColor,
 } from '../../assets/js/variables'
-import { useSelector, useDispatch } from 'react-redux'
-import { updateUser } from '../../features/users/userSlice'
-import { defaultAvatar } from '../../assets/images'
 
 const UserInfo = () => {
   const dispatch = useDispatch()
+  const [loading, setLoading] = useState(false)
+  const [showVerifyId, setShowVerifyId] = useState(false)
+  const handleShowModal = () => setShowVerifyId(true)
+  const handleCloseModal = () => setShowVerifyId(false)
+
   const [preview, setPreview] = useState(null)
   const { user, isLoading } = useSelector((store) => store.user)
 
@@ -26,8 +36,29 @@ const UserInfo = () => {
     phone_number: user?.phoneNumber || '',
     gender: user?.gender,
     address: user?.address || '',
-    user_img: null
+    user_img: null,
+    cccd: '',
+    cccd_img: null,
   })
+
+  const handleSubmitCCCD = async (e) => {
+    e.preventDefault()
+    try {
+      setLoading(true)
+      const formData = new FormData()
+      formData.append('cccd', values.cccd)
+      formData.append('cccd_img', values.cccd_img)
+      await customFetch.patch('/users/updateUserIdCard', formData)
+      toast.success('Cập nhật thông tin thành công')
+      setValues({ ...values, cccd: '', cccd_img: null })
+      handleCloseModal()
+    } catch (error) {
+      console.log(error)
+      toast.error(error?.response?.data?.msg)
+    } finally {
+      setLoading(false)
+    }
+  }
 
   const handleChange = (e) => {
     const name = e.target.name
@@ -35,7 +66,14 @@ const UserInfo = () => {
     setValues({ ...values, [name]: value })
   }
 
-  const handleImgUpload = (e) => {
+  const handleCardImgUpload = (e) => {
+    const file = e.target.files[0]
+    if (file) {
+      values.cccd_img = file
+    }
+  }
+
+  const handleUserImgUpload = (e) => {
     const file = e.target.files[0]
     if (file) {
       values.user_img = file
@@ -60,24 +98,76 @@ const UserInfo = () => {
     console.log(values)
     dispatch(updateUser({ ...values, id: user.id }))
   }
-  if(isLoading) {
-    return <Loading/>
+  if (isLoading) {
+    return <Loading />
   }
 
   return (
     <Wrapper>
+      <Modal show={showVerifyId} onHide={handleCloseModal}>
+        <Modal.Header
+          closeButton
+          style={{ backgroundColor: `${quaternaryBgColor}` }}
+        >
+          <Modal.Title>Xác thực danh tính</Modal.Title>
+        </Modal.Header>
+        <Modal.Body style={{ backgroundColor: `${quaternaryBgColor}` }}>
+          <Form>
+            <FormInput
+              label="Nhập số CCCD"
+              type="text"
+              name="cccd"
+              value={values.cccd}
+              handleChange={handleChange}
+            />
+
+            <FileInput
+              label="Tải ảnh mặt trước CCCD"
+              name="cccd_img"
+              handleChange={handleCardImgUpload}
+            />
+          </Form>
+        </Modal.Body>
+        <Modal.Footer style={{ backgroundColor: `${quaternaryBgColor}` }}>
+          <div className="btn-container">
+            <button
+              disabled={loading}
+              type="button"
+              onClick={handleCloseModal}
+              style={{ backgroundColor: `${quaternaryBgColorLight}` }}
+              className="btn"
+            >
+              {loading ? 'Đang xử lý...' : 'Đóng'}
+            </button>
+            <button
+              disabled={loading}
+              type="button"
+              onClick={handleSubmitCCCD}
+              style={{ backgroundColor: `${quaternaryBgColorLight}` }}
+              className="btn ms-2"
+            >
+              {loading ? 'Đang xử lý...' : 'Cập nhật thông tin'}
+            </button>
+          </div>
+        </Modal.Footer>
+      </Modal>
+
       <div className="info-heading">
-        <h2>Your Info</h2>
+        <h2>Thông tin của bạn</h2>
       </div>
       <div className="container">
         <section className="row">
           <div className="col img-container mb-5 d-flex flex-column">
-            <img src={preview || user.user_img || defaultAvatar} alt="user image" className="user-img" />
+            <img
+              src={preview || user.user_img || defaultAvatar}
+              alt="user image"
+              className="user-img"
+            />
 
             <FileInput
               label="Tải ảnh"
               name="user_img"
-              handleChange={handleImgUpload}
+              handleChange={handleUserImgUpload}
             />
           </div>
           <form className="form col">
@@ -132,8 +222,11 @@ const UserInfo = () => {
               />
             </div>
             <div className="btn-container">
-              <button onClick={handleSubmit} className="btn">
+              <button type="button" onClick={handleSubmit} className="btn">
                 Cập nhật thông tin
+              </button>
+              <button type="button" onClick={handleShowModal} className="btn">
+                Xác thực danh tính
               </button>
             </div>
           </form>
@@ -194,5 +287,10 @@ const Wrapper = styled.section`
     box-shadow: ${shadow1};
     font-weight: 600;
     text-transform: uppercase;
+  }
+  .btn-container {
+    display: flex;
+    justify-content: flex-start;
+    gap: 1rem;
   }
 `

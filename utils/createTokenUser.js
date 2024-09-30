@@ -7,7 +7,8 @@ const createTokenUser = (user) => {
     address: user.address,
     phoneNumber: user.phone_number,
     user_img: user.user_img,
-    gender: user.gender
+    gender: user.gender,
+    cccd: user.cccd
   }
 }
 

@@ -6,6 +6,7 @@ const sendResetPasswordEmail = require('./sendResetPasswordEmail')
 const hashString = require('./createHash')
 const handleResponse = require('./handleResponse')
 const generateAccessTokenPaypal = require('./generateAccessTokenPaypal')
+const isValidCCCD = require('./checkIdCard')
 module.exports = {
   createJWT,
   isTokenValid,
@@ -17,4 +18,5 @@ module.exports = {
   hashString,
   handleResponse,
   generateAccessTokenPaypal,
+  isValidCCCD,
 }
