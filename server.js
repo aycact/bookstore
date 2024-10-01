@@ -25,6 +25,7 @@ const userRouter = require('./routes/user.router')
 const authRouter = require('./routes/auth.router')
 const publisherRouter = require('./routes/publisher.router')
 const orderRouter = require('./routes/order.router')
+const reviewRouter = require('./routes/review.router')
 
 // middleware
 const notFoundMiddleware = require('./middleware/not-found')
@@ -70,6 +71,7 @@ app.use('/api/v1/users', userRouter)
 app.use('/api/v1/auth', authRouter)
 app.use('/api/v1/publishers', publisherRouter)
 app.use('/api/v1/orders', orderRouter)
+app.use('/api/v1/reviews', reviewRouter)
 
 app.get('*', (req, res) => {
   res.sendFile(path.resolve(__dirname, './client/dist', 'index.html'))

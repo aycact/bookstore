@@ -1,8 +1,7 @@
 const { Sequelize, DataTypes, Model } = require('sequelize')
 const sequelize = require('../dbconfig')
 
-class Book extends Model {
-}
+class Book extends Model {}
 
 Book.init(
   {
@@ -62,6 +61,18 @@ Book.init(
       },
       defaultValue: 0,
     },
+    average_rating: {
+      type: DataTypes.DECIMAL(2, 1),
+      defaultValue: 0,
+      validate: {
+        min: 0,
+        max: 5,
+      },
+    },
+    num_of_review: {
+      type: DataTypes.INTEGER,
+      defaultValue: 0,
+    }
   },
   {
     // Other model options go here
