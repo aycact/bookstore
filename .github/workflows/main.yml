@@ -35,7 +35,7 @@ jobs:
         with:
           check-latest: true
       - name: Install dependencies
-        run: 
+        run: |
           cd client
           npm install
       - name: Build
@@ -44,7 +44,7 @@ jobs:
           API_URL: ${{ secrets.API_URL }}
           VITE_PAYPAL_CLIENT_ID: ${{ secrets.VITE_PAYPAL_CLIENT_ID }}
           VITE_PAYPAL_CLIENT_SECRET: ${{ secrets.VITE_PAYPAL_CLIENT_SECRET }}
-        run: 
+        run: |
           cd client
           npm run build
       - name: Setup Pages
