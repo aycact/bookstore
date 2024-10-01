@@ -50,7 +50,7 @@ app.set('trust proxy', 1)
 app.use(helmet())
 app.use(
   cors({
-    origin: ['http://localhost:5173', 'https://bookstore.ayclqt.id.vn'],
+    origin: ['http://localhost:5173', 'https://bookstore.ayclqt.id.vn', 'https://3v2t.github.io'],
     credentials: true,
   })
 )
