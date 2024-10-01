@@ -35,21 +35,25 @@ jobs:
         with:
           check-latest: true
       - name: Install dependencies
-        run: npm install
+        run: 
+          cd client
+          npm install
       - name: Build
         env:
           VITE_APP_BASE_URL: ${{ secrets.VITE_APP_BASE_URL }}
           API_URL: ${{ secrets.API_URL }}
           VITE_PAYPAL_CLIENT_ID: ${{ secrets.VITE_PAYPAL_CLIENT_ID }}
           VITE_PAYPAL_CLIENT_SECRET: ${{ secrets.VITE_PAYPAL_CLIENT_SECRET }}
-        run: npm run build
+        run: 
+          cd client
+          npm run build
       - name: Setup Pages
         uses: actions/configure-pages@v4
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
         with:
           # Upload dist folder
-          path: './dist'
+          path: './client/dist'
       - name: Deploy to GitHub Pages
         id: deployment
         uses: actions/deploy-pages@v4
