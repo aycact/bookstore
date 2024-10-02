@@ -29,7 +29,18 @@ const getSingleUser = async (req, res) => {
 }
 
 const showCurrentUser = async (req, res) => {
-  res.status(StatusCodes.OK).json({ user: req.user })
+  const user = await User.findByPk(req.user.userId)
+  res
+    .status(StatusCodes.OK)
+    .json({
+      name: user.name,
+      phone_number: user.phone_number || "",
+      gender: user?.gender,
+      address: user?.address || "",
+      user_img: user?.user_img,
+      cccd: user?.cccd || "",
+
+    })
 }
 // update user with user.save()
 const updateUser = asyncWrapper(async (req, res) => {

@@ -58,11 +58,11 @@ const MyNavbar = () => {
               {(user === null || user?.role === 'user') && (
                 <Nav.Link href="/cart">Giỏ hàng</Nav.Link>
               )}
-              {user && user.role === 'user' && (
+              {user && user?.role === 'user' && (
                 <Nav.Link href="/checkout">Thanh toán</Nav.Link>
               )}
               {user && <Nav.Link href="/order">Đơn hàng</Nav.Link>}
-              {user && user.role === 'admin' && (
+              {user && user?.role === 'admin' && (
                 <Nav.Link href="/manager">Quản lý</Nav.Link>
               )}
             </Nav>

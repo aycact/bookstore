@@ -2,7 +2,7 @@ import React from 'react'
 import styled from 'styled-components'
 import { useEffect, useState } from 'react'
 import { FormInput, RadiosInput, FileInput, Loading } from '../../components'
-import { useSelector, useDispatch } from 'react-redux'
+import { useDispatch } from 'react-redux'
 import { updateUser } from '../../features/users/userSlice'
 import { defaultAvatar } from '../../assets/images'
 import Form from 'react-bootstrap/Form'
@@ -20,8 +20,29 @@ import {
   primaryBgColorHover,
   quaternaryBgColor,
 } from '../../assets/js/variables'
+import { useQuery } from '@tanstack/react-query'
+
+const showCurrentUser = () => {
+  const {
+    isLoading,
+    data: userData,
+    error,
+    isError,
+    refetch,
+  } = useQuery({
+    queryKey: ['showMe'],
+    queryFn: async () => {
+      const response = await customFetch(`/users/showMe`) // đảm bảo sử dụng await đúng cách
+      return response.data // trả về dữ liệu cần thiết
+    },
+  })
+
+  return { isLoading, userData, error, isError, refetch }
+}
 
 const UserInfo = () => {
+  const { isLoading, userData, error, isError, refetch } = showCurrentUser()
+
   const dispatch = useDispatch()
   const [loading, setLoading] = useState(false)
   const [showVerifyId, setShowVerifyId] = useState(false)
@@ -29,17 +50,30 @@ const UserInfo = () => {
   const handleCloseModal = () => setShowVerifyId(false)
 
   const [preview, setPreview] = useState(null)
-  const { user, isLoading } = useSelector((store) => store.user)
 
   const [values, setValues] = useState({
-    name: user?.name,
-    phone_number: user?.phoneNumber || '',
-    gender: user?.gender,
-    address: user?.address || '',
+    name: userData?.name,
+    phone_number: userData?.phoneNumber || '',
+    gender: userData?.gender,
+    address: userData?.address || '',
     user_img: null,
     cccd: '',
     cccd_img: null,
   })
+
+  useEffect(() => {
+    if (userData) {
+      setValues({
+        name: userData.name,
+        phone_number: userData.phone_number || '',
+        gender: userData.gender,
+        address: userData.address || '',
+        user_img: userData?.user_img,
+        cccd: '',
+        cccd_img: null,
+      })
+    }
+  }, [userData])
 
   const handleSubmitCCCD = async (e) => {
     e.preventDefault()
@@ -84,23 +118,31 @@ const UserInfo = () => {
       reader.readAsDataURL(file)
     }
   }
-
   useEffect(() => {
-    const radios = document.getElementsByName('gender')
-    radios.forEach((radio) => {
-      if (radio.value === user.gender) {
-        radio.checked = true
-      }
-    })
-  }, [isLoading])
+    refetch()
+  }, [loading, refetch])
+  useEffect(() => {
+    if (userData) {
+      const radios = document.getElementsByName('gender')
+      radios.forEach((radio) => {
+        if (radio.value === userData.gender) {
+          radio.checked = true
+        }
+      })
+    }
+  }, [userData])
   const handleSubmit = (e) => {
     e.preventDefault()
     console.log(values)
-    dispatch(updateUser({ ...values, id: user.id }))
+    dispatch(updateUser({ ...values, id: userData.id }))
+  }
+  if (loading) {
+    return <Loading />
   }
   if (isLoading) {
     return <Loading />
   }
+  if (isError) return <p style={{ marginTop: '1rem' }}>{error.message}</p>
 
   return (
     <Wrapper>
@@ -159,7 +201,7 @@ const UserInfo = () => {
         <section className="row">
           <div className="col img-container mb-5 d-flex flex-column">
             <img
-              src={preview || user.user_img || defaultAvatar}
+              src={preview || userData?.user_img || defaultAvatar}
               alt="user image"
               className="user-img"
             />

@@ -30,6 +30,7 @@ import DateInput from './DateInput'
 import AddBook from './Manager/AddBook'
 import AddAttribute from './Manager/AddAttribute'
 import Loading from './Loading'
+import CommentSection from './CommentSection'
 
 export {
   MyNavbar,
@@ -64,4 +65,5 @@ export {
   AddBook,
   AddAttribute,
   Loading,
+  CommentSection,
 }

@@ -11,12 +11,19 @@ const {
   getSingleReview,
   updateReview,
   deleteReview,
+  getSingleBookReviews,
+  getCurrentUserReviewSingleBook,
 } = require('../controllers/review.controller')
 
 router
   .route('/')
   .post(authenticateUser, authorizePermissions('user'), createReview)
   .get(getAllReviews)
+
+router.route('/books/:id').get(getSingleBookReviews)
+router
+  .route('/getCurrentUserReviewSingleBook/:id')
+  .get(authenticateUser, getCurrentUserReviewSingleBook)
 
 router
   .route('/:id')

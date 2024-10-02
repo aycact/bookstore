@@ -1,6 +1,7 @@
 const { Sequelize, DataTypes, Model } = require('sequelize')
 const sequelize = require('../dbconfig')
 const Book = require('./book.model')
+const OrderItem = require('./oder_item.model')
 
 class Order extends Model {}
 
@@ -21,12 +22,7 @@ Order.init(
       type: DataTypes.STRING(15),
     },
     payment_method: {
-      type: DataTypes.ENUM(
-        'COD',
-        'Card',
-        'E-Wallet',
-        'Bank Transfer'
-      ),
+      type: DataTypes.ENUM('COD', 'Card', 'E-Wallet', 'Bank Transfer'),
       allowNull: false,
       defaultValue: 'COD',
     },
@@ -127,8 +123,21 @@ Order.afterUpdate(async (order, options) => {
     for (const item of bookList) {
       const book = await Book.findByPk(item.bookID)
       if (book) {
-        book.available_copies -= parseInt(item.amount)
-        await book.save()
+        try {
+          book.available_copies -= parseInt(item.amount)
+          await book.save()
+          const orderItem = await OrderItem.findOne({
+            where: { user_id: order.user_id, book_id: book.id },
+          })
+          if (!orderItem) {
+            await OrderItem.create({
+              user_id: order.user_id,
+              book_id: book.id,
+            })
+          }
+        } catch (error) {
+          console.error(error)
+        }
       }
     }
   }

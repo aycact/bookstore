@@ -1,13 +1,10 @@
 const { StatusCodes } = require('http-status-codes')
 const { Op } = require('sequelize')
-const { Book, Category } = require('../models')
+const { Book, Category, Author, Publisher } = require('../models')
 const Book_Info = require('../models/book_info.model')
-const Author = require('../models/author.model')
-const Publisher = require('../models/publisher.model')
 const CustomAPIError = require('../errors/')
 const asyncWrapper = require('../middleware/async')
 const path = require('path')
-const crypto = require('crypto')
 const cloudinary = require('cloudinary').v2
 const fs = require('fs')
 
@@ -126,18 +123,18 @@ const deleteBook = asyncWrapper(async (req, res) => {
 
 const uploadImage = async (req, res) => {
   if (!req.files) {
-    throw new CustomError.BadRequestError('No File Uploaded')
+    throw new CustomAPIError.BadRequestError('No File Uploaded')
   }
   const productImage = req.files.image
 
   if (!productImage.mimetype.startsWith('image')) {
-    throw new CustomError.BadRequestError('Please Upload Image')
+    throw new CustomAPIError.BadRequestError('Please Upload Image')
   }
 
   const maxSize = 1024 * 1024
 
   if (productImage.size > maxSize) {
-    throw new CustomError.BadRequestError(
+    throw new CustomAPIError.BadRequestError(
       'Please upload image smaller than 1MB'
     )
   }

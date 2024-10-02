@@ -1,7 +1,8 @@
-const { Review, Book } = require('../models')
+const { Review, Book, OrderItem, User } = require('../models')
 const CustomAPIError = require('../errors/')
 const checkPermissions = require('../utils/checkPermissions')
 const { StatusCodes } = require('http-status-codes')
+const sequelize = require('../dbconfig')
 
 const createReview = async (req, res) => {
   const { book_id } = req.body
@@ -25,9 +26,20 @@ const createReview = async (req, res) => {
     throw new CustomAPIError.BadRequestError('Bạn đã đánh giá sách này rồi!')
   }
 
+  const alreadyOrderedByUser = await OrderItem.findOne({
+    where: {
+      book_id,
+      user_id: req.user.userId,
+    },
+  })
+
+  if (!alreadyOrderedByUser) {
+    throw new CustomAPIError.BadRequestError('Bạn cần mua sản phẩm để đánh giá!')
+  }
+
   req.body.user_id = req.user.userId
-  
-  const review = await Review.create({...req.body})
+
+  const review = await Review.create({ ...req.body })
   res.status(StatusCodes.CREATED).json({ review })
 }
 
@@ -94,9 +106,40 @@ const deleteReview = async (req, res) => {
   res.status(StatusCodes.OK).json({ msg: 'Xóa đánh giá thành công' })
 }
 
+const getCurrentUserReviewSingleBook = async (req, res) => {
+  const { id } = req.params
+  const key = process.env.ENCRYPTED_KEY
+  const review = await Review.findOne({
+    where: { book_id: id, user_id: req.user.userId },
+    include: {
+      model: User,
+      attributes: [
+        [sequelize.literal(`pgp_sym_decrypt("name", '${key}')`), 'name'],
+        'user_img',
+      ],
+    },
+  })
+
+  if (review) {
+    return res.status(StatusCodes.OK).json({ review }) // trường hợp người dùng đã đánh giá
+  }
+  return res.status(StatusCodes.OK).json({ review: false }) // trường hợp người dùng chưa đánh giá
+}
+
 const getSingleBookReviews = async (req, res) => {
   const { id } = req.params
-  const reviews = await Review.findOne({ book_id: id })
+  const key = process.env.ENCRYPTED_KEY
+  const reviews = await Review.findAll({
+    where: { book_id: id },
+    order: [['created_at', 'DESC']],
+    include: {
+      model: User,
+      attributes: [
+        [sequelize.literal(`pgp_sym_decrypt("name", '${key}')`), 'name'],
+        'user_img',
+      ],
+    },
+  })
   res.status(StatusCodes.OK).json({ reviews, count: reviews.length })
 }
 
@@ -107,4 +150,5 @@ module.exports = {
   updateReview,
   deleteReview,
   getSingleBookReviews,
+  getCurrentUserReviewSingleBook,
 }

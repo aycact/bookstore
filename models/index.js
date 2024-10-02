@@ -6,6 +6,7 @@ const User = require('./user.model')
 const Publisher = require('./publisher.model')
 const Token = require('./token.model')
 const Review = require('./review.model')
+const OrderItem = require('./oder_item.model')
 
 Author.hasMany(Book, { foreignKey: 'author_id' })
 Book.belongsTo(Author, { foreignKey: 'author_id' })
@@ -25,6 +26,11 @@ Review.belongsTo(User, { foreignKey: 'user_id'})
 Book.hasMany(Review, { foreignKey: 'book_id' })
 Review.belongsTo(Book, { foreignKey: 'book_id' })
 
+User.hasMany(OrderItem, { foreignKey: 'user_id' })
+OrderItem.belongsTo(User, { foreignKey: 'user_id' })
+
+Book.hasMany(OrderItem, { foreignKey: 'book_id' })
+OrderItem.belongsTo(Book, { foreignKey: 'book_id' })
 
 module.exports = {
   Author,
@@ -35,4 +41,5 @@ module.exports = {
   Publisher,
   Token,
   Review,
+  OrderItem,
 }

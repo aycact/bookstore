@@ -4,13 +4,14 @@ import { addItem } from '../../features/cart/cartSlice'
 import { useDispatch, useSelector } from 'react-redux'
 import styled from 'styled-components'
 import { customFetch } from '../../utils/axios'
-import { MyBreadCrumb, SelectInput } from '../../components'
+import { CommentSection, MyBreadCrumb, SelectInput } from '../../components'
 import {
   quaternaryBgColorLight,
   shadow1,
   textColor,
 } from '../../assets/js/variables'
 import { formatPrice } from '../../utils'
+import StarRatings from 'react-star-ratings'
 
 // Query function
 const singleBookQuery = (id) => {
@@ -21,22 +22,35 @@ const singleBookQuery = (id) => {
   }
 }
 
+const singleBookReviewQuery = (id) => {
+  // trả về query object
+  return {
+    queryKey: ['singleBookReviewQuery', id || ''],
+    queryFn: () => customFetch(`/reviews/books/${id}`),
+  }
+}
+
 //loader
 export const loader =
   (queryClient) =>
   async ({ params }) => {
     const { id } = params
-    const response = await queryClient.ensureQueryData(singleBookQuery(id))
-    const book = response.data.book
-    return { book }
+    const [responseBook, responseReviews] = await Promise.all([
+      queryClient.ensureQueryData(singleBookQuery(id)),
+      queryClient.ensureQueryData(singleBookReviewQuery(id)),
+    ])
+    const book = responseBook.data.book
+    const reviews = responseReviews.data.reviews
+    return { book, reviews }
   }
 
 const SingleBook = () => {
   const defaultImg = 'https://via.placeholder.com/150'
   // data
   const { user } = useSelector((store) => store.user)
-  const { book } = useLoaderData()
+  const { book, reviews } = useLoaderData()
   const {
+    id: book_id,
     book_img,
     title,
     price,
@@ -47,6 +61,7 @@ const SingleBook = () => {
     category,
     author_id,
     page_number,
+    average_rating,
   } = book
   //  generate option
   const list = Array.from({ length: available_copies }, (_, i) => ({
@@ -75,7 +90,7 @@ const SingleBook = () => {
     category,
     publisher,
     available_copies,
-    page_number
+    page_number,
   }
   // Add to cart function
   const addToCart = () => {
@@ -113,6 +128,17 @@ const SingleBook = () => {
             >
               <p className="author-name">{author.name}</p>
             </Link>
+            <div className="d-flex align-items-center gap-3">
+              <StarRatings
+                rating={Number(average_rating) || 0}
+                starRatedColor="green"
+                numberOfStars={5}
+                name="rating"
+                starDimension="22px"
+              />
+              <p style={{ paddingTop: '6px' }}>{Number(average_rating) || 0}</p>
+            </div>
+            {/* basic info */}
             <div className="basic-info">
               <p className="publisher-name">{`Nhà xuất bản: ${publisher.name}`}</p>
               <p className="category">{`Thể loại: ${category.name}`}</p>
@@ -120,7 +146,7 @@ const SingleBook = () => {
               <p className="price">
                 Giá bán: <span className="fw-bold">{formatPrice(price)}</span>
               </p>
-              {user.role === 'admin' && (
+              {user?.role === 'admin' && (
                 <p className="book-amount ">
                   Số lượng hiện có:{' '}
                   <span className="fw-bold">{available_copies} quyển</span>
@@ -128,7 +154,7 @@ const SingleBook = () => {
               )}
             </div>
             {/* AMOUNT */}
-            {user.role !== 'admin' && (
+            {user?.role !== 'admin' && (
               <div className="">
                 <SelectInput
                   list={list}
@@ -139,7 +165,7 @@ const SingleBook = () => {
               </div>
             )}
             {/* SUBMIT BTN */}
-            {user.role !== 'admin' && (
+            {user?.role !== 'admin' && (
               <button className="btn" onClick={addToCart}>
                 Thêm vào giỏ hàng
               </button>
@@ -150,6 +176,7 @@ const SingleBook = () => {
           <p className="description">{description}</p>
         </div>
       </div>
+      <CommentSection book_id={book_id} reviews={reviews} />
     </Wrapper>
   )
 }
@@ -161,6 +188,7 @@ const Wrapper = styled.section`
     margin-top: 5rem;
     max-width: 100vw;
     padding: 3rem;
+    padding-bottom: 0;
   }
   .row {
     gap: 4rem;
