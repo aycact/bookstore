@@ -6,7 +6,7 @@ import { logo } from '../assets/images'
 import { useSelector, useDispatch } from 'react-redux'
 import { Link, useNavigate } from 'react-router-dom'
 import { useQueryClient } from '@tanstack/react-query'
-import '../assets/scss/Navbar.scss'
+import '../assets/css/Navbar.css'
 import styled from 'styled-components'
 import {
   primaryBgColorHover,

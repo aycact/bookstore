@@ -1,7 +1,7 @@
 import Badge from 'react-bootstrap/esm/Badge'
 import { GiTiedScroll, GiBullseye } from 'react-icons/gi'
 import { FaRegEye } from 'react-icons/fa'
-import '../../assets/scss/Card.scss'
+import '../../assets/css/Card.css'
 import FlipCard from '../FlipCard'
 
 const AspirationSegment = () => {

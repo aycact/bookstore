@@ -1,4 +1,4 @@
-import '../../assets/scss/About.scss'
+import '../../assets/css/About.css'
 import { aboutImage } from '../../assets/images'
 import Badge from 'react-bootstrap/Badge'
 
