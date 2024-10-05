@@ -7,7 +7,7 @@ import { browserslistToTargets } from 'lightningcss'
 export default defineConfig({
   css: {
     lightningcss: {
-      targets: browserslistToTargets(browserslist('>= 0.25%')),
+      targets: browserslistToTargets(browserslist('last 2 versions')),
     }
   },
   build: {
