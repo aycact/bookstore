@@ -24,7 +24,7 @@ const AspirationSegment = () => {
         <FlipCard
           IconComponent={FaRegEye}
           title={
-            'Đọc giả'
+            'Độc giả'
           }
           description={'Xây dựng một cộng đồng đọc giả yêu sách, cùng nhau chia sẻ kiến thức và lan tỏa đam mê đọc sách đến mọi người.'}
         />
