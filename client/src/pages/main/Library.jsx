@@ -1,6 +1,6 @@
 import React from 'react'
 import { LibraryContainer, MyBreadCrumb } from '../../components'
-import '../../assets/css/Library.css'
+import '../../assets/scss/Library.scss'
 import { customFetch } from '../../utils/axios'
 
 const url = '/books'

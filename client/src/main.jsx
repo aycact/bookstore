@@ -6,7 +6,7 @@ import { Provider } from 'react-redux'
 import store from './store'
 import { ToastContainer } from 'react-toastify'
 import 'react-toastify/dist/ReactToastify.css'
-import '../src/assets/css/App.css'
+import '../src/assets/scss/App.scss'
 import { LocalizationProvider } from '@mui/x-date-pickers'
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs'
 
