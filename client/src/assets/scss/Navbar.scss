@@ -12,12 +12,12 @@
     margin: 0 5px;
     border-radius: 10px;
     &:hover {
-      background-color: $primary-bg-color-hover; // Thay đổi màu khi hover
+      background-color: $primary-bg-color-hover;
       color: $tertiary-bg-color;
     }
     &:focus,
     &:active {
-      background-color: $primary-bg-color-hover; // Thay đổi màu khi hover
+      background-color: $primary-bg-color-hover;
       color: $tertiary-bg-color;
     }
   }
@@ -33,7 +33,7 @@
     .dropdown-item {
       background-color: $quaternary-bg-color;
       &:hover {
-        background-color: $quaternary-bg-color-hover; // Thay đổi màu khi hover
+        background-color: $quaternary-bg-color-hover;
       }
     }
   }
