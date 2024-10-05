@@ -10,7 +10,7 @@ import {
   boldTextColor,
 } from '../../assets/js/variables'
 
-const CartTotals = () => {
+const OrderSummary = () => {
   const { cartTotal, shipping, tax, orderTotal } = useSelector(
     (store) => store.cart
   )
@@ -41,7 +41,7 @@ const CartTotals = () => {
     </Wrapper>
   )
 }
-export default CartTotals
+export default OrderSummary
 
 const Wrapper = styled.section`
 margin-bottom: 1rem;

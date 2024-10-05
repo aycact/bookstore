@@ -19,7 +19,7 @@ import SelectInput from './SelectInput'
 import BookList from './Library/BookList'
 import CartItem from './Cart/CartItem'
 import CartItemsList from './Cart/CartItemsList'
-import CartTotals from './Cart/CartTotals'
+import OrderSummary from './Cart/OrderSummary'
 import SectionTitle from './SectionTitle'
 import RadiosInput from './RadiosInput'
 import CheckboxInput from './CheckboxInput'
@@ -31,6 +31,9 @@ import AddBook from './Manager/AddBook'
 import AddAttribute from './Manager/AddAttribute'
 import Loading from './Loading'
 import CommentSection from './CommentSection'
+import OrderItemsList from './Order/OrderItemsList'
+import CustomerContactInfo from './Order/CustomerContactInfo'
+import ShippingAddress from './Order/ShippingAddress'
 
 export {
   MyNavbar,
@@ -54,7 +57,7 @@ export {
   BookList,
   CartItem,
   CartItemsList,
-  CartTotals,
+  OrderSummary,
   SectionTitle,
   RadiosInput,
   CheckboxInput,
@@ -66,4 +69,7 @@ export {
   AddAttribute,
   Loading,
   CommentSection,
+  OrderItemsList,
+  CustomerContactInfo,
+  ShippingAddress,
 }

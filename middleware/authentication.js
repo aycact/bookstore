@@ -8,7 +8,7 @@ const authenticateUser = async (req, res, next) => {
     // Kiểm tra access token có valid ko
     if (accessToken) {
       const payload = isTokenValid(accessToken)
-      req.user = payload
+      req.user = payload.user      
       return next()
     }
     // Kiểm tra refresh token có valid ko

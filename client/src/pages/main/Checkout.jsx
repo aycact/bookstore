@@ -1,8 +1,9 @@
 import {
   SectionTitle,
-  CartTotals,
+  OrderSummary,
   FormInput,
   RadiosInput,
+  Loading,
 } from '../../components'
 import {
   quaternaryBgColorLight,
@@ -20,6 +21,7 @@ import { clearCart } from '../../features/cart/cartSlice'
 import { PayPalScriptProvider, PayPalButtons } from '@paypal/react-paypal-js'
 import { customFetch } from '../../utils/axios'
 import { toast } from 'react-toastify'
+import { useQuery } from '@tanstack/react-query'
 
 const client_id = import.meta.env.VITE_PAYPAL_CLIENT_ID
 const client_secret = import.meta.env.VITE_PAYPAL_CLIENT_SECRET
@@ -35,27 +37,52 @@ const initialOptions = {
   'data-sdk-integration-source': 'developer-studio',
 }
 
-const paymentMethods = [
-  'COD',
-  'Card',
-  'E-Wallet',
-  'Bank Transfer',
-]
+const paymentMethods = ['COD', 'Card', 'E-Wallet', 'Bank Transfer']
+
+const showCurrentUser = () => {
+  const {
+    isLoading,
+    data: userData,
+    error,
+    isError,
+    refetch,
+  } = useQuery({
+    queryKey: ['showMe'],
+    queryFn: async () => {
+      const response = await customFetch(`/users/showMe`) // đảm bảo sử dụng await đúng cách
+      return response.data // trả về dữ liệu cần thiết
+    },
+  })
+
+  return { isLoading, userData, error, isError, refetch }
+}
 
 const Checkout = () => {
+  const dispatch = useDispatch()
   const [message, setMessage] = useState('')
-  const { user } = useSelector((store) => store.user)
+  const [loading, setLoading] = useState(false)
+  const { isLoading, userData, error, isError, refetch } = showCurrentUser()
+
   const [values, setValues] = useState({
-    recipientName: user.name,
-    recipientAddress: user.address,
-    recipientPhoneNumber: user.phoneNumber,
+    recipientName: userData?.name || '',
+    recipientAddress: userData?.address || '',
+    recipientPhoneNumber: userData?.phone_number || '',
     paymentMethods: 'COD',
   })
 
-  const { cartItems, cartTotal, shipping, tax, orderTotal } = useSelector(
-    (store) => store.cart
-  )
-  const dispatch = useDispatch()
+  useEffect(() => {
+    if (userData) {
+      setValues({
+        recipientName: userData?.name || '',
+        recipientAddress: userData?.address || '',
+        recipientPhoneNumber: userData?.phone_number || '',
+        paymentMethods: 'COD',
+      })
+    }
+  }, [userData])
+
+  const { cartItems, cartTotal, shipping, tax, orderTotal, numItemsInCart } =
+    useSelector((store) => store.cart)
 
   useEffect(() => {
     const radios = document.getElementsByName('paymentMethods')
@@ -64,7 +91,7 @@ const Checkout = () => {
         radio.checked = true
       }
     })
-  }, [])
+  }, [loading, isLoading])
 
   const handleChange = (e) => {
     const name = e.target.name
@@ -86,19 +113,20 @@ const Checkout = () => {
   const createPaypalOrder = async () => {
     try {
       const order = {
-        customer_email: user.email,
-        shipping_address: values.recipientAddress || user.address,
+        customer_email: userData?.email,
+        shipping_address: values.recipientAddress || userData?.address,
         payment_method: values.paymentMethods,
         book_list: cartItems,
         subtotal: cartTotal,
         shipping_fee: shipping,
         tax,
         cart_total: orderTotal,
-        user_id: user.userId,
-        recipient_name: values.recipientName || user.name,
-        recipient_phone: values.recipientPhoneNumber || user.phoneNumber,
+        user_id: userData?.id,
+        recipient_name: values.recipientName || userData?.name,
+        recipient_phone: values.recipientPhoneNumber || userData?.phone_number,
       }
-
+      console.log(order);
+      
       if (
         !order.shipping_address ||
         !order.recipient_name ||
@@ -186,40 +214,52 @@ const Checkout = () => {
 
   const handleSubmit = (e) => {
     e.preventDefault()
+    try {
+      setLoading(true)
+      const order = {
+        customer_email: userData.email,
+        shipping_address: values.recipientAddress || userData.address,
+        payment_method: values.paymentMethods,
+        book_list: cartItems,
+        subtotal: cartTotal,
+        shipping_fee: shipping,
+        tax,
+        cart_total: orderTotal,
+        user_id: userData?.id,
+        recipient_name: values.recipientName || userData.name,
+        recipient_phone: values.recipientPhoneNumber || userData.phone_number,
+      }
 
-    // Lưu giá trị và đưa đến trang thanh toán
-    const order = {
-      customer_email: user.email,
-      shipping_address: values.recipientAddress || user.address,
-      payment_method: values.paymentMethods,
-      book_list: cartItems,
-      subtotal: cartTotal,
-      shipping_fee: shipping,
-      tax,
-      cart_total: orderTotal,
-      user_id: user.userId,
-      recipient_name: values.recipientName || user.name,
-      recipient_phone: values.recipientPhoneNumber || user.phoneNumber,
-    }
+      if (
+        !order.shipping_address ||
+        !order.recipient_name ||
+        !order.recipient_phone
+      ) {
+        toast.warning('Xin hãy điền đầy đủ thông tin thanh toán!')
+        return
+      }
 
-    if (
-      !order.shipping_address ||
-      !order.recipient_name ||
-      !order.recipient_phone
-    ) {
-      toast.warning('Xin hãy điền đầy đủ thông tin thanh toán!')
-      return
-    }
-
-    if (order.payment_method === 'COD') {
-      dispatch(createOrder(order))
-      dispatch(clearCart())
-    } else {
-      console.log('Loading...')
+      if (order.payment_method === 'COD') {
+        dispatch(createOrder(order))
+        dispatch(clearCart())
+      } else {
+        console.log('Loading...')
+      }
+    } catch (error) {
+      console.log(error)
+    } finally {
+      setLoading(false)
     }
   }
 
-  const { numItemsInCart } = useSelector((store) => store.cart)
+  if (loading) {
+    return <Loading />
+  }
+  if (isLoading) {
+    return <Loading />
+  }
+  if (isError) return <p style={{ marginTop: '1rem' }}>{error.message}</p>
+
   if (numItemsInCart === 0)
     return (
       <Wrapper>
@@ -285,7 +325,7 @@ const Checkout = () => {
             <div
               className="btn-container"
               style={{
-                width: values.paymentMethods !== ('COD') ? '100%' : '0rem',
+                width: values.paymentMethods !== 'COD' ? '100%' : '0rem',
               }}
             >
               <PayPalScriptProvider
@@ -304,7 +344,7 @@ const Checkout = () => {
         {/* cart total chiếm 4 cột */}
         <div className="col-5 checkout-column">
           <div className="total-container">
-            <CartTotals />
+            <OrderSummary />
           </div>
         </div>
       </div>

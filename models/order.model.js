@@ -63,14 +63,15 @@ Order.init(
     },
     status: {
       type: DataTypes.ENUM(
-        'pending',
-        'paid',
-        'failed',
-        'delivered',
-        'cancelled'
+        'chờ xác nhận',
+        'chờ lấy hàng',
+        'đang vận chuyển',
+        'đã giao',
+        'đã hủy',
+        'trả hàng'
       ),
       allowNull: false,
-      defaultValue: 'pending',
+      defaultValue: 'chờ xác nhận',
     },
     terms_accepted: {
       type: DataTypes.BOOLEAN,
@@ -96,6 +97,16 @@ Order.init(
         key: 'id',
       },
     },
+    is_paid: {
+      type: DataTypes.BOOLEAN,
+      allowNull: false,
+      defaultValue: false,
+    },
+    request_cancel: {
+      type: DataTypes.BOOLEAN,
+      allowNull: false,
+      defaultValue: false,
+    }
   },
   {
     defaultScope: {
@@ -118,7 +129,7 @@ Order.init(
 )
 
 Order.afterUpdate(async (order, options) => {
-  if (order.status === 'paid') {
+  if (order.status === 'đã giao') {
     const bookList = order.book_list
     for (const item of bookList) {
       const book = await Book.findByPk(item.bookID)

@@ -33,7 +33,9 @@ const showCurrentUser = async (req, res) => {
   res
     .status(StatusCodes.OK)
     .json({
+      id: user.id,
       name: user.name,
+      email: user.email,
       phone_number: user.phone_number || "",
       gender: user?.gender,
       address: user?.address || "",
