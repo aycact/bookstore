@@ -11,7 +11,7 @@ const isTokenValid = (token) => jwt.verify(token, process.env.JWT_SECRET)
 
 const attachCookiesToResponse = ({ res, user, refreshToken }) => {
   //Tạo 2 token
-  const accessTokenJWT = createJWT({ payload: user }) // dùng để truy cập vào secured resources
+  const accessTokenJWT = createJWT({ payload: { user } }) // dùng để truy cập vào secured resources
   const refreshTokenJWT = createJWT({ payload: { user, refreshToken } }) //dùng để refresh access token
 
   const oneDay = 1000 * 60 * 60 * 24

@@ -7,6 +7,15 @@ const hashString = require('./createHash')
 const handleResponse = require('./handleResponse')
 const generateAccessTokenPaypal = require('./generateAccessTokenPaypal')
 const isValidCCCD = require('./checkIdCard')
+
+const formatPrice = (price) => {
+  const VND = new Intl.NumberFormat('vi-VN', {
+    style: 'currency',
+    currency: 'VND',
+  }).format((price * 1000).toFixed(2))
+  return VND
+}
+
 module.exports = {
   createJWT,
   isTokenValid,
@@ -19,4 +28,5 @@ module.exports = {
   handleResponse,
   generateAccessTokenPaypal,
   isValidCCCD,
+  formatPrice,
 }

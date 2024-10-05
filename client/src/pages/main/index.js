@@ -10,6 +10,7 @@ import Order from "./Order";
 import UserInfo from "./UserInfo";
 import Manager from "./Manager";
 import SingleAuthor from "./SingleAuthor";
+import SingleOrder from "./SingleOrder";
 
 export {
   SharedLayout,
@@ -24,4 +25,5 @@ export {
   Order,
   UserInfo,
   Manager,
+  SingleOrder,
 }

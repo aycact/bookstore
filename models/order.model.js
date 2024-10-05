@@ -1,6 +1,7 @@
 const { Sequelize, DataTypes, Model } = require('sequelize')
 const sequelize = require('../dbconfig')
 const Book = require('./book.model')
+const OrderItem = require('./oder_item.model')
 
 class Order extends Model {}
 
@@ -21,12 +22,7 @@ Order.init(
       type: DataTypes.STRING(15),
     },
     payment_method: {
-      type: DataTypes.ENUM(
-        'COD',
-        'Card',
-        'E-Wallet',
-        'Bank Transfer'
-      ),
+      type: DataTypes.ENUM('COD', 'Card', 'E-Wallet', 'Bank Transfer'),
       allowNull: false,
       defaultValue: 'COD',
     },
@@ -67,14 +63,15 @@ Order.init(
     },
     status: {
       type: DataTypes.ENUM(
-        'pending',
-        'paid',
-        'failed',
-        'delivered',
-        'cancelled'
+        'chờ xác nhận',
+        'chờ lấy hàng',
+        'đang vận chuyển',
+        'đã giao',
+        'đã hủy',
+        'trả hàng'
       ),
       allowNull: false,
-      defaultValue: 'pending',
+      defaultValue: 'chờ xác nhận',
     },
     terms_accepted: {
       type: DataTypes.BOOLEAN,
@@ -100,6 +97,16 @@ Order.init(
         key: 'id',
       },
     },
+    is_paid: {
+      type: DataTypes.BOOLEAN,
+      allowNull: false,
+      defaultValue: false,
+    },
+    request_cancel: {
+      type: DataTypes.BOOLEAN,
+      allowNull: false,
+      defaultValue: false,
+    }
   },
   {
     defaultScope: {
@@ -122,13 +129,26 @@ Order.init(
 )
 
 Order.afterUpdate(async (order, options) => {
-  if (order.status === 'paid') {
+  if (order.status === 'đã giao') {
     const bookList = order.book_list
     for (const item of bookList) {
       const book = await Book.findByPk(item.bookID)
       if (book) {
-        book.available_copies -= parseInt(item.amount)
-        await book.save()
+        try {
+          book.available_copies -= parseInt(item.amount)
+          await book.save()
+          const orderItem = await OrderItem.findOne({
+            where: { user_id: order.user_id, book_id: book.id },
+          })
+          if (!orderItem) {
+            await OrderItem.create({
+              user_id: order.user_id,
+              book_id: book.id,
+            })
+          }
+        } catch (error) {
+          console.error(error)
+        }
       }
     }
   }

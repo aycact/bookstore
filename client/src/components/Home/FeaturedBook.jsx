@@ -13,7 +13,7 @@ const FeaturedBook = ({ newBooks, title, maxWidthItems, gap }) => {
         lg={maxWidthItems}
         className={`${gap} g-5 justify-content-start`}
       >
-        {newBooks.map((book) => {
+        {newBooks?.map((book) => {
           return <BookItem book={book} key={book.id} />
         })}
       </Row>

@@ -6,6 +6,47 @@ export const formatPrice = (price) => {
   return VND
 }
 
+export const formatVNTimeZoneDate = (datetime) => {
+  const dateUTC = datetime
+
+  // Chuyển đổi chuỗi thời gian thành đối tượng Date
+  const date = new Date(dateUTC)
+
+  // Định dạng lại thời gian theo múi giờ Việt Nam (GMT+7)
+  const options = {
+    timeZone: 'Asia/Ho_Chi_Minh', // Múi giờ Việt Nam
+    year: 'numeric',
+    month: '2-digit',
+    day: '2-digit',
+    hour: '2-digit',
+    minute: '2-digit',
+    second: '2-digit',
+  }
+
+
+  const formatter = new Intl.DateTimeFormat('vi-VN', options)
+  const dateInVietnamTime = formatter.format(date)
+
+  return dateInVietnamTime
+}
+
+export const ratingTitle = (rating) => {
+  switch(rating) {
+    case 1:
+      return 'Rất không hài lòng'
+    case 2:
+      return 'Không hài lòng'
+    case 3:
+      return 'Bình thường'
+    case 4:
+      return 'Hài lòng'
+    case 5:
+      return 'Cực kì hài lòng'
+    default:
+      return 'Chưa đánh giá'
+  }
+}
+
 export const getCurrentDateTime = () => {
   const now = new Date()
 

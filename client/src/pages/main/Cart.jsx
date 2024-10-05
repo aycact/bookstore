@@ -1,6 +1,6 @@
 import { useSelector } from 'react-redux'
 import { Link } from 'react-router-dom'
-import { SectionTitle, CartTotals, CartItemsList } from '../../components'
+import { SectionTitle, OrderSummary, CartItemsList } from '../../components'
 import styled from 'styled-components'
 import {
   quaternaryBgColorLight,
@@ -35,7 +35,7 @@ const Cart = () => {
         {/* cart total chiếm 4 cột */}
         <div className="col-4 checkout-column">
           <div className="checkout-container">
-            <CartTotals />
+            <OrderSummary />
             {user ? (
               <Link to="/checkout" className="btn">
                 Đặt hàng

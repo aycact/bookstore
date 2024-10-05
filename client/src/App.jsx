@@ -11,7 +11,8 @@ import {
   Cart,
   Order,
   UserInfo,
-  Manager
+  Manager,
+  SingleOrder
 } from './pages/main'
 import VerifyEmail from './pages/VerifyEmail'
 import { ProtectedRoute, Error } from './pages'
@@ -24,6 +25,7 @@ import { loader as verifyEmailLoader } from './pages/VerifyEmail'
 import { loader as singleBookLoader } from './pages/main/SingleBook'
 import { loader as singleAuthorLoader } from './pages/main/SingleAuthor'
 import { loader as newBookLoader} from './pages/main/Home'
+import { loader as singleUserOrder } from './pages/main/SingleOrder'
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -51,6 +53,11 @@ const router = createBrowserRouter([
         loader: libraryLoader(queryClient),
       },
       {
+        path: 'library/:id',
+        element: <SingleBook />,
+        loader: singleBookLoader(queryClient),
+      },
+      {
         path: 'cart',
         element: <Cart />,
       },
@@ -71,9 +78,13 @@ const router = createBrowserRouter([
         ),
       },
       {
-        path: 'library/:id',
-        element: <SingleBook />,
-        loader: singleBookLoader(queryClient),
+        path: 'order/:id',
+        element: (
+          <ProtectedRoute>
+            <SingleOrder />
+          </ProtectedRoute>
+        ),
+        loader: singleUserOrder(queryClient),
       },
       {
         path: 'author/:id',

@@ -7,8 +7,8 @@ const authenticateUser = async (req, res, next) => {
   try {
     // Kiểm tra access token có valid ko
     if (accessToken) {
-      payload = isTokenValid(accessToken)
-      req.user = payload.user
+      const payload = isTokenValid(accessToken)
+      req.user = payload.user      
       return next()
     }
     // Kiểm tra refresh token có valid ko
@@ -31,7 +31,7 @@ const authenticateUser = async (req, res, next) => {
     req.user = payload.user
     next()
   } catch (error) {
-    throw new CustomError.UnauthenticatedError('Authentication Invalid')
+    throw new CustomError.UnauthenticatedError(error)
   }
 }
 

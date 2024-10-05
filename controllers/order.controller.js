@@ -1,6 +1,5 @@
 const Order = require('../models/order.model')
 const Book = require('../models/book.model')
-const crypto = require('crypto')
 const { v4: uuidv4 } = require('uuid')
 const fetch = require('node-fetch')
 
@@ -79,8 +78,9 @@ const createPaypalOrder = async (cart) => {
     subtotal += book.amount * price
   }
   // calculate total
-  const total = tax + shipping_fee + subtotal
-  if (total !== cart_total)
+  const total =  tax + shipping_fee + subtotal
+
+  if (Math.ceil(total) !== Math.ceil(cart_total))
     throw new CustomAPIError.BadRequestError(
       'Have different in total price between client and server!'
     )
@@ -107,7 +107,7 @@ const createPaypalOrder = async (cart) => {
         reference_id: orderId,
         amount: {
           currency_code: 'USD',
-          value: subtotal,
+          value: total,
         },
       },
     ],
@@ -159,7 +159,7 @@ const capturePaypalOrder = async (orderID, userId) => {
       `No order with id : ${invoice?.purchase_units[0]?.reference_id}`
     )
   }
-  order.status = 'paid'
+  order.is_paid = true
   order.payment_intent_id = invoice?.purchase_units[0]?.payments?.captures?.id
   await order.save()
   return {
@@ -272,127 +272,6 @@ const createOrder = async (req, res) => {
     .json({ order, clientSecret: order.clientSecret })
 }
 
-// const createPaypalOrder = async (req, res) => {
-//   const orderId = uuidv4()
-//   const paypalRequestId = uuidv4()
-
-//   const {
-//     book_list,
-//     tax,
-//     shipping_fee,
-//     cart_total,
-//     customer_email,
-//     shipping_address,
-//     recipient_name,
-//     recipient_phone,
-//     payment_method,
-//     client_id,
-//   } = req.body
-
-//   if (
-//     !recipient_name ||
-//     !customer_email ||
-//     !recipient_phone ||
-//     !shipping_address ||
-//     !payment_method
-//   ) {
-//     throw new CustomAPIError.BadRequestError('Please provide customer details')
-//   }
-
-//   if (!book_list || book_list.length < 1) {
-//     throw new CustomAPIError.BadRequestError('No cart items provided')
-//   }
-
-//   if (!tax || !shipping_fee || !cart_total) {
-//     throw new CustomAPIError.BadRequestError(
-//       'Please provide tax and shipping fee and cart total'
-//     )
-//   }
-
-//   let orderItems = []
-//   let subtotal = 0
-//   for (const book of book_list) {
-//     const dbBook = await Book.findByPk(book.bookId)
-//     if (!dbBook) {
-//       throw new CustomAPIError.NotFoundError(`No book with id : ${book.bookId}`)
-//     }
-//     const { title, price, book_img, id } = dbBook
-//     const singleOrderItem = {
-//       amount: book.amount,
-//       title,
-//       price,
-//       book_img,
-//       bookID: id,
-//     }
-//     // add item to order
-//     orderItems = [...orderItems, singleOrderItem]
-//     // calculate subtotal
-//     subtotal += book.amount * price
-//   }
-//   // calculate total
-//   const total = tax + shipping_fee + subtotal
-//   if (total !== cart_total)
-//     throw new CustomAPIError.BadRequestError(
-//       'Have different in total price between client and server!'
-//     )
-//   // get client secret
-
-//   const order = await Order.create({
-//     id: orderId,
-//     customer_email,
-//     shipping_address,
-//     recipient_name,
-//     recipient_phone,
-//     payment_method,
-//     book_list: orderItems,
-//     subtotal, // trị giá đơn hàng có tính phí ship và thuế
-//     shipping_fee,
-//     tax,
-//     total,
-//     user_id: req.user.userId,
-//   })
-
-//   const { id: paypalOrderId } = await fetch(
-//     'https://api-m.sandbox.paypal.com/v2/checkout/orders',
-//     {
-//       method: 'POST',
-//       headers: {
-//         'Content-Type': 'application/json',
-//         'PayPal-Request-Id': paypalRequestId,
-//         Authorization: `Basic ${client_id}`,
-//       },
-//       body: JSON.stringify({
-//         intent: 'CAPTURE',
-//         purchase_units: [
-//           {
-//             reference_id: orderId,
-//             amount: { currency_code: 'USD', value: total },
-//             item: orderItems,
-//           },
-//         ],
-//       }),
-//     }
-//   )
-
-//   return res.status(StatusCodes.CREATED).json({ order, paypalOrderId })
-
-//   // const order = await Order.create({
-//   //   customer_name,
-//   //   customer_email,
-//   //   customer_phone,
-//   //   shipping_address,
-//   //   recipient_name,
-//   //   recipient_phone,
-//   //   payment_method,
-//   //   book_list: JSON.stringify(orderItems),
-//   //   subtotal, // trị giá đơn hàng có tính phí ship và thuế
-//   //   shipping_fee,
-//   //   tax,
-//   //   total,
-//   //   user_id: req.user.userId,
-//   //   client_secret: paymentIntent.client_secret,
-//   // })
-// }
 
 const getAllOrders = async (req, res) => {
   const order = [['created_at', 'DESC']]
@@ -470,6 +349,22 @@ const updateOrder = async (req, res) => {
   res.status(StatusCodes.OK).json({ order })
 }
 
+const requestCancelOrder = async (req, res) => {
+  const { id: orderId } = req.params
+  checkPermissions(req.user, order.user_id)
+  const order = await Order.findByPk(orderId)
+  if (!order) {
+    throw new CustomAPIError.NotFoundError(`Không thể tìm được đơn hàng ${orderId}`)
+  }
+  if(order.status !== 'chờ xác nhận')
+    throw new CustomAPIError.BadRequestError(
+      `Đơn hàng đã được xác nhận. Vui lòng liên hệ nhân viên để xử lý!`
+    )
+  order.request_cancel = true
+  order.save()
+  res.status(StatusCodes.OK).json({ msg: 'Yêu cầu hủy đơn hàng đã được gửi!' })
+}
+
 module.exports = {
   getAllOrders,
   getSingleOrder,
@@ -478,4 +373,5 @@ module.exports = {
   createPaypalOrder,
   updateOrder,
   capturePaypalOrder,
+  requestCancelOrder,
 }

@@ -15,17 +15,6 @@ Review.init(
         notNull: { msg: 'Please provide rating' },
       },
     },
-    title: {
-      type: DataTypes.STRING,
-      allowNull: false,
-      validate: {
-        notNull: { msg: 'Please provide review title' },
-        len: {
-          args: [0, 100],
-          msg: 'Title must be less than or equal to 100 characters',
-        },
-      },
-    },
     comment: {
       type: DataTypes.TEXT,
       allowNull: false,
@@ -80,9 +69,7 @@ Review.calculateAverageRating = async function (book_id) {
     raw: true,
   })
 
-  const averageRating = result[0].averageRating
-    ? Math.ceil(result[0].averageRating)
-    : 0
+  const averageRating = result[0].averageRating ? result[0].averageRating : 0
   const numOfReviews = result[0].numOfReviews || 0
 
   try {
