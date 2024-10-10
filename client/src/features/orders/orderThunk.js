@@ -7,7 +7,7 @@ export const getAllOrdersThunk = async (_, thunkAPI) => {
       params: { page },
     })
     return resp.data
-  } catch (e) {
+  } catch (error) {
     return checkForUnauthorizedResponse(error, thunkAPI)
   }
 }
@@ -19,7 +19,7 @@ export const getUserOrderThunk = async (_, thunkAPI) => {
       params: { page },
     })
     return resp.data
-  } catch (e) {
+  } catch (error) {
     return checkForUnauthorizedResponse(error, thunkAPI)
   }
 }

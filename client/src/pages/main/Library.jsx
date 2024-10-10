@@ -1,7 +1,8 @@
 import React from 'react'
 import { LibraryContainer, MyBreadCrumb } from '../../components'
-import '../../assets/scss/Library.scss'
 import { customFetch } from '../../utils/axios'
+import styled from 'styled-components'
+import { quaternaryBgColorLight } from '../../assets/js/variables'
 
 const url = '/books'
 
@@ -42,11 +43,20 @@ const Library = () => {
     { label: 'Sách', path: '/library', active: true },
   ]
   return (
-    <div className="library">
-      <MyBreadCrumb breadcrumbItems={breadcrumbItems} />
-      <LibraryContainer />
-    </div>
+    <Wrapper>
+      <div className="library">
+        <MyBreadCrumb breadcrumbItems={breadcrumbItems} />
+        <LibraryContainer />
+      </div>
+    </Wrapper>
   )
 }
 
 export default Library
+
+const Wrapper = styled.section`
+  .library .library-container {
+    background-color: ${quaternaryBgColorLight};
+    padding: 0 5rem;
+  }
+`

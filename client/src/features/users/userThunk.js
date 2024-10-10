@@ -6,7 +6,6 @@ import { clearUserInfo } from './userSlice'
 export const registerUserThunk = async (url, user, thunkAPI) => {
   try {
     const resp = await customFetch.post(url, user)
-
     return resp.data
   } catch (error) {
     const message = error.response?.data?.msg || 'Register failed!'
@@ -17,8 +16,6 @@ export const registerUserThunk = async (url, user, thunkAPI) => {
 export const loginUserThunk = async (url, user, thunkAPI) => {
   try {
     const resp = await customFetch.post(url, user)
-    console.log(resp)
-
     return resp.data
   } catch (error) {
     const message = error.response?.data?.msg || 'Login error!'

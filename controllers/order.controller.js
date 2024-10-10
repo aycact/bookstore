@@ -1,5 +1,5 @@
-const Order = require('../models/order.model')
-const Book = require('../models/book.model')
+const { Book, Order, Author } = require('../models')
+
 const { v4: uuidv4 } = require('uuid')
 const fetch = require('node-fetch')
 
@@ -60,17 +60,26 @@ const createPaypalOrder = async (cart) => {
   let orderItems = []
   let subtotal = 0
   for (const book of book_list) {
-    const dbBook = await Book.findByPk(book.bookId)
+    const dbBook = await Book.findOne({
+      where: { id: book.bookId },
+      include: [
+        {
+          model: Author,
+          attributes: ['name'],
+        },
+      ],
+    })
     if (!dbBook) {
       throw new CustomAPIError.NotFoundError(`No book with id : ${book.bookId}`)
     }
-    const { title, price, book_img, id } = dbBook
+    const { title, price, book_img, id, author } = dbBook
     const singleOrderItem = {
       amount: book.amount,
       title,
       price,
       book_img,
       bookID: id,
+      author: author.name,
     }
     // add item to order
     orderItems = [...orderItems, singleOrderItem]
@@ -78,7 +87,7 @@ const createPaypalOrder = async (cart) => {
     subtotal += book.amount * price
   }
   // calculate total
-  const total =  tax + shipping_fee + subtotal
+  const total = tax + shipping_fee + subtotal
 
   if (Math.ceil(total) !== Math.ceil(cart_total))
     throw new CustomAPIError.BadRequestError(
@@ -149,8 +158,7 @@ const capturePaypalOrder = async (orderID, userId) => {
   })
 
   const invoice = await response.json()
-  console.log(invoice.status);
-  
+  console.log(invoice.status)
 
   // // Cập nhật order vào postgres
   const order = await Order.findByPk(invoice?.purchase_units[0]?.reference_id)
@@ -203,17 +211,26 @@ const createOrder = async (req, res) => {
   let orderItems = []
   let subtotal = 0
   for (const book of book_list) {
-    const dbBook = await Book.findByPk(book.bookId)
+    const dbBook = await Book.findOne({
+      where: { id: book.bookId },
+      include: [
+        {
+          model: Author,
+          attributes: ['name'],
+        },
+      ],
+    })
     if (!dbBook) {
       throw new CustomAPIError.NotFoundError(`No book with id : ${book.bookId}`)
     }
-    const { title, price, book_img, id } = dbBook
+    const { title, price, book_img, id, author } = dbBook
     const singleOrderItem = {
       amount: book.amount,
       title,
       price,
       book_img,
       bookID: id,
+      author: author.name,
     }
     // add item to order
     orderItems = [...orderItems, singleOrderItem]
@@ -272,9 +289,11 @@ const createOrder = async (req, res) => {
     .json({ order, clientSecret: order.clientSecret })
 }
 
-
 const getAllOrders = async (req, res) => {
-  const order = [['created_at', 'DESC']]
+  const order = [
+    ['request_cancel', 'DESC'],
+    ['created_at', 'DESC'],
+  ]
 
   const page = Number(req.query.page) || 1
   const limit = Number(req.query.limit) || 12
@@ -327,7 +346,7 @@ const getCurrentUserOrders = async (req, res) => {
     .json({ orders, meta: { page, numOfPages, totalOrders } })
 }
 // đã thanh toán
-const updateOrder = async (req, res) => {
+const updatePaidOrder = async (req, res) => {
   const { id: orderId } = req.params
   const order = await Order.findByPk(orderId)
   if (!order) {
@@ -351,12 +370,14 @@ const updateOrder = async (req, res) => {
 
 const requestCancelOrder = async (req, res) => {
   const { id: orderId } = req.params
-  checkPermissions(req.user, order.user_id)
   const order = await Order.findByPk(orderId)
   if (!order) {
-    throw new CustomAPIError.NotFoundError(`Không thể tìm được đơn hàng ${orderId}`)
+    throw new CustomAPIError.NotFoundError(
+      `Không thể tìm được đơn hàng ${orderId}`
+    )
   }
-  if(order.status !== 'chờ xác nhận')
+  checkPermissions(req.user, order.user_id)
+  if (order.status !== 'chờ xác nhận')
     throw new CustomAPIError.BadRequestError(
       `Đơn hàng đã được xác nhận. Vui lòng liên hệ nhân viên để xử lý!`
     )
@@ -365,13 +386,24 @@ const requestCancelOrder = async (req, res) => {
   res.status(StatusCodes.OK).json({ msg: 'Yêu cầu hủy đơn hàng đã được gửi!' })
 }
 
+ const updateOrder = async (req, res) => {
+   const { id: orderId } = req.params
+   const order = await Order.findByPk(orderId)
+   await order.update({ ...req.body })
+
+   return res
+     .status(StatusCodes.OK)
+     .json({ msg: 'Cập nhật đơn hàng thành công' })
+ }
+
 module.exports = {
   getAllOrders,
   getSingleOrder,
   getCurrentUserOrders,
   createOrder,
   createPaypalOrder,
-  updateOrder,
+  updatePaidOrder,
   capturePaypalOrder,
   requestCancelOrder,
+  updateOrder,
 }

@@ -1,6 +1,6 @@
 import {
   SectionTitle,
-  OrderSummary,
+  CartTotal,
   FormInput,
   RadiosInput,
   Loading,
@@ -22,7 +22,7 @@ import { PayPalScriptProvider, PayPalButtons } from '@paypal/react-paypal-js'
 import { customFetch } from '../../utils/axios'
 import { toast } from 'react-toastify'
 import { useQuery } from '@tanstack/react-query'
-
+import { clearStore } from '../../features/users/userSlice'
 const client_id = import.meta.env.VITE_PAYPAL_CLIENT_ID
 const client_secret = import.meta.env.VITE_PAYPAL_CLIENT_SECRET
 
@@ -125,8 +125,8 @@ const Checkout = () => {
         recipient_name: values.recipientName || userData?.name,
         recipient_phone: values.recipientPhoneNumber || userData?.phone_number,
       }
-      console.log(order);
-      
+      console.log(order)
+
       if (
         !order.shipping_address ||
         !order.recipient_name ||
@@ -258,7 +258,13 @@ const Checkout = () => {
   if (isLoading) {
     return <Loading />
   }
-  if (isError) return <p style={{ marginTop: '1rem' }}>{error.message}</p>
+  if (isError) {
+    if (error?.response?.status === 401) {
+      dispatch(clearStore())
+      return
+    }
+    return <p style={{ marginTop: '1rem' }}>{error.message}</p>
+  }
 
   if (numItemsInCart === 0)
     return (
@@ -344,7 +350,7 @@ const Checkout = () => {
         {/* cart total chiếm 4 cột */}
         <div className="col-5 checkout-column">
           <div className="total-container">
-            <OrderSummary />
+            <CartTotal />
           </div>
         </div>
       </div>

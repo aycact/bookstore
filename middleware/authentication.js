@@ -1,6 +1,7 @@
 const CustomError = require('../errors')
 const { isTokenValid, attachCookiesToResponse } = require('../utils')
 const Token = require('../models/token.model')
+const { logout } = require('../controllers/auth.controller')
 
 const authenticateUser = async (req, res, next) => {
   const { accessToken, refreshToken } = req.signedCookies
@@ -8,7 +9,7 @@ const authenticateUser = async (req, res, next) => {
     // Kiểm tra access token có valid ko
     if (accessToken) {
       const payload = isTokenValid(accessToken)
-      req.user = payload.user      
+      req.user = payload.user
       return next()
     }
     // Kiểm tra refresh token có valid ko
@@ -19,10 +20,16 @@ const authenticateUser = async (req, res, next) => {
         refreshToken: payload.refreshToken,
       },
     })
+    
     // Kiểm tra token có tôn tại nếu có thì có valid ko
     if (!existingToken || !existingToken?.isValid)
       throw new CustomError.UnauthenticatedError('Authentication Invalid')
 
+    if(existingToken.ip !== req.ip) {
+      existingToken.destroy()
+      throw new CustomError.UnauthenticatedError('Có ai đó đã đăng nhập vào tài khoản bằng thiết bị khác!')
+    }
+    
     attachCookiesToResponse({
       res,
       user: payload.user,

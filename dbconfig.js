@@ -2,11 +2,14 @@ require('dotenv').config()
 const { Sequelize } = require('sequelize')
 
 // connect db
-const sequelize = new Sequelize(process.env.DB_CONNECTION_STRING)
+const sequelize = new Sequelize(process.env.DB_CONNECTION_STRING, {
+  timezone: '+07:00',
+})
 // const sequelize = new Sequelize(process.env.DB_CONNECTION_STRING, {
 //   host: process.env.DB_HOST,
 //   dialect: process.env.DB_DIALECT,
 //   schema: process.env.DB_SCHEMA,
+//    timezone: '+07:00',
 //   dialectOptions: {
 //     searchPath: process.env.DB_SCHEMA,
 //   },

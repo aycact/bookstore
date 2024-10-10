@@ -1,15 +1,18 @@
 import day from 'dayjs'
 import Table from 'react-bootstrap/Table'
 import advancedFormat from 'dayjs/plugin/advancedFormat'
-import { quaternaryBgColor } from '../../assets/js/variables'
+import { primaryBgColor, quaternaryBgColor, tertiaryBgColor } from '../../assets/js/variables'
 import { useEffect } from 'react'
 import { formatPrice } from '../../utils'
 import Badge from 'react-bootstrap/Badge'
 import { useNavigate } from 'react-router-dom'
 import styled from 'styled-components'
+import dateFormat from 'dateformat'
+import { useSelector } from 'react-redux'
 day.extend(advancedFormat)
 
 const OrdersList = ({ orders, meta }) => {
+  const user = useSelector((store) => store.user)
   const navigate = useNavigate()
   const handleNavigate = (id) => {
     navigate(`/order/${id}`)
@@ -18,8 +21,13 @@ const OrdersList = ({ orders, meta }) => {
   const tr = document.getElementsByTagName('tr')
   useEffect(() => {
     Array.from(tr).forEach((row) => {
-      if (Number(row.id) % 2 === 0) {
+      if ((row.id).split('-')[1] === 'true') {
         Array.from(row.childNodes).forEach((child) => {
+          child.style.backgroundColor = tertiaryBgColor
+        })
+      }
+      else if (Number((row.id).split('-')[0]) % 2 === 0) {
+        Array.from(row.childNodes).forEach((child) => {  
           child.style.backgroundColor = quaternaryBgColor
         })
       }
@@ -35,13 +43,13 @@ const OrdersList = ({ orders, meta }) => {
           {/* head */}
           <thead>
             <tr id="field-title tex">
-              <th className="text-center">Họ Tên</th>
-              <th className="text-center">Địa chỉ</th>
-              <th className="text-center">Số điện thoại</th>
-              <th className="text-center">Tổng tiền</th>
-              <th className="text-center">Ngày đặt</th>
-              <th className="text-center">Tình trạng</th>
-              <th className="text-center">Thanh toán</th>
+              <th className="text-center align-middle">Họ Tên</th>
+              <th className="text-center align-middle">Địa chỉ</th>
+              <th className="text-center align-middle">Số điện thoại</th>
+              <th className="text-center align-middle">Tổng tiền</th>
+              <th className="text-center align-middle">Ngày đặt</th>
+              <th className="text-center align-middle">Tình trạng</th>
+              <th className="text-center align-middle">Thanh toán</th>
             </tr>
           </thead>
           <tbody>
@@ -58,24 +66,28 @@ const OrdersList = ({ orders, meta }) => {
                 is_paid,
               } = order
 
-              const date = day(created_at).format('hh:mm a - MMM Do, YYYY ')
+              const date = dateFormat(created_at, 'dddd, dd mmmm, yyyy')
 
               return (
                 <tr
                   key={order.id}
-                  id={index}
+                  id={`${index}-${order.request_cancel}`}
                   onClick={() => handleNavigate(order.id)}
                 >
-                  <td className="text-center">
+                  <td className="text-center align-middle">
                     {recipient_name || customer_name}
                   </td>
-                  <td className="text-center">{shipping_address}</td>
-                  <td className="text-center">
+                  <td className="text-center align-middle">
+                    {shipping_address}
+                  </td>
+                  <td className="text-center align-middle">
                     {recipient_phone || customer_phone}
                   </td>
-                  <td className="text-center">{formatPrice(cost)}</td>
-                  <td className="text-center">{date}</td>
-                  <td className="text-center">
+                  <td className="text-center align-middle">
+                    {formatPrice(cost)}
+                  </td>
+                  <td className="text-center align-middle">{date}</td>
+                  <td className="text-center align-middle">
                     <Badge
                       pill
                       bg={
@@ -87,7 +99,13 @@ const OrdersList = ({ orders, meta }) => {
                       {status}
                     </Badge>
                   </td>
-                  <td className="text-center" style={{color:`${is_paid ? 'green' :'red'}`, fontWeight: 'bold'}}>
+                  <td
+                    className="text-center align-middle"
+                    style={{
+                      color: `${is_paid ? 'green' : 'red'}`,
+                      fontWeight: 'bold',
+                    }}
+                  >
                     {is_paid ? 'Đã thanh toán' : 'Chưa thanh toán'}
                   </td>
                 </tr>

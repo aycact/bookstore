@@ -1,0 +1,36 @@
+@import url('https://fonts.googleapis.com/css2?family=Cabin&family=Roboto+Condensed:wght@400;700&display=swap');
+:root {
+  /* color variables */
+  --text-color: #822b2b; /* darken(#973131, 10%) */
+  --bold-text-color: #6d2323; /* darken(#973131, 20%) */
+
+  /* colors */
+  --primary-bg-color: #973131;
+  --primary-bg-color-hover: #822b2b; /* darken(#973131, 10%) */
+
+  --secondary-bg-color: #e0a75e;
+  --secondary-bg-color-hover: #c88f51; /* darken(#e0a75e, 10%) */
+
+  --tertiary-bg-color: #f9d689;
+  --tertiary-bg-color-hover: #e6c279; /* darken(#f9d689, 10%) */
+
+  --quaternary-bg-color: #f5e7b2;
+  --quaternary-bg-color-hover: #e2d29f; /* darken(#f5e7b2, 10%) */
+  --quaternary-bg-color-light: #fff5cc; /* lighten(#f5e7b2, 10%) */
+
+  /* fonts */
+  --heading-font: 'Roboto Condensed', Sans-Serif;
+  --body-font: 'Cabin', Sans-Serif;
+  --small-text: 0.875rem;
+  --extra-small-text: 0.7em;
+  --textColor: #102a43;
+
+  /* box shadows */
+  --shadow-1: 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06);
+  --shadow-2: 0 4px 6px -1px rgba(0, 0, 0, 0.1),
+    0 2px 4px -1px rgba(0, 0, 0, 0.06);
+  --shadow-3: 0 10px 15px -3px rgba(0, 0, 0, 0.1),
+    0 4px 6px -2px rgba(0, 0, 0, 0.05);
+  --shadow-4: 0 20px 25px -5px rgba(0, 0, 0, 0.1),
+    0 10px 10px -5px rgba(0, 0, 0, 0.04);
+}

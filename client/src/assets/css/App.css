@@ -1,0 +1,119 @@
+/* để import css trong bootstrap */
+@import 'bootstrap/dist/css/bootstrap.min.css'; 
+@import url('https://fonts.googleapis.com/css2?family=Cabin&family=Roboto+Condensed:wght@400;700&display=swap');
+:root {
+  /* color variables */
+  --text-color: #822b2b; /* darken(#973131, 10%) */
+  --bold-text-color: #6d2323; /* darken(#973131, 20%) */
+
+  /* colors */
+  --primary-bg-color: #973131;
+  --primary-bg-color-hover: #822b2b; /* darken(#973131, 10%) */
+
+  --secondary-bg-color: #e0a75e;
+  --secondary-bg-color-hover: #c88f51; /* darken(#e0a75e, 10%) */
+
+  --tertiary-bg-color: #f9d689;
+  --tertiary-bg-color-hover: #e6c279; /* darken(#f9d689, 10%) */
+
+  --quaternary-bg-color: #f5e7b2;
+  --quaternary-bg-color-hover: #e2d29f; /* darken(#f5e7b2, 10%) */
+  --quaternary-bg-color-light: #fff5cc; /* lighten(#f5e7b2, 10%) */
+
+  /* fonts */
+  --heading-font: 'Roboto Condensed', Sans-Serif;
+  --body-font: 'Cabin', Sans-Serif;
+  --small-text: 0.875rem;
+  --extra-small-text: 0.7em;
+  --textColor: #102a43;
+
+  /* box shadows */
+  --shadow-1: 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06);
+  --shadow-2: 0 4px 6px -1px rgba(0, 0, 0, 0.1),
+    0 2px 4px -1px rgba(0, 0, 0, 0.06);
+  --shadow-3: 0 10px 15px -3px rgba(0, 0, 0, 0.1),
+    0 4px 6px -2px rgba(0, 0, 0, 0.05);
+  --shadow-4: 0 20px 25px -5px rgba(0, 0, 0, 0.1),
+    0 10px 10px -5px rgba(0, 0, 0, 0.04);
+}
+
+body {
+  margin-top: 4rem;
+  font-size: 1rem;
+  font-weight: 400;
+  line-height: 1.75;
+  background-color: var(--quaternary-bg-color);
+  color: var(--text-color);
+  position: relative;
+}
+
+p {
+  margin-bottom: 1.5rem;
+  max-width: 40em;
+  color: var(--text-color);
+}
+
+h1, h2, h3, h4, h5 {
+  color: var(--text-color);
+}
+
+.divider {
+  color: var(--primary-bg-color);
+  width: 100%;
+  font-size: 3rem;
+  text-align: center;
+  text-shadow: 2px 2px 3px rgb(180, 176, 176);
+  height: 60px;
+  line-height: 2rem;
+  top: 28.75rem;
+}
+
+.segment {
+  padding-top: 30px;
+  padding-bottom: 80px;
+}
+
+.segmentX {
+  padding: 80px 0;
+  background-color: var(--quaternary-bg-color-light);
+}
+
+.segmentX .segment-heading {
+  margin-bottom: 3.5rem;
+  text-transform: uppercase;
+  letter-spacing: 0.25rem;
+  font-weight: bold;
+  color: var(--primary-bg-color);
+}
+
+.segmentX .segment-heading .badge {
+  background-color: var(--primary-bg-color) !important;
+  color: var(--quaternary-bg-color-light);
+}
+
+.segment-heading {
+  color: var(--primary-bg-color);
+  font-family: var(--bodyFont);
+  font-weight: 500;
+  text-shadow: 2px 2px 3px rgb(180, 176, 176);
+  font-size: 2rem;
+  letter-spacing: 1px;
+}
+
+.breadcrumb {
+  margin: 5rem 5rem 2rem;
+}
+
+.breadcrumb .breadcrumb-item {
+  font-size: 2rem;
+  font-weight: bold;
+}
+
+.breadcrumb .active {
+  color: var(--bold-text-color);
+}
+
+.breadcrumb a {
+  text-decoration: none;
+  color: var(--text-color);
+}

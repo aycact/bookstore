@@ -2,7 +2,9 @@ const jwt = require('jsonwebtoken')
 
 // tạo token
 const createJWT = ({ payload }) => {
-  const token = jwt.sign(payload, process.env.JWT_SECRET) // ko cần set lifetime vì cookies sẽ giải quyết điều này
+  const token = jwt.sign(payload, process.env.JWT_SECRET, {
+    algorithm: 'HS256',
+  }) // ko cần set lifetime vì cookies sẽ giải quyết điều này
   return token
 }
 

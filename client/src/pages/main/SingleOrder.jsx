@@ -1,14 +1,72 @@
-import { useQuery } from '@tanstack/react-query'
+import dateFormat, { masks } from 'dateformat'
 import { customFetch } from '../../utils/axios'
 import { useLoaderData } from 'react-router-dom'
 import styled from 'styled-components'
 import {
   CustomerContactInfo,
   OrderSummary,
-  SectionTitle,
   ShippingAddress,
   OrderItemsList,
+  CustomerInstruction,
+  Loading,
 } from '../../components'
+import {
+  boldTextColor,
+  shadow1,
+  quaternaryBgColorLight,
+  primaryBgColorHover,
+  textColor,
+} from '../../assets/js/variables'
+import { i18n } from 'dateformat'
+import { toast } from 'react-toastify'
+import { useState } from 'react'
+import { useSelector } from 'react-redux'
+
+i18n.dayNames = [
+  'Sun',
+  'Mon',
+  'Tue',
+  'Wed',
+  'Thu',
+  'Fri',
+  'Sat',
+  'CN',
+  'T2',
+  'T3',
+  'T4',
+  'T5',
+  'T6',
+  'T7',
+]
+
+i18n.monthNames = [
+  'Th 1',
+  'Th 2',
+  'Th 3',
+  'Th 4',
+  'Th 5',
+  'Th 6',
+  'Th 7',
+  'Th 8',
+  'Th 9',
+  'Th 10',
+  'Th 11',
+  'Th 12',
+  'Tháng 1',
+  'Tháng 2',
+  'Tháng 3',
+  'Tháng 4',
+  'Tháng 5',
+  'Tháng 6',
+  'Tháng 7',
+  'Tháng 8',
+  'Tháng 9',
+  'Tháng 10',
+  'Tháng 11',
+  'Tháng 12',
+]
+
+i18n.timeNames = ['a', 'p', 'am', 'pm', 'A', 'P', 'AM', 'PM']
 
 const getUserSingleOrder = (id) => {
   return {
@@ -17,24 +75,123 @@ const getUserSingleOrder = (id) => {
   }
 }
 
+const getSingleUser = (id) => {
+  return {
+    queryKey: ['showMe,', id || ''],
+    queryFn: async () => customFetch(`/users/${id}`),
+  }
+}
+
 export const loader =
-  (queryClient) =>
+  (store, queryClient) =>
   async ({ params }) => {
     const { id } = params
-    const response = await queryClient.ensureQueryData(getUserSingleOrder(id))
-    console.log(response)
 
-    const order = response.data.order
-    return { order }
+    const responseOrder = await queryClient.ensureQueryData(
+      getUserSingleOrder(id)
+    )
+    const order = responseOrder.data.order
+    const responseUser = await queryClient.ensureQueryData(
+      getSingleUser(order.user_id)
+    )
+    const user = responseUser.data.user
+    return { order, user }
   }
 
 const SingleOrder = () => {
-  const { order } = useLoaderData()
+  const { order, user } = useLoaderData()
 
+  const { user: currentUser } = useSelector((store) => store.user)
+
+  const [loading, setLoading] = useState(false)
+  const [requestCancel, setRequestCancel] = useState(false)
+  const handleRequestCancelOrder = async (e) => {
+    e.preventDefault()
+    try {
+      setLoading(true)
+      const response = await customFetch.patch(
+        `/orders/requestCancelOrder/${order.id}`
+      )
+      toast.success(response?.data?.msg)
+      setRequestCancel(true)
+    } catch (error) {
+      console.log(error)
+      toast.error(error?.response?.data?.msg)
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  const handleCancelOrder = async (e) => {
+    e.preventDefault()
+    try {
+      setLoading(true)
+      await customFetch.patch(`/orders/${order.id}`, {
+        status: 'đã hủy',
+        request_cancel: false,
+      })
+      toast.success('Cập nhật đơn hàng thành công')
+      setRequestCancel(false)
+    } catch (error) {
+      console.log(error)
+      toast.error(error?.response?.data?.msg)
+    } finally {
+      setLoading(false)
+    }
+  }
+  if (loading) {
+    return <Loading />
+  }
   return (
     <Wrapper>
-      <SectionTitle text="Chi tiết đơn hàng" />
-      <div className="container">
+      <div className="container order-detail">
+        <div className="header">
+          <h1 className="order-code">Mã đơn hàng : {order.id}</h1>
+          <div className="fw-bold order-date">
+            Ngày đặt hàng :{' '}
+            <span className="fw-normal">
+              {dateFormat(order.created_at, 'dddd, dd mmmm, yyyy')}
+            </span>
+            <div
+              className={`badge bg-${
+                order.status === 'đã hủy' ? 'danger' : 'success'
+              } ms-2`}
+              style={{
+                textTransform: 'uppercase',
+                color: '#000',
+              }}
+            >
+              {order.status}
+            </div>
+            {(requestCancel || order.request_cancel) && (
+              <div
+                className="badge bg-danger ms-2"
+                style={{
+                  textTransform: 'uppercase',
+                  color: '#000',
+                }}
+              >
+                Yêu cầu hủy
+              </div>
+            )}
+          </div>
+        </div>
+        <div className="row">
+          {/* CustomerContactInfo */}
+          <div className="col">
+            <CustomerContactInfo userInfo={user} />
+          </div>
+          {/* ShippingAddress */}
+          <div className="col">
+            <ShippingAddress orderInfo={order} />
+          </div>
+          <div className="col">
+            <CustomerInstruction
+              paymentMethod={order.payment_method}
+              orderInfo={order}
+            />
+          </div>
+        </div>
         {/* chia thành 12 cột */}
         <div className="row">
           {/* Item chiếm 8 cột */}
@@ -43,13 +200,32 @@ const SingleOrder = () => {
           </div>
           {/* cart total chiếm 4 cột */}
           <div className="col-4">
-            <div className="d-flex flex-column">
-              {/* CustomerContactInfo */}
-              <CustomerContactInfo />
-              {/* ShippingAddress */}
-              <ShippingAddress />
+            <div className="d-flex flex-column info-container">
               {/* OrderSummary */}
-              <OrderSummary />
+              <OrderSummary orderInfo={order} />
+              {currentUser.role === 'user' && (
+                <button
+                  disabled={
+                    order.status !== 'chờ xác nhận' ||
+                    requestCancel ||
+                    order.request_cancel
+                  }
+                  type="button"
+                  className="btn btn-danger mt-2"
+                  onClick={handleRequestCancelOrder}
+                >
+                  Yêu cầu hủy đơn hàng
+                </button>
+              )}
+              {currentUser.role === 'admin' && (
+                <button
+                  type="button"
+                  className="btn btn-danger mt-2"
+                  onClick={handleCancelOrder}
+                >
+                  Hủy đơn hàng
+                </button>
+              )}
             </div>
           </div>
         </div>
@@ -57,8 +233,35 @@ const SingleOrder = () => {
     </Wrapper>
   )
 }
+
 export default SingleOrder
 
 const Wrapper = styled.section`
-
+  margin-top: 6rem;
+  padding-bottom: 2rem;
+  .order-code {
+    font-weight: 600;
+    font-size: 2rem;
+    color: ${boldTextColor};
+  }
+  .order-date {
+    color: ${textColor};
+  }
+  .order-detail {
+    background-color: ${quaternaryBgColorLight};
+    border-radius: 2rem;
+    padding: 2rem;
+    margin-top: 1rem;
+    box-shadow: ${shadow1};
+  }
+  .header {
+    border-bottom: solid 2px ${primaryBgColorHover};
+    margin-bottom: 1rem;
+  }
+  .info-container {
+    color: #000;
+  }
+  h5 {
+    color: #000;
+  }
 `

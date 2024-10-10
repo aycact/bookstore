@@ -20,7 +20,7 @@ const getAllUsers = asyncWrapper(async (req, res) => {
 })
 
 const getSingleUser = async (req, res) => {
-  const user = await User.findOne({ _id: req.params.id })
+  const user = await User.findOne({ where: { id: req.params.id } })
   if (!user) {
     throw new CustomError.NotFoundError(`No user with id : ${req.params.id}`)
   }

@@ -8,6 +8,8 @@ export const customFetch = axios.create({
   withCredentials: true,
 })
 
+
+
 export const checkForUnauthorizedResponse = (error, thunkAPI) => {
   if (error.response.status === 401) {
     thunkAPI.dispatch(clearStore())
@@ -19,7 +21,7 @@ export const checkForUnauthorizedResponse = (error, thunkAPI) => {
 export const checkForForbiddenResponse = (error, thunkAPI) => {
   if (error.response.status === 403) {
     thunkAPI.dispatch(clearStore())
-    return thunkAPI.rejectWithValue("You are not allowed to use this service!")
+    return thunkAPI.rejectWithValue('You are not allowed to use this service!')
   }
   return thunkAPI.rejectWithValue(error.response.data.msg)
 }

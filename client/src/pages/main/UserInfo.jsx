@@ -9,6 +9,7 @@ import Form from 'react-bootstrap/Form'
 import Modal from 'react-bootstrap/Modal'
 import { toast } from 'react-toastify'
 import { customFetch } from '../../utils/axios'
+import { clearStore } from '../../features/users/userSlice'
 
 import {
   textColor,
@@ -142,7 +143,14 @@ const UserInfo = () => {
   if (isLoading) {
     return <Loading />
   }
-  if (isError) return <p style={{ marginTop: '1rem' }}>{error.message}</p>
+
+  if (isError) {
+    if (error?.response?.status === 401) {
+      dispatch(clearStore())
+      return
+    }
+    return <p style={{ marginTop: '1rem' }}>{error.message}</p>
+  }
 
   return (
     <Wrapper>

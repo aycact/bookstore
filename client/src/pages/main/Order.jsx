@@ -32,6 +32,8 @@ const Orders = () => {
   }, [page])
 
   const meta = { page, totalOrders, numOfPages }
+
+  
   return (
     <Wrapper>
       <h1 className="heading">

@@ -10,6 +10,7 @@ const {
 const crypto = require('crypto')
 const { StatusCodes } = require('http-status-codes')
 const CustomError = require('../errors')
+const { isTokenValid } = require('../utils/jwt')
 
 const register = async (req, res) => {
   const { email, name, password, gender } = req.body
@@ -32,10 +33,10 @@ const register = async (req, res) => {
     password,
     role,
     verificationToken,
-    gender
+    gender,
   })
 
-  const origin = 'http://localhost:5173' // origin là host front-end ko nên nhầm lẫn với host phía back-end
+  const origin = process.env.ORIGIN // origin là host front-end ko nên nhầm lẫn với host phía back-end
   // sau khi host lên nền tảng hỗ trợ sẽ thay đổi origin
 
   const tempOrigin = req.get('origin')
@@ -82,7 +83,9 @@ const login = async (req, res) => {
 
   let refreshToken = ''
   // Tìm token của user nếu đã tồn tại
-  const existingToken = await Token.findOne({ where: { user: user.id } })
+  const existingToken = await Token.findOne({
+    where: { user: user.id, ip: req.ip },
+  })
   // Kiểm tra token đã tồn tại trong db chưa
   if (existingToken) {
     // Kiểm tra xem token có valid ko
@@ -90,10 +93,19 @@ const login = async (req, res) => {
       throw new CustomError.UnauthenticatedError('Invalid Credentials')
     refreshToken = existingToken.refreshToken
     attachCookiesToResponse({ res, user: tokenUser, refreshToken }) // tiếp tọc sử dụng refresh token đó
-    res
-      .status(StatusCodes.OK)
-      .json({ user: { ...tokenUser,  email_is_verified: user. email_is_verified } })
+    res.status(StatusCodes.OK).json({
+      user: { ...tokenUser, email_is_verified: user.email_is_verified },
+    })
     return
+  }
+
+  const activeSessions = await Token.count({ where: { user: user.id } })
+  if (activeSessions >= process.env.MAX_SESSIONS) {
+    await Token.destroy({
+      where: { user: user.id },
+      order: [['created_at', 'ASC']],
+      limit: 1, // Xóa session cũ nhất
+    })
   }
   // trường hợp chưa tồn tại refresh token
   refreshToken = crypto.randomBytes(40).toString('hex')
@@ -110,12 +122,6 @@ const login = async (req, res) => {
   res.status(StatusCodes.OK).json({ user: tokenUser })
 }
 const logout = async (req, res) => {
-  // Xóa token trong db khi logout
-  const tokens = await Token.findAll({ where: { user: req.user.userId } })
-  for (const token of tokens) {
-    token.destroy()
-  }
-  // Xóa 2 cookies token khi logout
   res.cookie('refreshToken', 'logout', {
     httpOnly: true,
     expires: new Date(Date.now()),
@@ -124,6 +130,15 @@ const logout = async (req, res) => {
     httpOnly: true,
     expires: new Date(Date.now()),
   })
+  const { refreshToken } = req.signedCookies
+  const payload = isTokenValid(refreshToken)
+  const existingToken = await Token.findOne({
+    where: {
+      user: payload.user.userId,
+      refreshToken: payload.refreshToken,
+    },
+  })
+  existingToken.destroy()
   res.status(StatusCodes.OK).json({ msg: 'user logged out!' })
 }
 
@@ -133,7 +148,7 @@ const verifyEmail = async (req, res) => {
   const user = await User.findOne({ where: { email } })
   if (!user)
     throw new CustomError.UnauthenticatedError(`No user with email: ${email}`)
-  if (user. email_is_verified) {
+  if (user.email_is_verified) {
     throw new CustomError.BadRequestError(
       `Your email has already been verified`
     )
@@ -143,7 +158,7 @@ const verifyEmail = async (req, res) => {
     throw new CustomError.UnauthenticatedError(
       `User token does not match verification token: ${verificationToken}`
     )
-  user. email_is_verified = true
+  user.email_is_verified = true
   user.email_verified_date = Date.now()
   user.verificationToken = ''
   await user.save()

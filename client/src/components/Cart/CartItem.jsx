@@ -69,9 +69,7 @@ const Wrapper = styled.article`
   border-top: solid 2px ${primaryBgColorHover};
   padding: 1rem 0rem;
   .cart-item-img {
-    max-height: 8rem;
-    max-width: 8rem;
-    object-fit: cover;
+    width: 8rem;
   }
   .info {
   }
