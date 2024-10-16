@@ -1,11 +1,14 @@
 import React from 'react'
-import { PaginationContainer, SectionTitle } from '../../components'
-import { OrdersList } from '../../components'
+import {
+  OrdersList,
+  PaginationContainer,
+  SectionTitle,
+} from '../../../components'
 import {
   handleChange,
   getUserOrder,
   getAllOrders,
-} from '../../features/orders/orderSlice'
+} from '../../../features/orders/orderSlice'
 import { useSelector, useDispatch } from 'react-redux'
 import { useEffect } from 'react'
 import {
@@ -14,7 +17,7 @@ import {
   quaternaryBgColor,
   quaternaryBgColorLight,
   shadow1,
-} from '../../assets/js/variables'
+} from '../../../assets/js/variables'
 import styled from 'styled-components'
 import Badge from 'react-bootstrap/Badge'
 

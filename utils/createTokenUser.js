@@ -3,6 +3,7 @@ const createTokenUser = (user) => {
     name: user.name,
     userId: user.id,
     role: user.role,
+    identityIsVerified: user.identity_is_verified
   }
 }
 

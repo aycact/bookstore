@@ -4,7 +4,7 @@ import Nav from 'react-bootstrap/Nav'
 import Navbar from 'react-bootstrap/Navbar'
 import { logo } from '../assets/images'
 import { useSelector, useDispatch } from 'react-redux'
-import { Link, useNavigate } from 'react-router-dom'
+import { Link, useNavigate, NavLink } from 'react-router-dom'
 import { useQueryClient } from '@tanstack/react-query'
 import styled from 'styled-components'
 import {
@@ -37,7 +37,7 @@ const MyNavbar = () => {
       <Navbar expand="lg" className="navbar-custom position-fixed">
         <Container className="position-relative">
           <Navbar.Brand
-            href="#home"
+            to="#home"
             className="py-0"
             style={{ height: '30px', width: '120px' }}
           >
@@ -51,23 +51,39 @@ const MyNavbar = () => {
           <Navbar.Toggle aria-controls="basic-navbar-nav" />
           <Navbar.Collapse id="basic-navbar-nav">
             <Nav className="mx-auto">
-              <Nav.Link href="/">Trang chủ</Nav.Link>
-              <Nav.Link href="/about">Thông tin</Nav.Link>
-              <Nav.Link href="/library">Kho sách</Nav.Link>
+              <NavLink className="nav-link" to="/">
+                Trang chủ
+              </NavLink>
+              <NavLink className="nav-link" to="/about">
+                Thông tin
+              </NavLink>
+              <NavLink className="nav-link" to="/library">
+                Kho sách
+              </NavLink>
               {(user === null || user?.role === 'user') && (
-                <Nav.Link href="/cart">Giỏ hàng</Nav.Link>
+                <NavLink className="nav-link" to="/cart">
+                  Giỏ hàng
+                </NavLink>
               )}
               {user && user?.role === 'user' && (
-                <Nav.Link href="/checkout">Thanh toán</Nav.Link>
+                <NavLink className="nav-link" to="/checkout">
+                  Thanh toán
+                </NavLink>
               )}
-              {user && <Nav.Link href="/order">Đơn hàng</Nav.Link>}
+              {user && user?.role === 'user' && (
+                <NavLink className="nav-link" to="/order">
+                  Đơn hàng
+                </NavLink>
+              )}
               {user && user?.role === 'admin' && (
-                <Nav.Link href="/manager">Quản lý</Nav.Link>
+                <NavLink className="nav-link" to="/manager">
+                  Quản lý
+                </NavLink>
               )}
             </Nav>
             {user ? (
               <Navbar.Text>
-                <a href="/user">{user.name}</a>
+                <Link to="/user">{user.name}</Link>
                 <button onClick={handleLogout} className="auth-btn">
                   Đăng xuất
                 </button>

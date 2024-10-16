@@ -1,6 +1,6 @@
 import styled from "styled-components"
 
-const RadiosInput = ({ name, value, handleCheck, label }) => {
+const RadiosInput = ({ name, value, handleCheck, label, checked }) => {
   return (
     <div className="form-check">
       <input
@@ -10,6 +10,7 @@ const RadiosInput = ({ name, value, handleCheck, label }) => {
         value={value}
         id={`radio-${value}`}
         onChange={handleCheck}
+        checked={checked}
       />
       <label className="form-check-label" htmlFor={`radio-${value}`}>
         {label}

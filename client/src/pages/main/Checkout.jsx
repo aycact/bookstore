@@ -23,6 +23,7 @@ import { customFetch } from '../../utils/axios'
 import { toast } from 'react-toastify'
 import { useQuery } from '@tanstack/react-query'
 import { clearStore } from '../../features/users/userSlice'
+import { redirect, useNavigate } from 'react-router-dom'
 const client_id = import.meta.env.VITE_PAYPAL_CLIENT_ID
 const client_secret = import.meta.env.VITE_PAYPAL_CLIENT_SECRET
 
@@ -59,6 +60,7 @@ const showCurrentUser = () => {
 
 const Checkout = () => {
   const dispatch = useDispatch()
+  const navigate = useNavigate()
   const [message, setMessage] = useState('')
   const [loading, setLoading] = useState(false)
   const { isLoading, userData, error, isError, refetch } = showCurrentUser()
@@ -106,7 +108,7 @@ const Checkout = () => {
       case 'Card':
         return 'card'
       default:
-        return 'card'
+        return null
     }
   }
 
@@ -125,7 +127,6 @@ const Checkout = () => {
         recipient_name: values.recipientName || userData?.name,
         recipient_phone: values.recipientPhoneNumber || userData?.phone_number,
       }
-      console.log(order)
 
       if (
         !order.shipping_address ||
@@ -209,6 +210,44 @@ const Checkout = () => {
     } catch (error) {
       console.error(error)
       setMessage(`Sorry, your transaction could not be processed...${error}`)
+    }
+  }
+
+  // Thanh toán qua PayOS
+  const handleSubmitPayOS = async (e) => {
+    e.preventDefault()
+    try {
+      setLoading(true)
+      const order = {
+        customer_email: userData.email,
+        shipping_address: values.recipientAddress || userData.address,
+        payment_method: values.paymentMethods,
+        book_list: cartItems,
+        subtotal: cartTotal,
+        shipping_fee: shipping,
+        tax,
+        cart_total: orderTotal,
+        user_id: userData?.id,
+        recipient_name: values.recipientName || userData.name,
+        recipient_phone: values.recipientPhoneNumber || userData.phone_number,
+      }
+
+      if (
+        !order.shipping_address ||
+        !order.recipient_name ||
+        !order.recipient_phone
+      ) {
+        toast.warning('Xin hãy điền đầy đủ thông tin thanh toán!')
+        return
+      }
+
+      const response = await customFetch.post('/orders/createPayOSLink', order)
+      window.location.href = response?.data?.paymentLink?.checkoutUrl
+      return
+    } catch (error) {
+      console.log(error)
+    } finally {
+      setLoading(false)
     }
   }
 
@@ -317,6 +356,7 @@ const Checkout = () => {
                 />
               )
             })}
+            {/* cod button */}
             <div
               className="btn-container"
               style={{
@@ -328,23 +368,39 @@ const Checkout = () => {
                 Đặt hàng
               </button>
             </div>
+            {/* PayOs button */}
             <div
               className="btn-container"
               style={{
-                width: values.paymentMethods !== 'COD' ? '100%' : '0rem',
+                width:
+                  values.paymentMethods === 'Bank Transfer' ? '80%' : '0rem',
+                height: '2rem',
               }}
             >
-              <PayPalScriptProvider
-                options={initialOptions}
-                key={JSON.stringify(values)}
-              >
-                <PayPalButtons
-                  fundingSource={getFundingSource()}
-                  createOrder={createPaypalOrder}
-                  onApprove={approvePaypalOrder}
-                />
-              </PayPalScriptProvider>
+              <button className="btn" onClick={handleSubmitPayOS}>
+                Thanh toán qua ngân hàng
+              </button>
             </div>
+            {/* paypal button */}
+            {values.paymentMethods !== 'Bank Transfer' && (
+              <div
+                className="btn-container"
+                style={{
+                  width: values.paymentMethods !== 'COD' ? '100%' : '0rem',
+                }}
+              >
+                <PayPalScriptProvider
+                  options={initialOptions}
+                  key={JSON.stringify(values)}
+                >
+                  <PayPalButtons
+                    fundingSource={getFundingSource()}
+                    createOrder={createPaypalOrder}
+                    onApprove={approvePaypalOrder}
+                  />
+                </PayPalScriptProvider>
+              </div>
+            )}
           </div>
         </div>
         {/* cart total chiếm 4 cột */}

@@ -1,6 +1,6 @@
 import dateFormat, { masks } from 'dateformat'
 import { customFetch } from '../../utils/axios'
-import { useLoaderData } from 'react-router-dom'
+import { redirect, useLoaderData } from 'react-router-dom'
 import styled from 'styled-components'
 import {
   CustomerContactInfo,
@@ -105,6 +105,50 @@ const SingleOrder = () => {
 
   const [loading, setLoading] = useState(false)
   const [requestCancel, setRequestCancel] = useState(false)
+
+  const handleSubmitPayOS = async (e) => {
+    e.preventDefault()
+    try {
+      setLoading(true)
+      const existingOrder = {
+        customer_email: order.customer_email,
+        shipping_address: order.shipping_address,
+        payment_method: order.payment_method,
+        book_list: order.book_list,
+        subtotal: order.subtotal,
+        shipping_fee: order.shipping_fee,
+        tax: order.tax,
+        cart_total: order.total,
+        user_id: order.user_id,
+        recipient_name: order.recipient_name,
+        recipient_phone: order.recipient_phone,
+        payos_order_code: order.payos_order_code,
+      }
+
+      if (
+        !existingOrder.shipping_address ||
+        !existingOrder.recipient_name ||
+        !existingOrder.recipient_phone
+      ) {
+        toast.warning('Xin hãy điền đầy đủ thông tin thanh toán!')
+        return
+      }
+
+      const response = await customFetch.post(
+        '/orders/repayExistingOrderPayOS',
+        existingOrder
+      )
+      console.log(response)
+
+      window.location.href = `https://pay.payos.vn/web/${response?.data?.paymentLink?.paymentLinkId}`
+      return
+    } catch (error) {
+      console.log(error)
+    } finally {
+      setLoading(false)
+    }
+  }
+
   const handleRequestCancelOrder = async (e) => {
     e.preventDefault()
     try {
@@ -154,7 +198,19 @@ const SingleOrder = () => {
             </span>
             <div
               className={`badge bg-${
-                order.status === 'đã hủy' ? 'danger' : 'success'
+                order.is_paid ? 'success' : 'warning'
+              } ms-2`}
+              style={{
+                textTransform: 'uppercase',
+                color: '#000',
+              }}
+            >
+              {order.is_paid ? 'Đã thanh toán' : 'Chưa thanh toán'}
+            </div>
+            <div
+              className={`badge bg-${
+                (order.status === 'chờ xác nhận' && 'warning') ||
+                (order.status === 'đã hủy' ? 'danger' : 'success')
               } ms-2`}
               style={{
                 textTransform: 'uppercase',
@@ -203,6 +259,18 @@ const SingleOrder = () => {
             <div className="d-flex flex-column info-container">
               {/* OrderSummary */}
               <OrderSummary orderInfo={order} />
+
+              {/* PayOs button */}
+              {!order.is_paid && order.payos_order_code && (
+                <button
+                  type="button"
+                  className="btn btn-success mt-2"
+                  onClick={handleSubmitPayOS}
+                >
+                  Thanh toán qua ngân hàng
+                </button>
+              )}
+              {/* Nút yêu cầu hủy đơn hàng */}
               {currentUser.role === 'user' && (
                 <button
                   disabled={
@@ -263,5 +331,8 @@ const Wrapper = styled.section`
   }
   h5 {
     color: #000;
+  }
+  .btn-container {
+    margin-top: 1rem;
   }
 `

@@ -36,6 +36,10 @@ import CustomerContactInfo from './Order/CustomerContactInfo'
 import ShippingAddress from './Order/ShippingAddress'
 import OrderSummary from './Order/OrderSummary'
 import CustomerInstruction from './Order/CustomerInstruction'
+import ManageSidebar from './Sidebar/ManageSidebar'
+import CouponList from './Coupon/CouponList'
+import CouponFilter from './Coupon/CouponFilter'
+import CouponItems from './Coupon/CouponItems'
 
 export {
   MyNavbar,
@@ -76,4 +80,8 @@ export {
   ShippingAddress,
   OrderSummary,
   CustomerInstruction,
+  ManageSidebar,
+  CouponList,
+  CouponFilter,
+  CouponItems,
 }

@@ -27,6 +27,7 @@ const publisherRouter = require('./routes/publisher.router')
 const orderRouter = require('./routes/order.router')
 const reviewRouter = require('./routes/review.router')
 const orderItemRouter = require('./routes/oder_item.router')
+const couponRouter = require('./routes/Coupon.router')
 
 
 // middleware
@@ -52,7 +53,15 @@ app.set('trust proxy', 1)
 app.use(helmet())
 app.use(
   cors({
-    origin: ['http://localhost:5173', 'https://bookstore.ayclqt.id.vn', 'https://[2606:50c0:8000::153]', 'https://[2606:50c0:8001::153]', 'https://[2606:50c0:8002::153]', 'https://[2606:50c0:8003::153]'],
+    origin: [
+      'http://localhost:5173',
+      'https://bookstore.ayclqt.id.vn',
+      'https://[2606:50c0:8000::153]',
+      'https://[2606:50c0:8001::153]',
+      'https://[2606:50c0:8002::153]',
+      'https://[2606:50c0:8003::153]',
+      'https://my.payos.vn/',
+    ],
     credentials: true,
   })
 )
@@ -75,6 +84,7 @@ app.use('/api/v1/publishers', publisherRouter)
 app.use('/api/v1/orders', orderRouter)
 app.use('/api/v1/reviews', reviewRouter)
 app.use('/api/v1/orderItems', orderItemRouter)
+app.use('/api/v1/coupons', couponRouter)
 
 app.get('*', (req, res) => {
   res.sendFile(path.resolve(__dirname, './client/dist', 'index.html'))

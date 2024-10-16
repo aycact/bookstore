@@ -29,7 +29,6 @@ const BookList = () => {
     sort,
   } = useSelector((store) => store.allBooks)
 
-  console.log({page, search, category, publisher, author, sort})
   
   useEffect(() => {
     dispatch(getAllBooks())

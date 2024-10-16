@@ -185,7 +185,10 @@ const forgotPassword = async (req, res) => {
     })
 
     const tenMinutes = 1000 * 60 * 10
-    const passwordTokenExpirationDate = new Date(Date.now() + tenMinutes) // thời hạn của temp password la 10 phut
+    const vietnamTimezoneOffset = 7 * 60 * 60 * 1000
+    const passwordTokenExpirationDate = new Date(
+      Date.now() + tenMinutes + vietnamTimezoneOffset
+    ) // thời hạn của temp password la 10 phut
     user.passwordToken = hashString(passwordToken) // hash token truoc khi luu vao db de khi db bi xam nhap attacker cung khong biet duoc gia tri thuc cua token
     user.passwordTokenExpirationDate = passwordTokenExpirationDate
     user.save()
@@ -203,9 +206,11 @@ const resetPassword = async (req, res) => {
   const user = await User.scope('withPassword').findOne({ where: { email } })
   if (user) {
     const currentDate = new Date()
+    const vietnamTimezoneOffset = 7 * 60 * 60 * 1000
     if (
       user.passwordToken === hashString(token) &&
-      user.passwordTokenExpirationDate > currentDate
+      Date.parse(user.passwordTokenExpirationDate) >
+        Date.parse(currentDate + vietnamTimezoneOffset)
     ) {
       user.password = password
       user.passwordToken = null

@@ -106,7 +106,10 @@ Order.init(
       type: DataTypes.BOOLEAN,
       allowNull: false,
       defaultValue: false,
-    }
+    },
+    payos_order_code: {
+      type: DataTypes.STRING(500),
+    },
   },
   {
     defaultScope: {
@@ -132,7 +135,7 @@ Order.afterUpdate(async (order, options) => {
   if (order.status === 'đã giao') {
     const bookList = order.book_list
     for (const item of bookList) {
-      const book = await Book.findByPk(item.bookID)
+      const book = await Book.findByPk(item.bookId)
       if (book) {
         try {
           book.available_copies -= parseInt(item.amount)

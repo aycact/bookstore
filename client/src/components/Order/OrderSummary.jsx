@@ -8,7 +8,9 @@ import {
   boldTextColor,
 } from '../../assets/js/variables'
 
-const OrderSummary = () => {
+const OrderSummary = ({ orderInfo }) => {
+  console.log(orderInfo)
+
   return (
     <Wrapper>
       <Card>
@@ -19,19 +21,19 @@ const OrderSummary = () => {
           <ListGroup>
             <ListGroup.Item>
               <span className="label">Tổng tiền hàng</span>
-              <span>{formatPrice(12)}</span>
+              <span>{formatPrice(orderInfo.subtotal)}</span>
             </ListGroup.Item>
             <ListGroup.Item>
               <span className="label">Phí ship</span>
-              <span>{formatPrice(2)}</span>
+              <span>{formatPrice(orderInfo.shipping_fee)}</span>
             </ListGroup.Item>
             <ListGroup.Item>
               <span className="label">Thuế</span>
-              <span>{formatPrice(3)}</span>
+              <span>{formatPrice(orderInfo.tax)}</span>
             </ListGroup.Item>
             <ListGroup.Item className="last-item">
               <span className="label">Tổng thanh toán</span>
-              <span>{formatPrice(23)}</span>
+              <span>{formatPrice(orderInfo.total)}</span>
             </ListGroup.Item>
           </ListGroup>
         </Card.Body>

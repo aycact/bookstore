@@ -40,11 +40,11 @@ const Footer = () => {
 }
 const Wrapper = styled.section`
 position: absolute;
-top: 100%;
+
   .footer {
     background-color: ${primaryBgColor};
     padding: 30px 60px;
-    width: 98.5vw;
+    width: 100vw;
   }
   .footer .footer-contact {
     border-bottom: 1px solid ${primaryBgColorHover};

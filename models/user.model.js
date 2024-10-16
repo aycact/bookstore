@@ -97,7 +97,6 @@ User.init(
         if (user.changed('password')) {
           const salt = await bcrypt.genSalt(10)
           user.password = await bcrypt.hash(user.password, salt)
-          // Lưu ngày định danh
         }
         if (user.changed('cccd')) {
           user.identity_verified_date = Date.now()
@@ -184,8 +183,6 @@ async function decryptFields(user) {
         type: Sequelize.QueryTypes.SELECT,
       }
     )
-    console.log(user.name);
-    console.log(result[0].decrypted_name)
     user.name = result[0].decrypted_name
   }
 

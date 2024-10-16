@@ -122,19 +122,9 @@ const UserInfo = () => {
   useEffect(() => {
     refetch()
   }, [loading, refetch])
-  useEffect(() => {
-    if (userData) {
-      const radios = document.getElementsByName('gender')
-      radios.forEach((radio) => {
-        if (radio.value === userData.gender) {
-          radio.checked = true
-        }
-      })
-    }
-  }, [userData])
+
   const handleSubmit = (e) => {
     e.preventDefault()
-    console.log(values)
     dispatch(updateUser({ ...values, id: userData.id }))
   }
   if (loading) {
@@ -256,6 +246,7 @@ const UserInfo = () => {
                       value={gender}
                       label={gender}
                       handleCheck={handleChange}
+                      checked={values.gender === gender}
                     />
                   )
                 })}

@@ -6,20 +6,19 @@ import {
   quaternaryBgColor,
 } from '../assets/js/variables'
 
-const SelectInput = ({list, name, defaultValue, handleChoose, label}) => {
+const SelectInput = ({ list, name, value, handleChoose, label }) => {
   return (
     <Wrapper>
       <div>
         <h5 className="select-label">{label}</h5>
         <select
           name={name}
-          defaultValue={defaultValue}
+          value={value} // Sử dụng `value` thay vì `defaultValue`
           onChange={handleChoose}
           className="select-input"
         >
-          {!defaultValue && <option value={null}>--</option>} 
-          {defaultValue && <option value=''>Tất cả</option>}
-          {list.map((item) => {
+          <option value="">--</option>
+          {list?.map((item) => {
             return (
               <option className="select-item" key={item.id} value={item.id}>
                 {item.name}
@@ -35,14 +34,14 @@ const SelectInput = ({list, name, defaultValue, handleChoose, label}) => {
 const Wrapper = styled.section`
   .select-label {
     color: ${boldTextColor};
-    font-weight: bold;
-    text-transform: none;
+    font-size: 1rem;
   }
-  
+
   .select-input {
     background-color: ${quaternaryBgColor};
     border-radius: 0.5rem;
     margin-bottom: 1rem;
   }
 `
+
 export default SelectInput

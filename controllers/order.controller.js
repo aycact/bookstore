@@ -5,6 +5,13 @@ const fetch = require('node-fetch')
 
 const { StatusCodes } = require('http-status-codes')
 const CustomAPIError = require('../errors/')
+const {
+  checkPriceValidity,
+  convertVNDToUSD,
+  payos,
+  createSignaturePayOS,
+  isValidData,
+} = require('../utils')
 
 const {
   checkPermissions,
@@ -19,160 +26,285 @@ const fakeStripeAPI = async ({ amount, currency }) => {
   return { client_secret, amount }
 }
 
-const createPaypalOrder = async (cart) => {
-  const orderId = uuidv4()
-  const accessToken = await generateAccessTokenPaypal()
-  const url = `${base}/v2/checkout/orders`
+const repayExistingOrderPayOS = async (req, res) => {  
+  const order = req.body
+  if (order.is_paid)
+    throw new CustomAPIError.BadRequestError('Đơn hàng này đã được thanh toán')
 
-  const {
-    book_list,
-    tax,
-    shipping_fee,
-    cart_total,
-    customer_email,
-    shipping_address,
-    recipient_name,
-    recipient_phone,
-    payment_method,
-    user_id,
-  } = cart
-
-  if (
-    !recipient_name ||
-    !customer_email ||
-    !recipient_phone ||
-    !shipping_address ||
-    !payment_method
-  ) {
-    throw new CustomAPIError.BadRequestError('Please provide customer details')
-  }
-
-  if (!book_list || book_list.length < 1) {
-    throw new CustomAPIError.BadRequestError('No cart items provided')
-  }
-
-  if (!tax || !shipping_fee || !cart_total) {
-    throw new CustomAPIError.BadRequestError(
-      'Please provide tax and shipping fee and cart total'
-    )
-  }
-
-  let orderItems = []
-  let subtotal = 0
-  for (const book of book_list) {
-    const dbBook = await Book.findOne({
-      where: { id: book.bookId },
-      include: [
-        {
-          model: Author,
-          attributes: ['name'],
-        },
-      ],
-    })
-    if (!dbBook) {
-      throw new CustomAPIError.NotFoundError(`No book with id : ${book.bookId}`)
-    }
-    const { title, price, book_img, id, author } = dbBook
-    const singleOrderItem = {
-      amount: book.amount,
-      title,
-      price,
-      book_img,
-      bookID: id,
-      author: author.name,
-    }
-    // add item to order
-    orderItems = [...orderItems, singleOrderItem]
-    // calculate subtotal
-    subtotal += book.amount * price
-  }
-  // calculate total
-  const total = tax + shipping_fee + subtotal
-
-  if (Math.ceil(total) !== Math.ceil(cart_total))
-    throw new CustomAPIError.BadRequestError(
-      'Have different in total price between client and server!'
+  const isExistingOrder = await Order.findOne({
+    where: { payos_order_code: order.payos_order_code },
+  })
+  if (!isExistingOrder)
+    throw new CustomAPIError.NotFoundError(
+      'Không tìm thấy đơn hàng thanh toán qua payos'
     )
 
-  await Order.create({
-    id: orderId,
-    customer_email,
-    shipping_address,
-    recipient_name,
-    recipient_phone,
-    payment_method,
-    book_list: orderItems,
-    subtotal,
-    shipping_fee,
-    tax,
-    total,
-    user_id,
+  const { total } = await checkPriceValidity({
+    book_list: order.book_list,
+    tax: order.tax,
+    shipping_fee: order.shipping_fee,
+    cart_total: order.cart_total,
   })
 
-  const payload = {
-    intent: 'CAPTURE',
-    purchase_units: [
-      {
-        reference_id: orderId,
-        amount: {
-          currency_code: 'USD',
-          value: total,
-        },
-      },
-    ],
-  }
-
-  const response = await fetch(url, {
-    headers: {
-      'Content-Type': 'application/json',
-      Authorization: `Bearer ${accessToken}`,
-      // Uncomment one of these to force an error for negative testing (in sandbox mode only).
-      // Documentation: https://developer.paypal.com/tools/sandbox/negative-testing/request-headers/
-      // "PayPal-Mock-Response": '{"mock_application_codes": "MISSING_REQUIRED_PARAMETER"}'
-      // "PayPal-Mock-Response": '{"mock_application_codes": "PERMISSION_DENIED"}'
-      // "PayPal-Mock-Response": '{"mock_application_codes": "INTERNAL_SERVER_ERROR"}'
-    },
-    method: 'POST',
-    body: JSON.stringify(payload),
-  })
-
-  return handleResponse(response)
+  res.status(StatusCodes.CREATED).json({ paymentLink: { paymentLinkId: order.payos_order_code } })
 }
 
-const capturePaypalOrder = async (orderID, userId) => {
-  const accessToken = await generateAccessTokenPaypal()
-  const url = `${base}/v2/checkout/orders/${orderID}/capture`
+const createPayOSBankingOrder = async (req, res) => {
+  try {
+    const cart = { ...req.body, user_id: req.user.userId }
+    const orderId = uuidv4()
 
-  const response = await fetch(url, {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-      Authorization: `Bearer ${accessToken}`,
-      // Uncomment one of these to force an error for negative testing (in sandbox mode only).
-      // Documentation:
-      // https://developer.paypal.com/tools/sandbox/negative-testing/request-headers/
-      // "PayPal-Mock-Response": '{"mock_application_codes": "INSTRUMENT_DECLINED"}'
-      // "PayPal-Mock-Response": '{"mock_application_codes": "TRANSACTION_REFUSED"}'
-      // "PayPal-Mock-Response": '{"mock_application_codes": "INTERNAL_SERVER_ERROR"}'
-    },
-  })
+    const {
+      book_list,
+      tax,
+      shipping_fee,
+      cart_total,
+      customer_email,
+      shipping_address,
+      recipient_name,
+      recipient_phone,
+      payment_method,
+      user_id,
+    } = cart
 
-  const invoice = await response.json()
-  console.log(invoice.status)
+    if (
+      !recipient_name ||
+      !customer_email ||
+      !recipient_phone ||
+      !shipping_address ||
+      !payment_method
+    ) {
+      throw new CustomAPIError.BadRequestError(
+        'Please provide customer details'
+      )
+    }
 
-  // // Cập nhật order vào postgres
-  const order = await Order.findByPk(invoice?.purchase_units[0]?.reference_id)
-  if (!order) {
-    throw new CustomAPIError.NotFoundError(
-      `No order with id : ${invoice?.purchase_units[0]?.reference_id}`
-    )
+    if (!book_list || book_list.length < 1) {
+      throw new CustomAPIError.BadRequestError('No cart items provided')
+    }
+
+    if (!tax || !shipping_fee || !cart_total) {
+      throw new CustomAPIError.BadRequestError(
+        'Please provide tax and shipping fee and cart total'
+      )
+    }
+
+    const { orderItems, subtotal, total } = await checkPriceValidity({
+      book_list,
+      tax,
+      shipping_fee,
+      cart_total,
+    })
+    const orderCode = Number(`${Date.now()}`)
+    const order = {
+      amount: Math.ceil(total) * 100,
+      orderCode,
+      description: `Thanh toán từ PayOS`,
+      buyerName: recipient_name,
+      buyerEmail: customer_email,
+      buyerPhone: recipient_phone,
+      buyerAddress: shipping_address,
+      cancelUrl: `${process.env.ORIGIN}/order`,
+      returnUrl: `${process.env.ORIGIN}/order`,
+      reference: orderId,
+    }
+
+    const paymentLink = await payos.createPaymentLink(order)
+
+    await Order.create({
+      id: orderId,
+      customer_email,
+      shipping_address,
+      recipient_name,
+      recipient_phone,
+      payment_method,
+      book_list: orderItems,
+      subtotal,
+      shipping_fee,
+      tax,
+      total,
+      user_id,
+      payos_order_code: `${paymentLink.paymentLinkId}`,
+    })
+
+    res.status(StatusCodes.CREATED).json({ paymentLink })
+  } catch (error) {
+    console.error('Failed to create order:', error)
+    res.status(500).json({ error: 'Failed to create order.' })
   }
-  order.is_paid = true
-  order.payment_intent_id = invoice?.purchase_units[0]?.payments?.captures?.id
-  await order.save()
-  return {
-    jsonResponse: invoice,
-    httpStatusCode: response.status,
+}
+
+const confirmPayOSOrderCheckout = async (req, res) => {
+  
+  try {
+    const checkValidCheckout = isValidData(
+      req.body.data,
+      req.body.signature,
+      process.env.PAYOS_CHECKSUMKEY
+    )
+
+    if (!checkValidCheckout)
+      throw new CustomAPIError.BadRequestError(
+        'Thông tin thanh toán không nhất quán!'
+      )
+
+    const isExistingOrder = await Order.findOne({
+      where: { payos_order_code: req.body.data.paymentLinkId },
+    })
+    if (!isExistingOrder)
+      throw new CustomAPIError.NotFoundError(
+        'Không tìm thấy đơn hàng thanh toán qua payos'
+      )
+
+    isExistingOrder.is_paid = true
+    await isExistingOrder.save()
+
+    res.status(StatusCodes.OK).json({ updatedOrder: isExistingOrder })
+  } catch (error) {
+    console.log(error)
+  }
+}
+
+const createPaypalOrder = async (req, res) => {
+  try {
+    const cart = { ...req.body, user_id: req.user.userId }
+    const orderId = uuidv4()
+    const accessToken = await generateAccessTokenPaypal()
+    const url = `${base}/v2/checkout/orders`
+
+    const {
+      book_list,
+      tax,
+      shipping_fee,
+      cart_total,
+      customer_email,
+      shipping_address,
+      recipient_name,
+      recipient_phone,
+      payment_method,
+      user_id,
+    } = cart
+
+    if (
+      !recipient_name ||
+      !customer_email ||
+      !recipient_phone ||
+      !shipping_address ||
+      !payment_method
+    ) {
+      throw new CustomAPIError.BadRequestError(
+        'Please provide customer details'
+      )
+    }
+
+    if (!book_list || book_list.length < 1) {
+      throw new CustomAPIError.BadRequestError('No cart items provided')
+    }
+
+    if (!tax || !shipping_fee || !cart_total) {
+      throw new CustomAPIError.BadRequestError(
+        'Please provide tax and shipping fee and cart total'
+      )
+    }
+
+    const { orderItems, subtotal, total } = await checkPriceValidity({
+      book_list,
+      tax,
+      shipping_fee,
+      cart_total,
+    })
+
+    const payload = {
+      intent: 'CAPTURE',
+      purchase_units: [
+        {
+          reference_id: orderId,
+          amount: {
+            currency_code: 'USD',
+            value: convertVNDToUSD(total * 1000),
+          },
+        },
+      ],
+    }
+
+    const response = await fetch(url, {
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${accessToken}`,
+        // Uncomment one of these to force an error for negative testing (in sandbox mode only).
+        // Documentation: https://developer.paypal.com/tools/sandbox/negative-testing/request-headers/
+        // "PayPal-Mock-Response": '{"mock_application_codes": "MISSING_REQUIRED_PARAMETER"}'
+        // "PayPal-Mock-Response": '{"mock_application_codes": "PERMISSION_DENIED"}'
+        // "PayPal-Mock-Response": '{"mock_application_codes": "INTERNAL_SERVER_ERROR"}'
+      },
+      method: 'POST',
+      body: JSON.stringify(payload),
+    })
+
+    await Order.create({
+      id: orderId,
+      customer_email,
+      shipping_address,
+      recipient_name,
+      recipient_phone,
+      payment_method,
+      book_list: orderItems,
+      subtotal,
+      shipping_fee,
+      tax,
+      total,
+      user_id,
+    })
+
+    const { jsonResponse, httpStatusCode } = await handleResponse(response)
+    res.status(httpStatusCode).json(jsonResponse)
+  } catch (error) {
+    console.error('Failed to create order:', error)
+    res.status(500).json({ error: 'Failed to create order.' })
+  }
+}
+
+const capturePaypalOrder = async (req, res) => {
+  try {
+    const { orderID } = req.params
+    const userId = req.user.UserId
+    const accessToken = await generateAccessTokenPaypal()
+    const url = `${base}/v2/checkout/orders/${orderID}/capture`
+
+    const response = await fetch(url, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${accessToken}`,
+        // Uncomment one of these to force an error for negative testing (in sandbox mode only).
+        // Documentation:
+        // https://developer.paypal.com/tools/sandbox/negative-testing/request-headers/
+        // "PayPal-Mock-Response": '{"mock_application_codes": "INSTRUMENT_DECLINED"}'
+        // "PayPal-Mock-Response": '{"mock_application_codes": "TRANSACTION_REFUSED"}'
+        // "PayPal-Mock-Response": '{"mock_application_codes": "INTERNAL_SERVER_ERROR"}'
+      },
+    })
+
+    const invoice = await response.json()
+
+    // // Cập nhật order vào postgres
+    const order = await Order.findByPk(invoice?.purchase_units[0]?.reference_id)
+    if (!order) {
+      throw new CustomAPIError.NotFoundError(
+        `No order with id : ${invoice?.purchase_units[0]?.reference_id}`
+      )
+    }
+    order.is_paid = true
+    order.payment_intent_id = invoice?.purchase_units[0]?.payments?.captures?.id
+    await order.save()
+
+    const jsonResponse = invoice
+    const httpStatusCode = response.status
+
+    res.status(httpStatusCode).json(jsonResponse)
+  } catch (error) {
+    console.error('Failed to create order:', error)
+    res.status(500).json({ error: 'Failed to capture order.' })
   }
 }
 
@@ -207,42 +339,13 @@ const createOrder = async (req, res) => {
       'Please provide tax and shipping fee and cart total'
     )
   }
+  const { orderItems, subtotal, total } = await checkPriceValidity({
+    book_list,
+    tax,
+    shipping_fee,
+    cart_total,
+  })
 
-  let orderItems = []
-  let subtotal = 0
-  for (const book of book_list) {
-    const dbBook = await Book.findOne({
-      where: { id: book.bookId },
-      include: [
-        {
-          model: Author,
-          attributes: ['name'],
-        },
-      ],
-    })
-    if (!dbBook) {
-      throw new CustomAPIError.NotFoundError(`No book with id : ${book.bookId}`)
-    }
-    const { title, price, book_img, id, author } = dbBook
-    const singleOrderItem = {
-      amount: book.amount,
-      title,
-      price,
-      book_img,
-      bookID: id,
-      author: author.name,
-    }
-    // add item to order
-    orderItems = [...orderItems, singleOrderItem]
-    // calculate subtotal
-    subtotal += book.amount * price
-  }
-  // calculate total
-  const total = tax + shipping_fee + subtotal
-  if (total !== cart_total)
-    throw new CustomAPIError.BadRequestError(
-      'Have different in total price between client and server!'
-    )
   // get client secret
   if (payment_method === 'COD') {
     const order = await Order.create({
@@ -258,6 +361,7 @@ const createOrder = async (req, res) => {
       total,
       user_id: req.user.userId,
     })
+
     res.status(StatusCodes.CREATED).json({ order })
     return
   }
@@ -282,6 +386,21 @@ const createOrder = async (req, res) => {
     total,
     user_id: req.user.userId,
     client_secret: paymentIntent.client_secret,
+  })
+
+  await Order.create({
+    id: orderId,
+    customer_email,
+    shipping_address,
+    recipient_name,
+    recipient_phone,
+    payment_method,
+    book_list: orderItems,
+    subtotal,
+    shipping_fee,
+    tax,
+    total,
+    user_id,
   })
 
   res
@@ -386,15 +505,15 @@ const requestCancelOrder = async (req, res) => {
   res.status(StatusCodes.OK).json({ msg: 'Yêu cầu hủy đơn hàng đã được gửi!' })
 }
 
- const updateOrder = async (req, res) => {
-   const { id: orderId } = req.params
-   const order = await Order.findByPk(orderId)
-   await order.update({ ...req.body })
+const updateOrder = async (req, res) => {
+  const { id: orderId } = req.params
+  const order = await Order.findByPk(orderId)
+  await order.update({ ...req.body })
 
-   return res
-     .status(StatusCodes.OK)
-     .json({ msg: 'Cập nhật đơn hàng thành công' })
- }
+  return res
+    .status(StatusCodes.OK)
+    .json({ msg: 'Cập nhật đơn hàng thành công' })
+}
 
 module.exports = {
   getAllOrders,
@@ -406,4 +525,7 @@ module.exports = {
   capturePaypalOrder,
   requestCancelOrder,
   updateOrder,
+  createPayOSBankingOrder,
+  confirmPayOSOrderCheckout,
+  repayExistingOrderPayOS,
 }

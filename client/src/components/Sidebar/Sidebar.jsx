@@ -108,7 +108,7 @@ const Sidebar = () => {
         <SelectInput
           defaultValue="all"
           label="Nhà xuất bản"
-          list={publishersData.publishers}
+          list={publishersData?.publishers}
           name="publisher"
           handleChoose={handleSearch}
         />
@@ -145,6 +145,10 @@ const Wrapper = styled.section`
   .btn.btn-sm:active {
     background-color: ${quaternaryBgColor};
     color: ${primaryBgColor};
+  }
+  .select-label {
+    font-size: 1.25rem;
+    font-weight: bold;
   }
 `
 export default Sidebar

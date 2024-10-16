@@ -1,18 +1,16 @@
 const sequelize = require('./dbconfig')
-const Book = require('./models/book.model')
-const books = require('./books.json')
-const author = require('./author_data.json')
-const Author = require('./models/author.model')
+const coupons = require('./coupons (1).json')
+const Coupon = require('./models/coupon.model') 
 
 ;(async () => {
   await sequelize.sync()
 
   // Chèn nhiều bản ghi
   try {
-    await Book.bulkCreate(books)
+    await Coupon.bulkCreate(coupons)
 
-    console.log('Multiple books created')
+    console.log('Multiple coupons created')
   } catch (error) {
-    console.error('Error creating books:', error)
+    console.error('Error creating coupons:', error)
   }
 })()

@@ -7,6 +7,8 @@ const Publisher = require('./publisher.model')
 const Token = require('./token.model')
 const Review = require('./review.model')
 const OrderItem = require('./oder_item.model')
+const Coupon = require('./coupon.model')
+const UsedCoupon = require('./used_coupon')
 
 Author.hasMany(Book, { foreignKey: 'author_id' })
 Book.belongsTo(Author, { foreignKey: 'author_id' })
@@ -32,6 +34,16 @@ OrderItem.belongsTo(User, { foreignKey: 'user_id' })
 Book.hasMany(OrderItem, { foreignKey: 'book_id' })
 OrderItem.belongsTo(Book, { foreignKey: 'book_id' })
 
+Publisher.hasMany(Coupon, { foreignKey: 'applicable_publisher' })
+Coupon.belongsTo(Publisher, { foreignKey: 'applicable_publisher' })
+
+Coupon.hasMany(UsedCoupon, { foreignKey: 'coupon_id' })
+UsedCoupon.belongsTo(Coupon, { foreignKey: 'coupon_id' })
+
+User.hasMany(UsedCoupon, { foreignKey: 'user_id' })
+UsedCoupon.belongsTo(User, { foreignKey: 'user_id' })
+
+
 module.exports = {
   Author,
   Book,
@@ -42,4 +54,6 @@ module.exports = {
   Token,
   Review,
   OrderItem,
+  Coupon,
+  UsedCoupon,
 }

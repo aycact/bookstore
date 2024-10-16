@@ -8,7 +8,7 @@ const OrderItemsList = ({ itemList }) => {
       <div className="container">
         {itemList.map((item) => {
           return (
-            <div className="row book-container" key={item.bookID}>
+            <div className="row book-container" key={item.bookId}>
               <div className="col text-start ps-0">
                 <img
                   src={item.book_img}

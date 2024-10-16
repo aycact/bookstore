@@ -13,6 +13,9 @@ import {
   UserInfo,
   Manager,
   SingleOrder,
+  CreationPage,
+  Coupon,
+  ClassifyBook,
 } from './pages/main'
 import VerifyEmail from './pages/VerifyEmail'
 import { ProtectedRoute, Error } from './pages'
@@ -20,6 +23,9 @@ import { ErrorElement } from './components'
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { ReactQueryDevtools } from '@tanstack/react-query-devtools'
 
+import { action as couponAction } from './pages/main/Manage/Coupon'
+
+import { loader as couponLoader } from './pages/main/Manage/Coupon'
 import { loader as libraryLoader } from './pages/main/Library'
 import { loader as verifyEmailLoader } from './pages/VerifyEmail'
 import { loader as singleBookLoader } from './pages/main/SingleBook'
@@ -71,14 +77,6 @@ const router = createBrowserRouter([
         ),
       },
       {
-        path: 'order',
-        element: (
-          <ProtectedRoute>
-            <Order />
-          </ProtectedRoute>
-        ),
-      },
-      {
         path: 'order/:id',
         element: (
           <ProtectedRoute>
@@ -101,12 +99,52 @@ const router = createBrowserRouter([
         ),
       },
       {
+        path: 'order',
+        element: (
+          <ProtectedRoute>
+            <Order />
+          </ProtectedRoute>
+        ),
+      },
+      {
         path: 'manager',
         element: (
           <ProtectedRoute>
             <Manager />
           </ProtectedRoute>
         ),
+        children: [
+          {
+            index: true,
+            element: <CreationPage />,
+          },
+          {
+            path: 'order',
+            element: (
+              <ProtectedRoute>
+                <Order />
+              </ProtectedRoute>
+            ),
+          },
+          {
+            path: 'class',
+            element: (
+              <ProtectedRoute>
+                <ClassifyBook />
+              </ProtectedRoute>
+            ),
+          },
+          {
+            path: 'coupon',
+            element: (
+              <ProtectedRoute>
+                <Coupon />
+              </ProtectedRoute>
+            ),
+            loader: couponLoader(queryClient),
+            action: couponAction,
+          },
+        ],
       },
     ],
   },

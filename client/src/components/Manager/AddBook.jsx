@@ -74,12 +74,7 @@ const AddBook = ({ dataUpdated }) => {
     publication_date: dayjs(getCurrentDateTime()),
   })
 
-  const handleChange = (e) => {
-    const name = e.target.name
-    const value = e.target.value
-    setValues({ ...values, [name]: value })
-  }
-
+  
   const handleImgUpload = (e) => {
     const file = e.target.files[0]
     if (file) {
@@ -91,7 +86,12 @@ const AddBook = ({ dataUpdated }) => {
       reader.readAsDataURL(file)
     }
   }
-
+  
+  const handleChange = (e) => {
+    const name = e.target.name
+    const value = e.target.value
+    setValues({ ...values, [name]: value })
+  }
   const handleDateChange = (e) => {
     setValues({
       ...values,
@@ -164,9 +164,9 @@ const AddBook = ({ dataUpdated }) => {
   }
   return (
     <Wrapper>
-      <SectionTitle text="Quản lý sách" />
+      <SectionTitle text="Thêm sách" />
       <div className="container d-flex justify-content-between">
-        <section className="row justify-content-center">
+        <section className="row justify-content-center gap-2">
           <div className="col-auto img-container flex-column">
             <img
               src={preview || defaultBookImg}
@@ -181,7 +181,7 @@ const AddBook = ({ dataUpdated }) => {
           </div>
           <form className="form col">
             {/* title field */}
-            <div className="row gap-2">
+            <div className="row gap-3">
               <div className="col-7">
                 <FormInput
                   label="Tiêu đề"
@@ -189,15 +189,6 @@ const AddBook = ({ dataUpdated }) => {
                   name="title"
                   value={values.title}
                   handleChange={handleChange}
-                />
-              </div>
-              {/* publisher field */}
-              <div className="col-auto mt-2">
-                <SelectInput
-                  label="Nhà xuất bản"
-                  list={publishersData.publishers}
-                  name="publisher_id"
-                  handleChoose={handleChange}
                 />
               </div>
             </div>
@@ -233,6 +224,14 @@ const AddBook = ({ dataUpdated }) => {
                   handleChange={handleChange}
                 />
               </div>
+              <div className="col mt-2">
+                <DateInput
+                  label="Ngày xuất bản"
+                  name="publication_date"
+                  value={values.publication_date}
+                  handleChange={handleDateChange}
+                />
+              </div>
             </div>
 
             <div className="row mb-2 gap-4">
@@ -254,6 +253,15 @@ const AddBook = ({ dataUpdated }) => {
                   handleChoose={handleChange}
                 />
               </div>
+              {/* publisher field */}
+              <div className="col-auto mt-2">
+                <SelectInput
+                  label="Nhà xuất bản"
+                  list={publishersData.publishers}
+                  name="publisher_id"
+                  handleChoose={handleChange}
+                />
+              </div>
             </div>
             {/* description field */}
             <div className="row description-container">
@@ -268,14 +276,6 @@ const AddBook = ({ dataUpdated }) => {
                 className="description-area"
                 value={values.description}
                 onChange={handleChange}
-              />
-            </div>
-            <div className="row float-end me-2">
-              <DateInput
-                label="Ngày xuất bản"
-                name="publication_date"
-                value={values.publication_date}
-                handleChange={handleDateChange}
               />
             </div>
           </form>
@@ -294,9 +294,7 @@ export default AddBook
 const Wrapper = styled.section`
   margin-top: 6rem;
   .form {
- 
-    max-width: 50rem;
-    min-width: 744px;
+    
   }
   .container {
     padding: 2rem 0;
@@ -305,13 +303,12 @@ const Wrapper = styled.section`
     background-color: ${quaternaryBgColorLight};
     border-radius: 1rem;
     margin: 0 0.5rem;
-    width: 45vw;
+    max-width: 45rem;
   }
   .img-container {
     display: flex;
     justify-content: center;
     align-items: center;
-    padding-left: 5rem;
   }
   .book-img {
     padding: 0 2rem;
