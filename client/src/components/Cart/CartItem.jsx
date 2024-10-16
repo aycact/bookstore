@@ -49,6 +49,7 @@ const CartItem = ({ cartItem }) => {
         {/* AMOUNT */}
         <div className="col-3 align-content-center">
           <SelectInput
+          numberDropdown={true}
             name={'Amount'}
             defaultValue={amount}
             list={list}

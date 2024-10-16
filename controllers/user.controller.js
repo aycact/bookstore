@@ -114,6 +114,7 @@ const updateUserIdCard = async (req, res) => {
 
   const user = await User.findOne({ where: { id: req.user.userId } })
   user.cccd = cccd
+  user.identity_is_verified = true
   user.userType = 'customer'
   await user.save()
   await user.reload()

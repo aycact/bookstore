@@ -2,7 +2,7 @@ import React from 'react'
 import styled from 'styled-components'
 import { useEffect, useState } from 'react'
 import { FormInput, RadiosInput, FileInput, Loading } from '../../components'
-import { useDispatch } from 'react-redux'
+import { useDispatch, useSelector } from 'react-redux'
 import { updateUser } from '../../features/users/userSlice'
 import { defaultAvatar } from '../../assets/images'
 import Form from 'react-bootstrap/Form'
@@ -43,6 +43,7 @@ const showCurrentUser = () => {
 
 const UserInfo = () => {
   const { isLoading, userData, error, isError, refetch } = showCurrentUser()
+  const user = useSelector(store => store.user)
 
   const dispatch = useDispatch()
   const [loading, setLoading] = useState(false)
@@ -85,6 +86,7 @@ const UserInfo = () => {
       formData.append('cccd_img', values.cccd_img)
       await customFetch.patch('/users/updateUserIdCard', formData)
       toast.success('Cập nhật thông tin thành công')
+      localStorage.setItem('user', JSON.stringify({ ...user?.user, identityIsVerified: true }))
       setValues({ ...values, cccd: '', cccd_img: null })
       handleCloseModal()
     } catch (error) {

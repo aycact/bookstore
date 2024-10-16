@@ -91,15 +91,16 @@ export const loader =
       getUserSingleOrder(id)
     )
     const order = responseOrder.data.order
+    const coupon = responseOrder?.data?.coupon
     const responseUser = await queryClient.ensureQueryData(
       getSingleUser(order.user_id)
     )
     const user = responseUser.data.user
-    return { order, user }
+    return { order, user, coupon }
   }
 
 const SingleOrder = () => {
-  const { order, user } = useLoaderData()
+  const { order, user, coupon } = useLoaderData()
 
   const { user: currentUser } = useSelector((store) => store.user)
 
@@ -245,6 +246,7 @@ const SingleOrder = () => {
             <CustomerInstruction
               paymentMethod={order.payment_method}
               orderInfo={order}
+              coupon={coupon}
             />
           </div>
         </div>
@@ -258,7 +260,7 @@ const SingleOrder = () => {
           <div className="col-4">
             <div className="d-flex flex-column info-container">
               {/* OrderSummary */}
-              <OrderSummary orderInfo={order} />
+              <OrderSummary orderInfo={order} coupon={coupon}/>
 
               {/* PayOs button */}
               {!order.is_paid && order.payos_order_code && (

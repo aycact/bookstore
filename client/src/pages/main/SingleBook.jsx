@@ -157,6 +157,7 @@ const SingleBook = () => {
             {user?.role !== 'admin' && (
               <div className="">
                 <SelectInput
+                numberDropdown={true}
                   list={list}
                   name="Amount"
                   handleChoose={handleSelectAmount}

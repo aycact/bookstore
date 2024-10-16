@@ -8,7 +8,7 @@ import {
   boldTextColor,
 } from '../../assets/js/variables'
 
-const OrderSummary = ({ orderInfo }) => {
+const OrderSummary = ({ orderInfo, coupon }) => {
   console.log(orderInfo)
 
   return (
@@ -25,14 +25,21 @@ const OrderSummary = ({ orderInfo }) => {
             </ListGroup.Item>
             <ListGroup.Item>
               <span className="label">Phí ship</span>
-              <span>{formatPrice(orderInfo.shipping_fee)}</span>
+              <span>{formatPrice(orderInfo.shipping_fee / 1000)}</span>
             </ListGroup.Item>
             <ListGroup.Item>
               <span className="label">Thuế</span>
               <span>{formatPrice(orderInfo.tax)}</span>
             </ListGroup.Item>
             <ListGroup.Item className="last-item">
-              <span className="label">Tổng thanh toán</span>
+              <span className="label">Thành tiền</span>
+              {coupon && (
+                <span>
+                  {coupon?.discount_type === 'percentage'
+                    ? `-${coupon?.discount_percentage}%`
+                    : `-${formatPrice(coupon?.discount_amount)}`}
+                </span>
+              )}
               <span>{formatPrice(orderInfo.total)}</span>
             </ListGroup.Item>
           </ListGroup>

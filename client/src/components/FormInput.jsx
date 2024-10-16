@@ -12,14 +12,11 @@ const FormInput = ({
   placeholder,
   handleChange,
   size,
+  disabled
 }) => {
   return (
     <Wrapper className="mb-2">
-      <Form.Label
-        htmlFor={label}
-      >
-        {label}
-      </Form.Label>
+      {label && <Form.Label htmlFor={label}>{label}</Form.Label>}
       <Form.Control
         type={type}
         id={name}
@@ -29,6 +26,7 @@ const FormInput = ({
         onChange={handleChange}
         value={value}
         size={size}
+        disabled={disabled}
       />
     </Wrapper>
   )

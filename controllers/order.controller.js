@@ -1,4 +1,4 @@
-const { Book, Order, Author } = require('../models')
+const { Book, Order, Author, Coupon } = require('../models')
 
 const { v4: uuidv4 } = require('uuid')
 const fetch = require('node-fetch')
@@ -9,7 +9,6 @@ const {
   checkPriceValidity,
   convertVNDToUSD,
   payos,
-  createSignaturePayOS,
   isValidData,
 } = require('../utils')
 
@@ -26,7 +25,7 @@ const fakeStripeAPI = async ({ amount, currency }) => {
   return { client_secret, amount }
 }
 
-const repayExistingOrderPayOS = async (req, res) => {  
+const repayExistingOrderPayOS = async (req, res) => {
   const order = req.body
   if (order.is_paid)
     throw new CustomAPIError.BadRequestError('Đơn hàng này đã được thanh toán')
@@ -39,14 +38,17 @@ const repayExistingOrderPayOS = async (req, res) => {
       'Không tìm thấy đơn hàng thanh toán qua payos'
     )
 
-  const { total } = await checkPriceValidity({
+  const { total, coupon_code } = await checkPriceValidity({
     book_list: order.book_list,
-    tax: order.tax,
     shipping_fee: order.shipping_fee,
     cart_total: order.cart_total,
+    coupon: order.coupon,
+    user_id: req.user.userId,
   })
 
-  res.status(StatusCodes.CREATED).json({ paymentLink: { paymentLinkId: order.payos_order_code } })
+  res
+    .status(StatusCodes.CREATED)
+    .json({ paymentLink: { paymentLinkId: order.payos_order_code } })
 }
 
 const createPayOSBankingOrder = async (req, res) => {
@@ -56,7 +58,6 @@ const createPayOSBankingOrder = async (req, res) => {
 
     const {
       book_list,
-      tax,
       shipping_fee,
       cart_total,
       customer_email,
@@ -65,6 +66,7 @@ const createPayOSBankingOrder = async (req, res) => {
       recipient_phone,
       payment_method,
       user_id,
+      coupon,
     } = cart
 
     if (
@@ -83,18 +85,20 @@ const createPayOSBankingOrder = async (req, res) => {
       throw new CustomAPIError.BadRequestError('No cart items provided')
     }
 
-    if (!tax || !shipping_fee || !cart_total) {
+    if (!shipping_fee || !cart_total) {
       throw new CustomAPIError.BadRequestError(
         'Please provide tax and shipping fee and cart total'
       )
     }
 
-    const { orderItems, subtotal, total } = await checkPriceValidity({
-      book_list,
-      tax,
-      shipping_fee,
-      cart_total,
-    })
+    const { orderItems, subtotal, total, coupon_code } =
+      await checkPriceValidity({
+        book_list,
+        shipping_fee,
+        cart_total,
+        coupon,
+        user_id: req.user.userId,
+      })
     const orderCode = Number(`${Date.now()}`)
     const order = {
       amount: Math.ceil(total) * 100,
@@ -121,10 +125,10 @@ const createPayOSBankingOrder = async (req, res) => {
       book_list: orderItems,
       subtotal,
       shipping_fee,
-      tax,
       total,
       user_id,
       payos_order_code: `${paymentLink.paymentLinkId}`,
+      coupon_code,
     })
 
     res.status(StatusCodes.CREATED).json({ paymentLink })
@@ -135,8 +139,11 @@ const createPayOSBankingOrder = async (req, res) => {
 }
 
 const confirmPayOSOrderCheckout = async (req, res) => {
-  
+  console.log(req.body)
+
   try {
+    if (req.body.data.description === 'VQRIO123') return res.json()
+
     const checkValidCheckout = isValidData(
       req.body.data,
       req.body.signature,
@@ -174,7 +181,6 @@ const createPaypalOrder = async (req, res) => {
 
     const {
       book_list,
-      tax,
       shipping_fee,
       cart_total,
       customer_email,
@@ -183,6 +189,7 @@ const createPaypalOrder = async (req, res) => {
       recipient_phone,
       payment_method,
       user_id,
+      coupon,
     } = cart
 
     if (
@@ -201,18 +208,20 @@ const createPaypalOrder = async (req, res) => {
       throw new CustomAPIError.BadRequestError('No cart items provided')
     }
 
-    if (!tax || !shipping_fee || !cart_total) {
+    if (!shipping_fee || !cart_total) {
       throw new CustomAPIError.BadRequestError(
         'Please provide tax and shipping fee and cart total'
       )
     }
 
-    const { orderItems, subtotal, total } = await checkPriceValidity({
-      book_list,
-      tax,
-      shipping_fee,
-      cart_total,
-    })
+    const { orderItems, subtotal, total, coupon_code } =
+      await checkPriceValidity({
+        book_list,
+        shipping_fee,
+        cart_total,
+        coupon,
+        user_id: req.user.userId,
+      })
 
     const payload = {
       intent: 'CAPTURE',
@@ -251,9 +260,9 @@ const createPaypalOrder = async (req, res) => {
       book_list: orderItems,
       subtotal,
       shipping_fee,
-      tax,
       total,
       user_id,
+      coupon_code,
     })
 
     const { jsonResponse, httpStatusCode } = await handleResponse(response)
@@ -311,7 +320,6 @@ const capturePaypalOrder = async (req, res) => {
 const createOrder = async (req, res) => {
   const {
     book_list,
-    tax,
     shipping_fee,
     cart_total,
     customer_email,
@@ -319,6 +327,7 @@ const createOrder = async (req, res) => {
     recipient_name,
     recipient_phone,
     payment_method,
+    coupon,
   } = req.body
 
   if (
@@ -334,17 +343,20 @@ const createOrder = async (req, res) => {
   if (!book_list || book_list.length < 1) {
     throw new CustomAPIError.BadRequestError('No cart items provided')
   }
-  if (!tax || !shipping_fee || !cart_total) {
+  if (!shipping_fee || !cart_total) {
     throw new CustomAPIError.BadRequestError(
       'Please provide tax and shipping fee and cart total'
     )
   }
-  const { orderItems, subtotal, total } = await checkPriceValidity({
-    book_list,
-    tax,
-    shipping_fee,
-    cart_total,
-  })
+  const { orderItems, subtotal, total, coupon_code } = await checkPriceValidity(
+    {
+      book_list,
+      shipping_fee,
+      cart_total,
+      coupon,
+      user_id: req.user.userId,
+    }
+  )
 
   // get client secret
   if (payment_method === 'COD') {
@@ -357,9 +369,9 @@ const createOrder = async (req, res) => {
       book_list: orderItems,
       subtotal, // trị giá đơn hàng có tính phí ship và thuế
       shipping_fee,
-      tax,
       total,
       user_id: req.user.userId,
+      coupon_code,
     })
 
     res.status(StatusCodes.CREATED).json({ order })
@@ -382,7 +394,6 @@ const createOrder = async (req, res) => {
     book_list: JSON.stringify(orderItems),
     subtotal, // trị giá đơn hàng có tính phí ship và thuế
     shipping_fee,
-    tax,
     total,
     user_id: req.user.userId,
     client_secret: paymentIntent.client_secret,
@@ -398,7 +409,6 @@ const createOrder = async (req, res) => {
     book_list: orderItems,
     subtotal,
     shipping_fee,
-    tax,
     total,
     user_id,
   })
@@ -440,6 +450,11 @@ const getSingleOrder = async (req, res) => {
     throw new CustomAPIError.NotFoundError(`No order with id : ${orderId}`)
   }
   checkPermissions(req.user, order.user_id)
+
+  if (order.coupon_code) {
+    const coupon = await Coupon.findOne({where: {code: order.coupon_code}})
+    return res.status(StatusCodes.OK).json({ order, coupon })
+  }
   res.status(StatusCodes.OK).json({ order })
 }
 

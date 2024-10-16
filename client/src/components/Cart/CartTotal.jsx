@@ -9,8 +9,8 @@ import {
   boldTextColor,
 } from '../../assets/js/variables'
 
-const CartTotal = () => {
-  const { cartTotal, shipping, tax, orderTotal } = useSelector(
+const CartTotal = ({ shippingFee }) => {
+  const { cartTotal, shipping, orderTotal } = useSelector(
     (store) => store.cart
   )
   return (
@@ -28,7 +28,7 @@ const CartTotal = () => {
             </ListGroup.Item>
             <ListGroup.Item>
               <span className="label">Thuế</span>
-              <span>{formatPrice(tax)}</span>
+              <span>{formatPrice(0)}</span>
             </ListGroup.Item>
             <ListGroup.Item className="last-item">
               <span className="label">Tổng thanh toán</span>
@@ -43,7 +43,7 @@ const CartTotal = () => {
 export default CartTotal
 
 const Wrapper = styled.section`
-margin-bottom: 1rem;
+  margin-bottom: 1rem;
   .card {
     background: ${quaternaryBgColorLight};
   }

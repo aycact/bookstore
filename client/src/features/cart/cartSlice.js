@@ -5,15 +5,13 @@ const defaultState = {
   cartItems: [],
   numItemsInCart: 0,
   cartTotal: 0,
-  shipping: 5,
-  tax: 0,
+  shipping: 0,
   orderTotal: 0,
 }
 
 const getCartFromCurrentState = () => {
   return JSON.parse(localStorage.getItem('cart')) || defaultState
 }
-
 
 const cartSlice = createSlice({
   name: 'cart',
@@ -37,9 +35,13 @@ const cartSlice = createSlice({
       toast.success('Item added to cart')
     },
     calculateTotals: (state) => {
-      state.tax = state.cartTotal * 0.1
-      state.orderTotal = state.cartTotal + state.shipping + state.tax
+      state.orderTotal = state.cartTotal + state.shipping
       localStorage.setItem('cart', JSON.stringify(state))
+    },
+    recalculateShipping: (state, action) => {
+      const shippingFee = action.payload
+      state.shipping = shippingFee
+      cartSlice.caseReducers.calculateTotals(state)
     },
     clearCart: () => {
       localStorage.setItem('cart', JSON.stringify(defaultState))
@@ -71,5 +73,5 @@ const cartSlice = createSlice({
   },
 })
 
-export const { addItem, removeItem, clearCart, editItem } = cartSlice.actions
+export const { addItem, removeItem, clearCart, editItem, recalculateShipping } = cartSlice.actions
 export default cartSlice.reducer

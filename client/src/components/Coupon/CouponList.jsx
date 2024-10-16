@@ -3,7 +3,9 @@ import { boldTextColor } from '../../assets/js/variables'
 import CouponItems from './CouponItems'
 import { PaginationContainer } from '../../components'
 const CouponList = ({ coupons, publishers, meta }) => {
-
+  const handleChange = (e) => {
+    return
+  }
   return (
     <Wrapper className="table-container">
       <div className="total-item">

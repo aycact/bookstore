@@ -56,6 +56,7 @@ Order.init(
     tax: {
       type: DataTypes.DECIMAL(10, 2),
       allowNull: false,
+      defaultValue: 0
     },
     total: {
       type: DataTypes.DECIMAL(10, 2),
@@ -110,6 +111,9 @@ Order.init(
     payos_order_code: {
       type: DataTypes.STRING(500),
     },
+    coupon_code: {
+      type: DataTypes.STRING
+    }
   },
   {
     defaultScope: {
@@ -132,7 +136,7 @@ Order.init(
 )
 
 Order.afterUpdate(async (order, options) => {
-  if (order.status === 'đã giao') {
+  if (order.is_paid) {
     const bookList = order.book_list
     for (const item of bookList) {
       const book = await Book.findByPk(item.bookId)

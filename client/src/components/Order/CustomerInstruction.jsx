@@ -12,7 +12,7 @@ const CustomerInstruction = ({ paymentMethod, coupon, instruction }) => {
       </div>
       <div className="p-line">
         <span className="fw-bold">Mã giảm giá: </span>
-        {coupon || 'Không có mã giảm giá'}
+        {coupon?.code || 'Không có mã giảm giá'}
       </div>
       <div className="p-line">
         <span className="fw-bold">Ghi chú: </span>
