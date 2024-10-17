@@ -27,7 +27,7 @@ const publisherRouter = require('./routes/publisher.router')
 const orderRouter = require('./routes/order.router')
 const reviewRouter = require('./routes/review.router')
 const orderItemRouter = require('./routes/oder_item.router')
-const couponRouter = require('./routes/Coupon.router')
+const couponRouter = require('./routes/coupon.router')
 
 
 // middleware
