@@ -22,7 +22,7 @@ const attachCookiesToResponse = ({ res, user, refreshToken }) => {
     httpOnly: true,
     secure: process.env.NODE_ENV === 'production', // secure sẽ được kích hoạt khi được build thành production
     signed: true,
-    maxAge: 1000, // hết hạn trong 1 s
+    maxAge: 1000*60*60, // hết hạn trong 1 s
   })
   res.cookie('refreshToken', refreshTokenJWT, {
     httpOnly: true,
