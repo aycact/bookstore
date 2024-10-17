@@ -8,7 +8,7 @@ on:
   pull_request:
     branches: [ main ]
     paths:
-      - 'd2/*.d2'
+      - 'd2/*.d2'      
 
 jobs:
   export:
@@ -42,10 +42,9 @@ jobs:
           echo "changes=false" >> $GITHUB_OUTPUT
         fi
 
-    - name: Commit changes
+    - name: Commit and push changes
       if: steps.check_changes.outputs.changes == 'true'
-      run: |
-        git config --local user.email "action@github.com"
-        git config --local user.name "GitHub Action"
-        git commit -m "Export D2 files"
-        git push
+      uses: devops-infra/action-commit-push@master
+      with:
+        github_token: "${{ secrets.GITHUB_TOKEN }}"
+        commit_message: "Deploy D2"
