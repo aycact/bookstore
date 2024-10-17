@@ -1,0 +1,51 @@
+name: D2 Export
+
+on:
+  push:
+    branches: [ main ]
+    paths:
+      - 'd2/*.d2'
+  pull_request:
+    branches: [ main ]
+    paths:
+      - 'd2/*.d2'
+
+jobs:
+  export:
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: Install D2
+      run: |
+        curl -fsSL https://d2lang.com/install.sh | sh -s --
+        echo "$HOME/.local/bin" >> $GITHUB_PATH
+
+    - name: Export D2 files
+      run: |
+        cd d2
+        for file in *.d2; do
+          filename="${file%.*}"
+          d2 "$file" "${filename}.svg"
+          d2 "$file" "${filename}.png"
+          d2 "$file" "${filename}.gif"
+        done
+
+    - name: Check for changes
+      id: check_changes
+      run: |
+        git add d2/*.svg d2/*.png d2/*.gif
+        if [ -n "$(git status --porcelain)" ]; then
+          echo "changes=true" >> $GITHUB_OUTPUT
+        else
+          echo "changes=false" >> $GITHUB_OUTPUT
+        fi
+
+    - name: Commit changes
+      if: steps.check_changes.outputs.changes == 'true'
+      run: |
+        git config --local user.email "action@github.com"
+        git config --local user.name "GitHub Action"
+        git commit -m "Export D2 files"
+        git push
