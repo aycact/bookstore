@@ -35,7 +35,7 @@ jobs:
     - name: Check for changes
       id: check_changes
       run: |
-        git add d2/*.svg d2/*.png d2/*.gif
+        git add -f d2/*.svg d2/*.png d2/*.gif
         if [ -n "$(git status --porcelain)" ]; then
           echo "changes=true" >> $GITHUB_OUTPUT
         else
