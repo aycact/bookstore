@@ -17,19 +17,28 @@ jobs:
     steps:
     - uses: actions/checkout@v4
 
+    - name: Set up Node.js
+      uses: actions/setup-node@v4
+
+    - name: Install dependencies
+      run: npm ci
+
     - name: Install D2
       run: |
         curl -fsSL https://d2lang.com/install.sh | sh -s --
         echo "$HOME/.local/bin" >> $GITHUB_PATH
+    
+    - name: Install Playwright
+      run: npx playwright install --with-deps
 
     - name: Export D2 files
       run: |
         cd d2
         for file in *.d2; do
           filename="${file%.*}"
-          d2 "$file" "${filename}.svg"
-          d2 "$file" "${filename}.png"
-          d2 "$file" "${filename}.gif"
+          d2 "$file" "${filename}.svg" || echo "Failed to create SVG for $file"
+          d2 "$file" "${filename}.png" || echo "Failed to create PNG for $file"
+          d2 "$file" "${filename}.gif" || echo "Failed to create GIF for $file"
         done
 
     - name: Check for changes
