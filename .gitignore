@@ -27,3 +27,5 @@ dist-ssr
 .env
 
 d2/*.svg
+d2/*.png
+d2/*.gif
