@@ -13,6 +13,7 @@ const { Book, Author, Coupon, UsedCoupon } = require('../models')
 const CustomAPIError = require('../errors')
 const PayOS = require('@payos/node')
 const { createHmac } = require('crypto')
+const sendCouponEmail = require('./sendCouponEmail')
 
 const payos = new PayOS(
   process.env.PAYOS_CLIENT_ID,
@@ -204,4 +205,5 @@ module.exports = {
   convertVNDToUSD,
   payos,
   isValidData,
+  sendCouponEmail,
 }

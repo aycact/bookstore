@@ -85,7 +85,7 @@ const UserInfo = () => {
       formData.append('cccd', values.cccd)
       formData.append('cccd_img', values.cccd_img)
       await customFetch.patch('/users/updateUserIdCard', formData)
-      toast.success('Cập nhật thông tin thành công')
+      toast.success('Kiểm tra email của bạn')
       localStorage.setItem('user', JSON.stringify({ ...user?.user, identityIsVerified: true }))
       setValues({ ...values, cccd: '', cccd_img: null })
       handleCloseModal()
