@@ -6,6 +6,7 @@ const {
   attachCookiesToResponse,
   checkPermissions,
   isValidCCCD,
+  sendCouponEmail,
 } = require('../utils')
 const cloudinary = require('cloudinary').v2
 const fs = require('fs')
@@ -118,7 +119,8 @@ const updateUserIdCard = async (req, res) => {
   user.userType = 'customer'
   await user.save()
   await user.reload()
-  res.status(StatusCodes.OK).json({msg: 'Định danh thành công'})
+  await sendCouponEmail({name:user.name, email:user.email})
+  res.status(StatusCodes.OK).json({msg: 'Kiểm tra email của bạn'})
 }
 
 const updateUserPassword = async (req, res) => {

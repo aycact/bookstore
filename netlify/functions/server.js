@@ -18,21 +18,21 @@ cloudinary.config({
 const cookieParser = require('cookie-parser') // dùng để đính kèm cookie vào response
 
 // router
-const authorRouter = require('./routes/author.router')
-const bookRouter = require('./routes/book.router')
-const categoryRouter = require('./routes/category.router')
-const userRouter = require('./routes/user.router')
-const authRouter = require('./routes/auth.router')
-const publisherRouter = require('./routes/publisher.router')
-const orderRouter = require('./routes/order.router')
-const reviewRouter = require('./routes/review.router')
-const orderItemRouter = require('./routes/oder_item.router')
-const couponRouter = require('./routes/coupon.router')
+const authorRouter = require('./../../routes/author.router')
+const bookRouter = require('./../../routes/book.router')
+const categoryRouter = require('./../../routes/category.router')
+const userRouter = require('./../../routes/user.router')
+const authRouter = require('./../../routes/auth.router')
+const publisherRouter = require('./../../routes/publisher.router')
+const orderRouter = require('./../../routes/order.router')
+const reviewRouter = require('./../../routes/review.router')
+const orderItemRouter = require('./../../routes/oder_item.router')
+const couponRouter = require('./../../routes/coupon.router')
 
 
 // middleware
-const notFoundMiddleware = require('./middleware/not-found')
-const errorHandlerMiddleware = require('./middleware/error-handler')
+const notFoundMiddleware = require('./../../middleware/not-found')
+const errorHandlerMiddleware = require('./../../middleware/error-handler')
 
 // secure
 const rateLimiter = require('express-rate-limit')
@@ -69,7 +69,7 @@ app.use(xss())
 app.use(mongoSanitize())
 
 // app.use(express.static(path.resolve(__dirname, './client/dist', 'index.html')))
-app.use(express.static(path.resolve(__dirname, './client/dist')))
+app.use(express.static(path.resolve(__dirname, './../../client/dist')))
 app.use(express.json())
 app.use(fileUpload({ useTempFiles: true })) // các file dc up lên sẽ lưu trữ trong folder temp
 app.use(cookieParser(process.env.JWT_SECRET))
@@ -87,7 +87,7 @@ app.use('/api/v1/orderItems', orderItemRouter)
 app.use('/api/v1/coupons', couponRouter)
 
 app.get('*', (req, res) => {
-  res.sendFile(path.resolve(__dirname, './client/dist', 'index.html'))
+  res.sendFile(path.resolve(__dirname, './../../client/dist', 'index.html'))
 })
 
 app.use(notFoundMiddleware)
