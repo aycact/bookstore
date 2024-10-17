@@ -1,0 +1,171 @@
+books: {
+    shape: sql_table
+    id: uuid {constraint: primary_key}
+    title: varchar
+    publication_date: date
+    available_copies: int4
+    author_id: uuid {constraint: foreign_key}
+    category_id: uuid {constraint: foreign_key}
+    publisher_id: uuid {constraint: foreign_key}
+    book_img: varchar
+    price: numeric
+    description: text
+    page_number: int4
+    num_of_reviews: int4
+    average_rating: numeric
+}
+authors: {
+    shape: sql_table
+    id: uuid {constraint: primary_key}
+    name: varchar
+    bio: varchar
+    authorImg: varchar
+    born: date
+    job: varchar
+    place_of_birth: varchar
+}
+books.author_id -> authors.id: {
+    style.animated: true
+}
+categories: {
+    shape: sql_table
+    id: uuid {constraint: primary_key}
+    name: varchar
+}
+books.category_id -> categories.id: {
+    style.animated: true
+}
+orders: {
+    shape: sql_table
+    id: uuid {constraint: primary_key}
+    customer_email: varchar
+    shipping_address: text
+    recipient_name: varchar
+    recipient_phone: varchar
+    card_number: varchar
+    card_expiry_date: date
+    card_cvv: bpchar
+    e_wallet_info: varchar
+    book_list: jsonb
+    special_instructions: text
+    subtotal: numeric
+    shipping_fee: numeric
+    tax: numeric
+    total: numeric
+    terms_accepted: bool
+    created_at: timestamp
+    updated_at: timestamp
+    user_id: uuid {constraint: foreign_key}
+    status: order_status
+    client_secret: varchar
+    payment_method: payment_method
+    coupon_code: varchar
+    is_paid: bool
+    request_cancel: bool
+    payos_order_code: varchar
+}
+users: {
+    shape: sql_table
+    id: uuid {constraint: primary_key}
+    name: bytea
+    email: varchar
+    password: varchar
+    user_Type: usertype_enum
+    role: roletype_enum
+    verificationToken: varchar
+    email_is_verified: bool
+    email_verified_date: date
+    passwordToken: varchar
+    passwordTokenExpirationDate: timestamp
+    phone_number: bytea
+    address: bytea
+    user_img: varchar
+    gender: enum_gender
+    identity_is_verified: bool
+    identity_verified_date: date
+    cccd: bytea
+}
+orders.user_id -> users.id: {
+    style.animated: true
+}
+publishers: {
+    shape: sql_table
+    id: uuid {constraint: primary_key}
+    name: varchar
+}
+books.publisher_id -> publishers.id: {
+    style.animated: true
+}
+tokens: {
+    shape: sql_table
+    id: uuid {constraint: primary_key}
+    refreshToken: varchar
+    ip: varchar
+    userAgent: varchar
+    isValid: bool
+    user: uuid {constraint: foreign_key}
+}
+tokens.user_id -> users.id: {
+    style.animated: true
+}
+coupon: {
+    shape: sql_table
+    id: uuid {constraint: primary_key}
+    code: varchar
+    description: varchar
+    discount_type: discount_type_enum
+    discount_amount: numeric
+    min_order_value: numeric
+    start_date: date
+    expiration_date: date
+    usage_limit: int4
+    limit_per_customer: int4
+    status: discount_status_enum
+    stackable: bool
+    discount_percentage: int4
+    applicable_publisher: uuid {constraint: foreign_key}
+}
+coupon.applicable_publisher -> publishers.id: {
+    style.animated: true
+}
+order_items: {
+    shape: sql_table
+    id: uuid {constraint: primary_key}
+    user_id: uuid {constraint: foreign_key}
+    book_id: uuid {constraint: foreign_key}
+}
+order_items.user_id -> users.id: {
+    style.animated: true
+}
+order_items.book_id -> books.id: {
+    style.animated: true
+}
+reviews: {
+    shape: sql_table
+    id: uuid {constraint: primary_key}
+    rating: int4
+    comment: text
+    user_id: uuid {constraint: foreign_key}
+    book_id: uuid {constraint: foreign_key}
+    created_at: timestamp
+    updated_at: timestamp
+}
+reviews.user_id -> users.id: {
+    style.animated: true
+}
+reviews.book_id -> books.id: {
+    style.animated: true
+}
+used_coupons: {
+    shape: sql_table
+    id: uuid {constraint: primary_key}
+    user_id: uuid {constraint: foreign_key}
+    coupon_id: uuid {constraint: foreign_key}
+    num_times_used: int4
+}
+used_coupons.user_id -> users.id: {
+    style.animated: true
+}
+used_coupons.coupon_id -> coupon.id: {
+    style.animated: true
+}
