@@ -1,11 +1,45 @@
 import styled from 'styled-components'
 import { boldTextColor } from '../../assets/js/variables'
 import CouponItems from './CouponItems'
-import { PaginationContainer } from '../../components'
-const CouponList = ({ coupons, publishers, meta }) => {
-  const handleChange = (e) => {
-    return
+import { PaginationContainer, Loading } from '../../components'
+import { useDispatch } from 'react-redux'
+import {
+  getAllCoupons,
+  handleChangeCouponFilter,
+} from '../../features/coupon/couponSlice'
+import { useSelector } from 'react-redux'
+import { useEffect } from 'react'
+
+const CouponList = ({ publishers }) => {
+  const dispatch = useDispatch()
+  const {
+    coupons,
+    isLoading,
+    page,
+    totalCoupons,
+    numOfPages,
+    search,
+    status,
+    applicable_publisher,
+    sort,
+  } = useSelector((store) => store.allCoupons)
+
+  useEffect(() => {
+    dispatch(getAllCoupons())
+  }, [page, search, status, applicable_publisher, sort])
+
+  const meta = { page, numOfPages, totalCoupons }
+
+  if (isLoading) return <Loading />
+
+  if (coupons.length === 0) {
+    return (
+      <Wrapper className="justify-content-center align-content-center">
+        <h2 className="text-center fw-bold">No coupons to display...</h2>
+      </Wrapper>
+    )
   }
+
   return (
     <Wrapper className="table-container">
       <div className="total-item">
@@ -24,8 +58,8 @@ const CouponList = ({ coupons, publishers, meta }) => {
       </section>
       <PaginationContainer
         meta={meta}
-        handleChange={handleChange}
-        className="pagination"
+        handleChange={handleChangeCouponFilter}
+        pagingFor={'coupon'}
       />
     </Wrapper>
   )

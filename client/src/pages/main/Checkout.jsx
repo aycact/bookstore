@@ -30,6 +30,8 @@ import getProvinces from '../../utils/GHNServices/provinces'
 import getWards from '../../utils/GHNServices/wards'
 import getDistricts from '../../utils/GHNServices/districts'
 import getShippingFee from '../../utils/GHNServices/shippingFee'
+import { handleSubmitPayOS } from '../../utils/Payos'
+import { createPaypalOrder, approvePaypalOrder } from '../../utils/Paypal'
 
 const client_id = import.meta.env.VITE_PAYPAL_CLIENT_ID
 const client_secret = import.meta.env.VITE_PAYPAL_CLIENT_SECRET
@@ -82,6 +84,7 @@ const Checkout = () => {
   const [recipientAddress, setRecipientAddress] = useState('')
   const [addressNumber, setAddressNumber] = useState('')
   const [shippingFee, setShippingFee] = useState(0)
+
   useEffect(() => {
     if (selectedDistrictId != 0) {
       console.log(selectedDistrictId)
@@ -224,7 +227,7 @@ const Checkout = () => {
   }, [selectedDistrictId])
 
   const [message, setMessage] = useState('')
-  const [loading, setLoading] = useState(false)
+  const { loading, setLoading } = useState(false)
   const { isLoading, userData, error, isError, refetch } = showCurrentUser()
 
   const [values, setValues] = useState({
@@ -235,6 +238,7 @@ const Checkout = () => {
     coupon: '',
   })
 
+  // nhập thông tin người dùng sau khi fetch xong
   useEffect(() => {
     if (userData) {
       setValues({
@@ -242,22 +246,13 @@ const Checkout = () => {
         recipientAddress: userData?.address || '',
         recipientPhoneNumber: userData?.phone_number || '',
         paymentMethods: 'COD',
-        coupon: ''
+        coupon: '',
       })
     }
   }, [userData])
 
   const { cartItems, cartTotal, shipping, orderTotal, numItemsInCart } =
     useSelector((store) => store.cart)
-
-  useEffect(() => {
-    const radios = document.getElementsByName('paymentMethods')
-    radios.forEach((radio) => {
-      if (radio.value === values.paymentMethods) {
-        radio.checked = true
-      }
-    })
-  }, [loading, isLoading])
 
   const handleChange = (e) => {
     const name = e.target.name
@@ -276,148 +271,6 @@ const Checkout = () => {
     }
   }
 
-  const createPaypalOrder = async () => {
-    try {
-      const order = {
-        customer_email: userData?.email,
-        shipping_address: values.recipientAddress || userData?.address,
-        payment_method: values.paymentMethods,
-        book_list: cartItems,
-        subtotal: cartTotal,
-        shipping_fee: shippingFee,
-        cart_total: orderTotal,
-        user_id: userData?.id,
-        recipient_name: values.recipientName || userData?.name,
-        recipient_phone: values.recipientPhoneNumber || userData?.phone_number,
-        coupon: values?.coupon || '',
-      }
-
-      if (
-        !order.shipping_address ||
-        !order.recipient_name ||
-        !order.recipient_phone
-      )
-        toast.warning('Xin hãy điền đầy đủ thông tin thanh toán!')
-
-      const response = await customFetch.post(
-        '/orders/paypal/createOrder',
-        order,
-        {
-          headers: {
-            'Content-Type': 'application/json',
-          },
-        }
-      )
-      const orderData = await response.data
-      if (orderData.id) {
-        return orderData.id
-      } else {
-        const errorDetail = orderData?.details?.[0]
-        const errorMessage = errorDetail
-          ? `${errorDetail.issue} ${errorDetail.description} (${orderData.debug_id})`
-          : JSON.stringify(orderData)
-
-        throw new Error(errorMessage)
-      }
-    } catch (error) {
-      console.error(error)
-      setMessage(`Could not initiate PayPal Checkout...${error}`)
-    } finally {
-      dispatch(recalculateShipping(0))
-    }
-  }
-
-  const approvePaypalOrder = async (data, actions) => {
-    try {
-      const response = await customFetch.post(
-        `/orders/paypal/${data.orderID}/captureOrder`,
-        {
-          headers: {
-            'Content-Type': 'application/json',
-          },
-        }
-      )
-
-      const orderData = await response.data
-      // Three cases to handle:
-      //   (1) Recoverable INSTRUMENT_DECLINED -> call actions.restart()
-      //   (2) Other non-recoverable errors -> Show a failure message
-      //   (3) Successful transaction -> Show confirmation or thank you message
-
-      const errorDetail = orderData?.details?.[0]
-
-      if (errorDetail?.issue === 'INSTRUMENT_DECLINED') {
-        // (1) Recoverable INSTRUMENT_DECLINED -> call actions.restart()
-        // recoverable state, per https://developer.paypal.com/docs/checkout/standard/customize/handle-funding-failures/
-        return actions.restart()
-      } else if (errorDetail) {
-        // (2) Other non-recoverable errors -> Show a failure message
-        throw new Error(`${errorDetail.description} (${orderData.debug_id})`)
-      } else {
-        // (3) Successful transaction -> Show confirmation or thank you message
-        // Or go to another URL:  actions.redirect('thank_you.html');
-        const transaction = orderData.purchase_units[0].payments.captures[0]
-        setMessage(
-          `Transaction ${transaction.status}: ${transaction.id}. See console for all available details`
-        )
-        console.log(
-          'Capture result',
-          orderData,
-          JSON.stringify(orderData, null, 2)
-        )
-        if (
-          orderData?.purchase_units[0]?.payments?.captures[0]?.status ===
-          'COMPLETED'
-        ) {
-          dispatch(clearCart())
-          toast.success('Thanh toán thành công. Vui lòng kiểm tra đơn hàng!')
-        }
-      }
-    } catch (error) {
-      console.error(error)
-      setMessage(`Sorry, your transaction could not be processed...${error}`)
-    }
-  }
-
-  // Thanh toán qua PayOS
-  const handleSubmitPayOS = async (e) => {
-    e.preventDefault()
-    try {
-      setLoading(true)
-      const order = {
-        customer_email: userData.email,
-        shipping_address: values.recipientAddress || userData.address,
-        payment_method: values.paymentMethods,
-        book_list: cartItems,
-        subtotal: cartTotal,
-        shipping_fee: shippingFee,
-        cart_total: orderTotal,
-        user_id: userData?.id,
-        recipient_name: values.recipientName || userData.name,
-        recipient_phone: values.recipientPhoneNumber || userData.phone_number,
-        coupon: values.coupon || '',
-      }
-
-      if (
-        !order.shipping_address ||
-        !order.recipient_name ||
-        !order.recipient_phone
-      ) {
-        toast.warning('Xin hãy điền đầy đủ thông tin thanh toán!')
-        return
-      }
-
-      const response = await customFetch.post('/orders/createPayOSLink', order)
-      window.location.href = response?.data?.paymentLink?.checkoutUrl
-      dispatch(clearCart())
-      return
-    } catch (error) {
-      console.log(error)
-    } finally {
-      setLoading(false)
-      dispatch(recalculateShipping(0))
-    }
-  }
 
   const handleSubmit = (e) => {
     e.preventDefault()
@@ -554,7 +407,7 @@ const Checkout = () => {
               handleChange={handleChange}
             />*/}
             <p className="radio-label mt-3">Hình thức thanh toán:</p>
-            {paymentMethods.map((paymentMethod) => {
+            {paymentMethods?.map((paymentMethod) => {
               return (
                 <RadiosInput
                   key={paymentMethod}
@@ -562,6 +415,7 @@ const Checkout = () => {
                   value={paymentMethod}
                   label={paymentMethod}
                   handleCheck={handleChange}
+                  checked={paymentMethod === values.paymentMethods}
                 />
               )
             })}
@@ -586,7 +440,21 @@ const Checkout = () => {
                 height: '2rem',
               }}
             >
-              <button className="btn" onClick={handleSubmitPayOS}>
+              <button
+                type="button"
+                className="btn"
+                onClick={() =>
+                  handleSubmitPayOS({
+                    userData,
+                    values,
+                    cartItems,
+                    cartTotal,
+                    shippingFee,
+                    orderTotal,
+                    setLoading,
+                  })
+                }
+              >
                 Thanh toán qua ngân hàng
               </button>
             </div>
@@ -604,7 +472,16 @@ const Checkout = () => {
                 >
                   <PayPalButtons
                     fundingSource={getFundingSource()}
-                    createOrder={createPaypalOrder}
+                    createOrder={() =>
+                      createPaypalOrder({
+                        userData,
+                        values,
+                        cartItems,
+                        cartTotal,
+                        shippingFee,
+                        orderTotal,
+                      })
+                    }
                     onApprove={approvePaypalOrder}
                   />
                 </PayPalScriptProvider>

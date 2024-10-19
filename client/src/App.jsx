@@ -23,9 +23,6 @@ import { ErrorElement } from './components'
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { ReactQueryDevtools } from '@tanstack/react-query-devtools'
 
-import { action as couponAction } from './pages/main/Manage/Coupon'
-
-import { loader as couponLoader } from './pages/main/Manage/Coupon'
 import { loader as libraryLoader } from './pages/main/Library'
 import { loader as verifyEmailLoader } from './pages/VerifyEmail'
 import { loader as singleBookLoader } from './pages/main/SingleBook'
@@ -141,8 +138,6 @@ const router = createBrowserRouter([
                 <Coupon />
               </ProtectedRoute>
             ),
-            loader: couponLoader(queryClient),
-            action: couponAction,
           },
         ],
       },

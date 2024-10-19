@@ -54,19 +54,23 @@ const CouponItems = ({ coupon, publishers }) => {
     const value = e.target.value
     setValues({ ...values, [name]: value })
   }
-  const handleDateChange = (e) => {
-    console.log(e)
-
+  const handleStartDateChange = (e) => {
     setValues({
       ...values,
-      publication_date: e,
+      start_date: e,
+    })
+  }
+  const handleExpirationDateChange = (e) => {
+    setValues({
+      ...values,
+      expiration_date: e,
     })
   }
 
   const handleSubmit = async (e) => {
     e.preventDefault()
-    const startDate = values.start_date.format('MM/DD/YYYY')
-    const expirationDate = values.expiration_date.format('MM/DD/YYYY')
+    const startDate = dayjs(values.start_date).format('MM/DD/YYYY')
+    const expirationDate = dayjs(values.expiration_date).format('MM/DD/YYYY')
     try {
       setLoading(true)
       await customFetch.patch(`/coupons/${coupon.id}`, {
@@ -225,7 +229,7 @@ const CouponItems = ({ coupon, publishers }) => {
                   label="Ngày hiệu lực"
                   name="start_date"
                   value={values.start_date}
-                  handleChange={handleDateChange}
+                  handleChange={handleStartDateChange}
                 />
               </div>
               <div className="col">
@@ -233,7 +237,7 @@ const CouponItems = ({ coupon, publishers }) => {
                   label="Ngày hết hạn"
                   name="expiration_date"
                   value={values.expiration_date}
-                  handleChange={handleDateChange}
+                  handleChange={handleExpirationDateChange}
                 />
               </div>
             </div>

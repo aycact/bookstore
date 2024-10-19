@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react'
 import { useQuery } from '@tanstack/react-query'
 import { MdPostAdd } from 'react-icons/md'
-import { Modal } from 'react-bootstrap'
+import { Button, Modal } from 'react-bootstrap'
 import dayjs from 'dayjs'
 import { getCurrentDateTime } from '../../../utils'
 import styled from 'styled-components'
@@ -25,6 +25,8 @@ import {
 import { customFetch } from '../../../utils/axios'
 import { Form, useLoaderData } from 'react-router-dom'
 import { toast } from 'react-toastify'
+import { useDispatch } from 'react-redux'
+import { addCoupon, getAllCoupons } from '../../../features/coupon/couponSlice'
 
 const fetchPublishers = () => {
   const { isLoading, data, error, isError, refetch } = useQuery({
@@ -37,71 +39,29 @@ const fetchPublishers = () => {
   return { isLoading, data, error, isError, refetch }
 }
 
-const fetchCoupons = (params) => {
-  const { search, status, sort, applicable_publisher, page } = params
-  return {
-    queryKey: [
-      'coupons',
-      search ?? '',
-      status ?? 'all',
-      sort ?? 'mới nhất',
-      applicable_publisher ?? 'all',
-      page ?? 1,
-    ],
-    queryFn: () => customFetch.get('/coupons', {params}),
-  }
-}
-export const loader =
-  (queryClient) =>
-  async ({ request }) => {
-    const params = Object.fromEntries([
-      ...new URL(request.url).searchParams.entries(),
-    ])
-    
-    const response = await queryClient.ensureQueryData(fetchCoupons(params))
-    const coupons = response.data.coupons
-    const meta = response.data.meta
-    
-    return { coupons, meta, params }
-  }
-
-export const action = async ({ request }) => {
-  const formData = await request.formData()
-  const data = Object.fromEntries(formData)
-  console.log(data)
-
-  try {
-    await customFetch.post('/coupons', data)
-    toast.success('Thêm mã giảm giá thành công')
-    return null
-  } catch (error) {
-    const errorMessage = error?.response?.data?.msg || 'Create coupon failed'
-    console.log(error)
-    toast.error('Cần điền đầy đủ thông tin!')
-    return null
-  }
+const initialValues = {
+  code: '',
+  description: '',
+  discount_type: 'percentage',
+  discount_amount: 0,
+  discount_percentage: 0,
+  min_order_value: 0,
+  start_date: dayjs(getCurrentDateTime()),
+  expiration_date: dayjs(getCurrentDateTime()),
+  usage_limit: 0,
+  limit_per_customer: 0,
+  stackable: false,
+  applicable_publisher: '',
 }
 
 const Coupon = () => {
-  const {coupons, meta, params} = useLoaderData()
+  const dispatch = useDispatch()
+  const [validated, setValidated] = useState(false)
   const [loading, setLoading] = useState(false)
   const [showCouponModal, setShowCouponModal] = useState(false)
   const handleShowModal = () => setShowCouponModal(true)
   const handleCloseModal = () => setShowCouponModal(false)
-  const [values, setValues] = useState({
-    code: '',
-    description: '',
-    discount_type: 'percentage',
-    discount_amount: 0,
-    discount_percentage: 0,
-    min_order_value: 0,
-    start_date: dayjs(getCurrentDateTime()),
-    expiration_date: dayjs(getCurrentDateTime()),
-    usage_limit: 0,
-    limit_per_customer: 0,
-    stackable: false,
-    applicable_publisher: '',
-  })
+  const [values, setValues] = useState(initialValues)
 
   const {
     isLoading: isLoadingPublishers,
@@ -111,10 +71,55 @@ const Coupon = () => {
     refetch: refetchPublishers,
   } = fetchPublishers()
 
+  const handleChange = (e) => {
+    setValues({ ...values, [e.target.name]: e.target.value })
+  }
+
+  const handleSubmit = async (e) => {
+    const form = e.currentTarget
+    if (form.checkValidity() === false) {
+      e.preventDefault()
+      e.stopPropagation()
+    }
+
+    setValidated(true)
+
+    try {
+      setLoading(true)
+      if (dayjs(values.start_date).isAfter(dayjs(values.expiration_date))) {
+        toast.error('Ngày hiệu lực phải nhỏ hơn ngày hết hạn')
+        setLoading(false)
+        return
+      }
+      dispatch(addCoupon(values))
+      setLoading(false)
+      setValues({ ...initialValues })
+    } catch (error) {
+      console.log(error)
+    } finally {
+      dispatch(getAllCoupons())
+    }
+  }
+
+  const handleStartDateChange = (e) => {
+    setValues({
+      ...values,
+      start_date: e,
+    })
+  }
+  const handleExpirationDateChange = (e) => {
+    setValues({
+      ...values,
+      expiration_date: e,
+    })
+  }
+  const handleCheck = (e) => {
+    setValues({ ...values, stackable: !values.stackable })
+  }
+
   if (isLoadingPublishers) return <Loading />
   if (isErrorPublishers)
     return <p style={{ marginTop: '1rem' }}>{errorPublishers.message}</p>
-
 
   return (
     <Wrapper>
@@ -126,21 +131,29 @@ const Coupon = () => {
         <MdPostAdd />
       </button>
       <Modal show={showCouponModal} onHide={handleCloseModal}>
-        <Form method="post">
-          <Modal.Header
-            closeButton
-            style={{ backgroundColor: `${quaternaryBgColor}` }}
-          >
-            <Modal.Title>Tạo mã giảm giá</Modal.Title>
-          </Modal.Header>
-          <Modal.Body style={{ backgroundColor: `${quaternaryBgColor}` }}>
+        <Modal.Header
+          closeButton
+          style={{ backgroundColor: `${quaternaryBgColor}` }}
+        >
+          <Modal.Title>Tạo mã giảm giá</Modal.Title>
+        </Modal.Header>
+        <Modal.Body style={{ backgroundColor: `${quaternaryBgColor}` }}>
+          <Form noValidate validated={validated} onSubmit={handleSubmit}>
             <div className="row">
               <div className="col">
-                <FormInput label="Nhập mã giảm giá" type="text" name="code" />
+                <FormInput
+                  label="Mã giảm giá"
+                  type="text"
+                  name="code"
+                  value={values.code}
+                  handleChange={handleChange}
+                  isInvalid={validated && !values.code}
+                  required
+                />
               </div>
               <div className="col">
                 <div>Loại giảm giá</div>
-                {['percentage', 'amount'].map((type) => {
+                {['percentage', 'fixed_amount'].map((type) => {
                   return (
                     <div className="ms-2" key={type}>
                       <RadiosInput
@@ -148,6 +161,9 @@ const Coupon = () => {
                         name="discount_type"
                         value={type}
                         label={type === 'percentage' ? 'Phần trăm' : 'Số tiền'}
+                        handleCheck={handleChange}
+                        required={true}
+                        isInvalid={validated && !values.discount_type}
                       />
                     </div>
                   )
@@ -159,6 +175,8 @@ const Coupon = () => {
               label="Nhập mô tả mã giảm giá"
               type="text"
               name="description"
+              value={values.description}
+              handleChange={handleChange}
             />
             <div className="row">
               <div className="col">
@@ -167,12 +185,16 @@ const Coupon = () => {
                     label="Phần trăm"
                     type="number"
                     name="discount_percentage"
+                    value={values.discount_percentage}
+                    handleChange={handleChange}
                   />
                 ) : (
                   <FormInput
                     label="Số tiền"
                     type="number"
                     name="discount_amount"
+                    value={values.discount_amount}
+                    handleChange={handleChange}
                   />
                 )}
               </div>
@@ -181,16 +203,28 @@ const Coupon = () => {
                   label="Áp dụng cho giá trị từ"
                   type="number"
                   name="min_order_value"
+                  value={values.min_order_value}
+                  handleChange={handleChange}
                 />
               </div>
             </div>
 
             <div className="row">
               <div className="col">
-                <DateInput label="Ngày hiệu lực" name="start_date" />
+                <DateInput
+                  label="Ngày hiệu lực"
+                  name="start_date"
+                  value={dayjs(values.start_date)}
+                  handleChange={handleStartDateChange}
+                />
               </div>
               <div className="col">
-                <DateInput label="Ngày hết hạn" name="expiration_date" />
+                <DateInput
+                  label="Ngày hết hạn"
+                  name="expiration_date"
+                  value={dayjs(values.expiration_date)}
+                  handleChange={handleExpirationDateChange}
+                />
               </div>
             </div>
 
@@ -200,6 +234,8 @@ const Coupon = () => {
                   label="Tổng số lần sử dụng"
                   type="number"
                   name="usage_limit"
+                  value={values.usage_limit}
+                  handleChange={handleChange}
                 />
               </div>
               <div className="col">
@@ -207,6 +243,8 @@ const Coupon = () => {
                   label="Số lần sử dụng / khách hàng"
                   type="number"
                   name="limit_per_customer"
+                  value={values.limit_per_customer}
+                  handleChange={handleChange}
                 />
               </div>
             </div>
@@ -218,14 +256,19 @@ const Coupon = () => {
                   label="Nhà xuất bản"
                   name="applicable_publisher"
                   list={publishersData?.publishers}
+                  value={values.applicable_publisher}
+                  handleChoose={handleChange}
                 />
               </div>
               <div className="col mt-4">
-                <CheckboxInput label="Dùng với mã khác" name="stackable" />
+                <CheckboxInput
+                  label="Dùng với mã khác"
+                  name="stackable"
+                  value={values.stackable}
+                  handleChange={handleCheck}
+                />
               </div>
             </div>
-          </Modal.Body>
-          <Modal.Footer style={{ backgroundColor: `${quaternaryBgColor}` }}>
             <div className="btn-container">
               <button
                 disabled={loading}
@@ -245,12 +288,15 @@ const Coupon = () => {
                 {loading ? 'Đang xử lý...' : 'Thêm mã giảm giá'}
               </button>
             </div>
-          </Modal.Footer>
-        </Form>
+          </Form>
+        </Modal.Body>
+        <Modal.Footer
+          style={{ backgroundColor: `${quaternaryBgColor}` }}
+        ></Modal.Footer>
       </Modal>
       <div className="coupon-container d-flex flex-row">
         <CouponFilter publishers={publishersData?.publishers} />
-        <CouponList coupons={coupons} publishers={publishersData?.publishers} meta={meta} />
+        <CouponList publishers={publishersData?.publishers} />
       </div>
     </Wrapper>
   )
@@ -265,7 +311,7 @@ const Wrapper = styled.section`
   min-height: 100vh;
   .coupon-container {
     width: 100%;
-  } 
+  }
   .add-coupon-button {
     float: right;
     background-color: ${quaternaryBgColorLight};
@@ -285,6 +331,7 @@ const Wrapper = styled.section`
     box-shadow: ${shadow1};
     font-weight: bold;
     transition: all 0.3s linear;
+    z-index: 2;
   }
   .select-label {
     font-size: 1rem;
