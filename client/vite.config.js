@@ -18,6 +18,9 @@ export default defineConfig({
     }
   },
   build: {
-    cssMinify: 'lightningcss'
+    cssMinify: 'lightningcss',
+    minify: 'esbuild',
+    sourcemap: 'hidden',
+    manifest: true,
   }
 })
