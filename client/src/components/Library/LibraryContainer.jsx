@@ -2,12 +2,11 @@ import BookList from './BookList'
 import Sidebar from '../Sidebar/Sidebar'
 import styled from 'styled-components'
 
-const LibraryContainer = ({categories, publishers}) => {
-
+const LibraryContainer = () => {
   return (
     <Wrapper>
       <div className="library-container d-flex flex-row">
-        <Sidebar categories={categories} publishers={publishers}/>
+        <Sidebar/>
         <BookList/>
       </div>
     </Wrapper>

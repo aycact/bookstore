@@ -45,10 +45,8 @@ export const loader =
       queryClient.ensureQueryData(allPublishersQuery()),
     ])
    
-    const categories = responseCategories.data.categories
-    const publishers = responsePublishers.data.publishers
- 
-    
+    const categories = responseCategories?.data?.categories || []
+    const publishers = responsePublishers?.data?.publishers || []
     return { categories, publishers }
   }
 
@@ -58,13 +56,11 @@ const Library = () => {
     { label: 'Sách', path: '/library', active: true },
   ]
 
-  const { categories, publishers } = useLoaderData()
-
   return (
     <Wrapper>
       <div className="library">
         <MyBreadCrumb breadcrumbItems={breadcrumbItems} />
-        <LibraryContainer categories={categories} publishers={publishers}/>
+        <LibraryContainer/>
       </div>
     </Wrapper>
   )

@@ -13,21 +13,20 @@ import { FaRegCalendarTimes } from 'react-icons/fa'
 import { FaBuilding } from 'react-icons/fa'
 import {
   FormInput,
-  FileInput,
-  CouponList,
   DateInput,
   SelectInput,
   CheckboxInput,
   RadiosInput,
-  Loading,
-  CouponFilter,
 } from '../../components'
 import dayjs from 'dayjs'
 import { getCurrentDateTime } from '../../utils'
 import { customFetch } from '../../utils/axios'
 import { toast } from 'react-toastify'
+import { useDispatch } from 'react-redux'
+import { getAllCoupons } from '../../features/coupon/couponSlice'
 
 const CouponItems = ({ coupon, publishers }) => {
+  const dispatch = useDispatch()
   const [showCouponModal, setShowCouponModal] = useState(false)
   const [loading, setLoading] = useState(false)
 
@@ -85,6 +84,7 @@ const CouponItems = ({ coupon, publishers }) => {
       toast.error(error?.response?.data?.msg)
     } finally {
       setLoading(false)
+      dispatch(getAllCoupons())
     }
   }
   return (

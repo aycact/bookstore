@@ -29,6 +29,8 @@ import { loader as singleBookLoader } from './pages/main/SingleBook'
 import { loader as singleAuthorLoader } from './pages/main/SingleAuthor'
 import { loader as newBookLoader } from './pages/main/Home'
 import { loader as singleUserOrder } from './pages/main/SingleOrder'
+import { loader as creationPageLoader } from './pages/main/Manage/CreationPage'
+import { loader as couponLoader } from './pages/main/Manage/Coupon'
 import store from './store'
 
 const queryClient = new QueryClient({
@@ -114,6 +116,7 @@ const router = createBrowserRouter([
           {
             index: true,
             element: <CreationPage />,
+            loader: creationPageLoader(queryClient),
           },
           {
             path: 'order',
@@ -138,6 +141,7 @@ const router = createBrowserRouter([
                 <Coupon />
               </ProtectedRoute>
             ),
+            loader: couponLoader(queryClient),
           },
         ],
       },

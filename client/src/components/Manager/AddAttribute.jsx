@@ -13,8 +13,10 @@ import { customFetch } from '../../utils/axios'
 import { toast } from 'react-toastify'
 import dayjs from 'dayjs'
 import { getCurrentDateTime } from '../../utils'
+import { useNavigate } from 'react-router-dom'
 
 const AddAttribute = ({ onAddData }) => {
+  const navigate = useNavigate()
   const [loading, setLoading] = useState(false)
   const [authorPreview, setAuthorPreview] = useState(null)
   const [authorValues, setAuthorValues] = useState({
@@ -98,6 +100,7 @@ const AddAttribute = ({ onAddData }) => {
       toast.error('Add author failed')
     } finally {
       setLoading(false)
+      window.location.reload()
     }
   }
 
@@ -115,6 +118,7 @@ const AddAttribute = ({ onAddData }) => {
       toast.error('Add category failed')
     } finally {
       setLoading(false)
+      window.location.reload()
     }
   }
 
@@ -131,6 +135,7 @@ const AddAttribute = ({ onAddData }) => {
       toast.error('Add publisher failed')
     } finally {
       setLoading(false)
+      window.location.reload()
     }
   }
 

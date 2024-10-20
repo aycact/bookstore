@@ -1,5 +1,5 @@
 import React from 'react'
-import { Form, Link } from 'react-router-dom'
+import { Form, Link, useLoaderData } from 'react-router-dom'
 import { FormInput, SelectInput } from '../../components'
 import styled from 'styled-components'
 import {
@@ -28,7 +28,8 @@ const sortList = [
   { id: 'z-a', name: 'z-a' },
 ]
 
-const CouponFilter = ({ publishers }) => {
+const CouponFilter = () => {
+  const {publishers} = useLoaderData()
   const dispatch = useDispatch()
 
   const [localSearch, setLocalSearch] = useState('')

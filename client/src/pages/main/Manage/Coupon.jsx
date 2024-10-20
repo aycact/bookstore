@@ -29,14 +29,10 @@ import { useDispatch } from 'react-redux'
 import { addCoupon, getAllCoupons } from '../../../features/coupon/couponSlice'
 
 const fetchPublishers = () => {
-  const { isLoading, data, error, isError, refetch } = useQuery({
+  return {
     queryKey: ['publishers'],
-    queryFn: async () => {
-      const { data } = await customFetch.get('/publishers')
-      return data
-    },
-  })
-  return { isLoading, data, error, isError, refetch }
+    queryFn:  () => customFetch.get('/publishers')
+  }
 }
 
 const initialValues = {
@@ -54,7 +50,16 @@ const initialValues = {
   applicable_publisher: '',
 }
 
+export const loader = (queryClient) => async () => {
+  const response = await queryClient.fetchQuery(fetchPublishers())
+  
+  const publishers = response?.data?.publishers || []
+  return {publishers}
+}
+
 const Coupon = () => {
+  const {publishers} = useLoaderData()
+  console.log(publishers)
   const dispatch = useDispatch()
   const [validated, setValidated] = useState(false)
   const [loading, setLoading] = useState(false)
@@ -63,13 +68,6 @@ const Coupon = () => {
   const handleCloseModal = () => setShowCouponModal(false)
   const [values, setValues] = useState(initialValues)
 
-  const {
-    isLoading: isLoadingPublishers,
-    data: publishersData,
-    error: errorPublishers,
-    isError: isErrorPublishers,
-    refetch: refetchPublishers,
-  } = fetchPublishers()
 
   const handleChange = (e) => {
     setValues({ ...values, [e.target.name]: e.target.value })
@@ -117,9 +115,7 @@ const Coupon = () => {
     setValues({ ...values, stackable: !values.stackable })
   }
 
-  if (isLoadingPublishers) return <Loading />
-  if (isErrorPublishers)
-    return <p style={{ marginTop: '1rem' }}>{errorPublishers.message}</p>
+  if (loading) return <Loading />
 
   return (
     <Wrapper>
@@ -162,8 +158,7 @@ const Coupon = () => {
                         value={type}
                         label={type === 'percentage' ? 'Phần trăm' : 'Số tiền'}
                         handleCheck={handleChange}
-                        required={true}
-                        isInvalid={validated && !values.discount_type}
+                        checked={values.discount_type === type}
                       />
                     </div>
                   )
@@ -177,6 +172,8 @@ const Coupon = () => {
               name="description"
               value={values.description}
               handleChange={handleChange}
+              isInvalid={validated && !values.description}
+              required
             />
             <div className="row">
               <div className="col">
@@ -255,7 +252,7 @@ const Coupon = () => {
                   defaultValue="all"
                   label="Nhà xuất bản"
                   name="applicable_publisher"
-                  list={publishersData?.publishers}
+                  list={publishers}
                   value={values.applicable_publisher}
                   handleChoose={handleChange}
                 />
@@ -295,8 +292,8 @@ const Coupon = () => {
         ></Modal.Footer>
       </Modal>
       <div className="coupon-container d-flex flex-row">
-        <CouponFilter publishers={publishersData?.publishers} />
-        <CouponList publishers={publishersData?.publishers} />
+        <CouponFilter  />
+        <CouponList />
       </div>
     </Wrapper>
   )

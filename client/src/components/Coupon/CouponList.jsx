@@ -9,8 +9,10 @@ import {
 } from '../../features/coupon/couponSlice'
 import { useSelector } from 'react-redux'
 import { useEffect } from 'react'
+import { useLoaderData } from 'react-router-dom'
 
-const CouponList = ({ publishers }) => {
+const CouponList = () => {
+  const {publishers} = useLoaderData()
   const dispatch = useDispatch()
   const {
     coupons,

@@ -10,15 +10,14 @@ import {
   boldTextColor,
 } from '../../assets/js/variables'
 import Button from 'react-bootstrap/Button'
-import { customFetch } from '../../utils/axios'
 import { clearFilters, handleChangeBookFilter } from '../../features/books/booksSlice'
-import { useSelector, useDispatch } from 'react-redux'
 import { useMemo, useState } from 'react'
+import { useDispatch } from 'react-redux'
 import { useLoaderData } from 'react-router-dom'
 
-const Sidebar = ({ categories, publishers }) => {
+const Sidebar = () => {
+  const { categories, publishers } = useLoaderData()
   const dispatch = useDispatch()
-
   const [localSearch, setLocalSearch] = useState('')
   const [currentPublisher, setCurrentPublisher] = useState('')
 
@@ -39,7 +38,7 @@ const Sidebar = ({ categories, publishers }) => {
   const handleSearch = (e) => {
     e.preventDefault()
     if (e.target.name === 'publisher') setCurrentPublisher(e.target.value)
-    dispatch(handleChange({ name: e.target.name, value: e.target.value }))
+    dispatch(handleChangeBookFilter({ name: e.target.name, value: e.target.value }))
   }
 
   const handleSubmit = (e) => {

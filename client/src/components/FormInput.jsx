@@ -18,7 +18,7 @@ const FormInput = ({
 }) => {
   return (
     <Wrapper className="mb-2">
-      <Form.Group controlId={`validation-${name}`}>
+      <Form.Group>
         {label && <Form.Label htmlFor={label}>{label}</Form.Label>}
         <Form.Control
           type={type}
