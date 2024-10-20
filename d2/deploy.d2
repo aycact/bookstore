@@ -1,0 +1,37 @@
+sourcecode: Source code{
+    near: bottom-left
+    github: Github {
+        shape: image
+        icon: github-mark.svg
+    }
+}
+host: Hosting {
+    near: top-right
+    vercel: Vercel {
+        shape: image
+        icon: vercel-icon-dark.svg
+    }
+}
+sourcecode -> host:{
+    style.animated: true
+}
+database: Database {
+    near: top-left
+    supabase: Supabase {
+        shape: image
+        icon: supabase-logo-icon.svg
+    }
+}
+database -> host:{
+    style.animated: true
+}
+domain: Domain {
+    near: bottom-right
+    cloudflare: Cloudflare {
+        shape: image
+        icon: https://cf-assets.www.cloudflare.com/slt3lc6tev37/7bIgGp4hk4SFO0o3SBbOKJ/b48185dcf20c579960afad879b25ea11/CF_logo_stacked_blktype.jpg
+    }
+}
+host -> domain:{
+    style.animated: true
+}

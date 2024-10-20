@@ -23,6 +23,7 @@ import { ErrorElement } from './components'
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { ReactQueryDevtools } from '@tanstack/react-query-devtools'
 
+import ForgotPass, {action as forgotPassAction} from './pages/ForgotPass'
 import { loader as libraryLoader } from './pages/main/Library'
 import { loader as verifyEmailLoader } from './pages/VerifyEmail'
 import { loader as singleBookLoader } from './pages/main/SingleBook'
@@ -156,6 +157,12 @@ const router = createBrowserRouter([
     path: '/user/verify-email',
     element: <VerifyEmail />,
     loader: verifyEmailLoader,
+    errorElement: <Error />,
+  },
+  {
+    path: '/user/reset-password',
+    element: <ForgotPass />,
+    action: forgotPassAction,
     errorElement: <Error />,
   },
 ])

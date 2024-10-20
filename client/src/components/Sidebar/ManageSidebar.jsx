@@ -12,7 +12,6 @@ import { NavLink } from 'react-router-dom'
 import { GiPaperTray } from 'react-icons/gi'
 import { IoIosCreate } from 'react-icons/io'
 import { BiSolidCoupon } from 'react-icons/bi'
-import { MdClass } from 'react-icons/md'
 
 const ManageSidebar = () => {
   return (
@@ -25,7 +24,7 @@ const ManageSidebar = () => {
             </i>
             Thêm mới
           </NavLink>
-          
+
           <NavLink className="nav-link" to="/manager/coupon">
             <i className="icon">
               <BiSolidCoupon />

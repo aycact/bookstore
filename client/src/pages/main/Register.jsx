@@ -13,6 +13,7 @@ import {
   primaryBgColorHover,
   shadow1,
 } from '../../assets/js/variables'
+import { customFetch } from '../../utils/axios'
 
 const initialState = {
   name: '',
@@ -23,10 +24,20 @@ const initialState = {
 }
 
 function Register() {
+  const [forgotPass, setForgotPass] = useState(false)
   const [values, setValues] = useState(initialState)
   const { user, isLoading } = useSelector((store) => store.user)
   const dispatch = useDispatch()
   const navigate = useNavigate()
+
+  const handleForgotPass = async () => {
+    try {
+      await customFetch.post('/auth/forgot-password', { email: values.email })
+      toast.success('Kiểm tra email của bạn để đổi mật khẩu!')
+    } catch (error) {
+      logError(error)
+    }
+  }
 
   useEffect(() => {
     const radios = document.getElementsByName('gender')
@@ -70,6 +81,33 @@ function Register() {
       }, 2000)
     }
   }, [user])
+
+  if (forgotPass) {
+    return (
+      <Wrapper className="full-page">
+        <form className="form">
+          <h3>Quên mật khẩu</h3>
+          {/* email field */}
+          <FormInput
+            placeholder={'Nhập email cấp lại mật khẩu'}
+            label="Email"
+            type="email"
+            name="email"
+            value={values.email}
+            handleChange={handleChange}
+          />
+          <div className="btn-container">
+            <Button type="button" className="btn" disabled={isLoading} onClick={handleForgotPass}>
+              {isLoading ? 'loading...' : 'Đổi mật khẩu'}
+            </Button>
+            <Button type="button" className="btn" disabled={isLoading} onClick={() => setForgotPass(false)}>
+              {isLoading ? 'loading...' : 'Thoát'}
+            </Button>
+          </div>
+        </form>
+      </Wrapper>
+    )
+  }
   return (
     <Wrapper className="full-page">
       <form className="form" onSubmit={onSubmit}>
@@ -131,12 +169,10 @@ function Register() {
             className="btn"
             disabled={isLoading}
             onClick={() =>
-              dispatch(
-                loginUser({ email: 'testUser@test.com', password: 'secret' })
-              )
+              setForgotPass(true)
             }
           >
-            {isLoading ? 'loading...' : 'demo app'}
+            {isLoading ? 'loading...' : 'Quên mật khẩu'}
           </Button>
         </div>
         <p>

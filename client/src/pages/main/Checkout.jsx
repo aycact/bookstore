@@ -480,6 +480,7 @@ const Checkout = () => {
                         cartTotal,
                         shippingFee,
                         orderTotal,
+                        setMessage
                       })
                     }
                     onApprove={approvePaypalOrder}
