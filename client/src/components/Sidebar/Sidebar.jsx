@@ -10,36 +10,16 @@ import {
   boldTextColor,
 } from '../../assets/js/variables'
 import Button from 'react-bootstrap/Button'
-import { customFetch } from '../../utils/axios'
-import { clearFilters, handleChange } from '../../features/books/booksSlice'
-import { useSelector, useDispatch } from 'react-redux'
+import { clearFilters, handleChangeBookFilter } from '../../features/books/booksSlice'
 import { useMemo, useState } from 'react'
-
-const fetchCategories = () => {
-  const { isLoading, data, error, isError } = useQuery({
-    queryKey: ['categories'],
-    queryFn: async () => {
-      const { data } = await customFetch.get('/categories')
-      return data
-    },
-  })
-  return { isLoading, data, error, isError }
-}
-
-const fetchPublishers = () => {
-  const { isLoading, data, error, isError } = useQuery({
-    queryKey: ['publishers'],
-    queryFn: async () => {
-      const { data } = await customFetch.get('/publishers')
-      return data
-    },
-  })
-  return { isLoading, data, error, isError }
-}
+import { useDispatch } from 'react-redux'
+import { useLoaderData } from 'react-router-dom'
 
 const Sidebar = () => {
+  const { categories, publishers } = useLoaderData()
   const dispatch = useDispatch()
-  const [localSearch, setLocalSearch] = useState('');
+  const [localSearch, setLocalSearch] = useState('')
+  const [currentPublisher, setCurrentPublisher] = useState('')
 
   const debounce = () => {
     let timeoutID
@@ -48,7 +28,7 @@ const Sidebar = () => {
       setLocalSearch(e.target.value)
       clearTimeout(timeoutID)
       timeoutID = setTimeout(() => {
-        dispatch(handleChange({ name: e.target.name, value: e.target.value }))
+        dispatch(handleChangeBookFilter({ name: e.target.name, value: e.target.value }))
       }, 1000)
     }
   }
@@ -57,36 +37,16 @@ const Sidebar = () => {
 
   const handleSearch = (e) => {
     e.preventDefault()
-    dispatch(handleChange({ name: e.target.name, value: e.target.value }))
+    if (e.target.name === 'publisher') setCurrentPublisher(e.target.value)
+    dispatch(handleChangeBookFilter({ name: e.target.name, value: e.target.value }))
   }
 
   const handleSubmit = (e) => {
     e.preventDefault()
     setLocalSearch('')
+    setCurrentPublisher('')
     dispatch(clearFilters())
   }
-
-  const {
-    isLoading: isLoadingCategories,
-    data: categoriesData,
-    error: errorCategories,
-    isError: isErrorCategories,
-  } = fetchCategories()
-  const {
-    isLoading: isLoadingPublishers,
-    data: publishersData,
-    error: errorPublishers,
-    isError: isErrorPublishers,
-  } = fetchPublishers()
-
-  if (isLoadingCategories)
-    return <p style={{ marginTop: '1rem' }}>Loading...</p>
-  if (isErrorCategories)
-    return <p style={{ marginTop: '1rem' }}>{errorCategories.message}</p>
-  if (isLoadingPublishers)
-    return <p style={{ marginTop: '1rem' }}>Loading...</p>
-  if (isErrorPublishers)
-    return <p style={{ marginTop: '1rem' }}>{errorPublishers.message}</p>
 
   return (
     <Wrapper>
@@ -101,15 +61,15 @@ const Sidebar = () => {
         />
         <ListInput
           label="Thể loại"
-          list={categoriesData.categories}
+          list={categories}
           name="category"
           handleChoose={handleSearch}
         />
         <SelectInput
-          defaultValue="all"
           label="Nhà xuất bản"
-          list={publishersData?.publishers}
+          list={publishers}
           name="publisher"
+          value={currentPublisher}
           handleChoose={handleSearch}
         />
         <Button onClick={handleSubmit} className="btn-sm">

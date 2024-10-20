@@ -1,25 +1,35 @@
-import styled from "styled-components"
+import styled from 'styled-components'
+import { Form } from 'react-bootstrap'
 
-const RadiosInput = ({ name, value, handleCheck, label, checked }) => {
+const RadiosInput = ({
+  name,
+  value,
+  handleCheck,
+  label,
+  checked,
+}) => {
   return (
-    <div className="form-check">
-      <input
-        name={name}
-        className="form-check-input"
-        type="radio"
-        value={value}
-        id={`radio-${value}`}
-        onChange={handleCheck}
-        checked={checked}
-      />
-      <label className="form-check-label" htmlFor={`radio-${value}`}>
-        {label}
-      </label>
-    </div>
+    <Wrapper>
+      <Form.Group>
+        <Form.Check
+          type="radio"
+          name={name}
+          value={value}
+          id={`radio-${value}`}
+          label={label}
+          onChange={handleCheck}
+          checked={checked}
+          feedback="Vui lòng chọn một trong các lựa chọn"
+          feedbackType="invalid"
+        />
+      </Form.Group>
+    </Wrapper>
   )
 }
 export default RadiosInput
 
 const Wrapper = styled.section`
-  
+  .form-check-input {
+    margin-right: 10px;
+  }
 `

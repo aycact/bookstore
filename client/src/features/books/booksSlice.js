@@ -40,7 +40,7 @@ const booksSlice = createSlice({
     hideLoading: (state) => {
       state.isLoading = false
     },
-    handleChange: (state, { payload: { name, value } }) => {
+    handleChangeBookFilter: (state, { payload: { name, value } }) => {
       state.page = 1
       state[name] = value
     },
@@ -84,7 +84,7 @@ const booksSlice = createSlice({
 export const {
   showLoading,
   hideLoading,
-  handleChange,
+  handleChangeBookFilter,
   clearFilters,
   changePage,
   clearAllBooksState,

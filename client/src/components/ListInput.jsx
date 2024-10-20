@@ -11,7 +11,7 @@ const ListInput = ({ label, list, name, handleChoose }) => {
     <Wrapper>
       <h5 className="list-label">{label}</h5>
       <div className="list-input d-flex flex-column">
-        {list.map((item) => {
+        {list?.map((item) => {
           return (
             <button
               name={name}

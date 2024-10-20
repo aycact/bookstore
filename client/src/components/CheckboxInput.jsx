@@ -1,4 +1,4 @@
-const CheckboxInput = ({ name, value, label, handleChange, checked }) => {
+const CheckboxInput = ({ name, value, label, handleChange }) => {
   return (
     <div className="form-check">
       <input
@@ -7,7 +7,7 @@ const CheckboxInput = ({ name, value, label, handleChange, checked }) => {
         type="checkbox"
         id={`checkbox-${value}`}
         onChange={handleChange}
-        checked={checked}
+        checked={value}
       />
       <label className="form-check-label" htmlFor={`checkbox-${value}`}>
         {label}

@@ -8,11 +8,17 @@ import {
   quaternaryBgColorLight,
   shadow1,
 } from '../../assets/js/variables'
+import { useDispatch } from 'react-redux'
+import {
+  clearFilters,
+  handleChangeCouponFilter,
+} from '../../features/coupon/couponSlice'
+import { useMemo, useState } from 'react'
 
 const CouponStatus = [
-  { id: 'enable', name: 'Có hiệu lực' },
+  { id: 'active', name: 'Có hiệu lực' },
   { id: 'expired', name: 'Hết hạng' },
-  { id: 'disable', name: 'Không có hiệu lực' },
+  { id: 'deactivated', name: 'Không có hiệu lực' },
 ]
 
 const sortList = [
@@ -22,9 +28,42 @@ const sortList = [
   { id: 'z-a', name: 'z-a' },
 ]
 
-const CouponFilter = ({ publishers }) => {
-  const { params } = useLoaderData()
-  const { search, status, applicable_publisher, sort } = params
+const CouponFilter = () => {
+  const {publishers} = useLoaderData()
+  const dispatch = useDispatch()
+
+  const [localSearch, setLocalSearch] = useState('')
+  const [currentPublisher, setCurrentPublisher] = useState('')
+
+  const debounce = () => {
+    let timeoutID
+    return (e) => {
+      e.preventDefault()
+      setLocalSearch(e.target.value)
+      clearTimeout(timeoutID)
+      timeoutID = setTimeout(() => {
+        dispatch(handleChange({ name: e.target.name, value: e.target.value }))
+      }, 1000)
+    }
+  }
+
+  const optimizedDebounce = useMemo(() => debounce(), [])
+
+  const handleSearch = (e) => {
+    e.preventDefault()
+    if (e.target.name === 'publisher') setCurrentPublisher(e.target.value)
+    dispatch(
+      handleChangeCouponFilter({ name: e.target.name, value: e.target.value })
+    )
+  }
+
+  const handleSubmit = (e) => {
+    e.preventDefault()
+    setLocalSearch('')
+    setCurrentPublisher('')
+    dispatch(clearFilters())
+  }
+  
   return (
     <Wrapper>
       <Form className="container">
@@ -34,7 +73,8 @@ const CouponFilter = ({ publishers }) => {
               label="Tìm kiếm"
               name="search"
               type="text"
-              defaultValue={search}
+              value={localSearch}
+              handleChange={optimizedDebounce}
             />
           </div>
           <div className="row">
@@ -43,20 +83,29 @@ const CouponFilter = ({ publishers }) => {
               name="status"
               defaultValue={'enable'}
               list={CouponStatus}
+              handleChoose={handleSearch}
             />
           </div>
           <div className="row d-flex justify-content-center">
             <SelectInput
-              label="Nhà xuất bảng"
+              label="Nhà xuất bản"
               name="applicable_publisher"
               list={publishers}
+              value={currentPublisher}
+              handleChoose={handleSearch}
             />
           </div>
           <div className="row d-flex justify-content-center mb-2">
-            <SelectInput label="Xếp theo" name="sort" list={sortList} />
+            <SelectInput
+              defaultValue={'mới nhất'}
+              label="Xếp theo"
+              name="sort"
+              list={sortList}
+              handleChoose={handleSearch}
+            />
           </div>
           <div className="row d-flex flex-column">
-            <button type="submit" className="btn my-3">
+            <button type="button" className="btn my-3" onClick={handleSubmit}>
               Lọc giá trị
             </button>
             <Link to={'/manager/coupon'} className="btn">

@@ -7,9 +7,10 @@ import {
 } from '../assets/js/variables'
 
 const SelectInput = ({
+  defaultValue,
   list,
   name,
-  defaultValue,
+  value,
   handleChoose,
   label,
   disabled,
@@ -20,9 +21,10 @@ const SelectInput = ({
       <div>
         <h5 className="select-label">{label}</h5>
         <select
+          defaultValue={defaultValue}
           disabled={disabled}
           name={name}
-          defaultValue={defaultValue}
+          value={value}
           onChange={handleChoose}
           className="select-input"
         >

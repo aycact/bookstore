@@ -184,6 +184,54 @@ const SingleOrder = () => {
       setLoading(false)
     }
   }
+
+  const handleConfirmOrder = async (e) => {
+    e.preventDefault()
+      try {
+        setLoading(true)
+        await customFetch.patch(`/orders/${order.id}`, {
+          status: 'chờ lấy hàng',
+        })
+        toast.success('Cập nhật đơn hàng thành công')
+      } catch (error) {
+        console.log(error)
+        toast.error(error?.response?.data?.msg)
+      } finally {
+        setLoading(false)
+      }
+  }
+  const handleDeliverOrder = async (e) => {
+    e.preventDefault()
+    try {
+      setLoading(true)
+      await customFetch.patch(`/orders/${order.id}`, {
+        status: 'đang vận chuyển',
+      })
+      toast.success('Cập nhật đơn hàng thành công')
+    } catch (error) {
+      console.log(error)
+      toast.error(error?.response?.data?.msg)
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  const handleSuccessDeliverOrder = async (e) => {
+    e.preventDefault()
+    try {
+      setLoading(true)
+      await customFetch.patch(`/orders/${order.id}`, {
+        status: 'đã giao',
+      })
+      toast.success('Cập nhật đơn hàng thành công')
+    } catch (error) {
+      console.log(error)
+      toast.error(error?.response?.data?.msg)
+    } finally {
+      setLoading(false)
+    }
+  }
+
   if (loading) {
     return <Loading />
   }
@@ -260,7 +308,7 @@ const SingleOrder = () => {
           <div className="col-4">
             <div className="d-flex flex-column info-container">
               {/* OrderSummary */}
-              <OrderSummary orderInfo={order} coupon={coupon}/>
+              <OrderSummary orderInfo={order} coupon={coupon} />
 
               {/* PayOs button */}
               {!order.is_paid && order.payos_order_code && (
@@ -281,12 +329,42 @@ const SingleOrder = () => {
                     order.request_cancel
                   }
                   type="button"
-                  className="btn btn-danger mt-2"
+                  className="btn btn-success mt-2"
                   onClick={handleRequestCancelOrder}
                 >
                   Yêu cầu hủy đơn hàng
                 </button>
               )}
+              {currentUser.role === 'admin' &&
+                order.status === 'đang vận chuyển' && (
+                  <button
+                    type="button"
+                    className="btn btn-success mt-2"
+                    onClick={handleSuccessDeliverOrder}
+                  >
+                    Xác nhận đã giao
+                  </button>
+                )}
+              {currentUser.role === 'admin' &&
+                order.status === 'chờ lấy hàng' && (
+                  <button
+                    type="button"
+                    className="btn btn-success mt-2"
+                    onClick={handleDeliverOrder}
+                  >
+                    Xác nhận giao hàng
+                  </button>
+                )}
+              {currentUser.role === 'admin' &&
+                order.status === 'chờ xác nhận' && (
+                  <button
+                    type="button"
+                    className="btn btn-success mt-2"
+                    onClick={handleConfirmOrder}
+                  >
+                    Xác nhận đơn hàng
+                  </button>
+                )}
               {currentUser.role === 'admin' && (
                 <button
                   type="button"

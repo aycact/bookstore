@@ -1,8 +1,6 @@
 import React, { useEffect, useState } from 'react'
 import styled from 'styled-components'
 import {
-  primaryBgColorHover,
-  quaternaryBgColor,
   quaternaryBgColorLight,
   textColor,
   shadow1,
@@ -22,41 +20,11 @@ import { useQuery } from '@tanstack/react-query'
 import { addBook } from '../../features/books/booksSlice'
 import dayjs from 'dayjs'
 import { getCurrentDateTime } from '../../utils'
+import { useLoaderData } from 'react-router-dom'
 
-const fetchCategories = () => {
-  const { isLoading, data, error, isError, refetch } = useQuery({
-    queryKey: ['categories'],
-    queryFn: async () => {
-      const { data } = await customFetch.get('/categories')
-      return data
-    },
-  })
-  return { isLoading, data, error, isError, refetch }
-}
-
-const fetchPublishers = () => {
-  const { isLoading, data, error, isError, refetch } = useQuery({
-    queryKey: ['publishers'],
-    queryFn: async () => {
-      const { data } = await customFetch.get('/publishers')
-      return data
-    },
-  })
-  return { isLoading, data, error, isError, refetch }
-}
-
-const fetchAuthors = () => {
-  const { isLoading, data, error, isError, refetch } = useQuery({
-    queryKey: ['authors'],
-    queryFn: async () => {
-      const { data } = await customFetch.get('/authors')
-      return data
-    },
-  })
-  return { isLoading, data, error, isError, refetch }
-}
 
 const AddBook = ({ dataUpdated }) => {
+  const {authors, categories, publishers} = useLoaderData()
   const { isLoading: isBookLoading } = useSelector((store) => store.allBooks)
   const dispatch = useDispatch()
 
@@ -74,7 +42,6 @@ const AddBook = ({ dataUpdated }) => {
     publication_date: dayjs(getCurrentDateTime()),
   })
 
-  
   const handleImgUpload = (e) => {
     const file = e.target.files[0]
     if (file) {
@@ -86,7 +53,7 @@ const AddBook = ({ dataUpdated }) => {
       reader.readAsDataURL(file)
     }
   }
-  
+
   const handleChange = (e) => {
     const name = e.target.name
     const value = e.target.value
@@ -118,47 +85,7 @@ const AddBook = ({ dataUpdated }) => {
     setPreview(null)
   }
 
-  const {
-    isLoading: isLoadingCategories,
-    data: categoriesData,
-    error: errorCategories,
-    isError: isErrorCategories,
-    refetch: refetchCategories,
-  } = fetchCategories()
-
-  const {
-    isLoading: isLoadingPublishers,
-    data: publishersData,
-    error: errorPublishers,
-    isError: isErrorPublishers,
-    refetch: refetchPublishers,
-  } = fetchPublishers()
-
-  const {
-    isLoading: isLoadingAuthors,
-    data: authorsData,
-    error: errorAuthors,
-    isError: isErrorAuthors,
-    refetch: refetchAuthors,
-  } = fetchAuthors()
-
-  useEffect(() => {
-    if (dataUpdated) {
-      refetchCategories()
-      refetchPublishers()
-      refetchAuthors()
-    }
-  }, [dataUpdated, refetchCategories, refetchPublishers, refetchAuthors])
-  if (isLoadingCategories) return <Loading />
-  if (isErrorCategories)
-    return <p style={{ marginTop: '1rem' }}>{errorCategories.message}</p>
-  if (isLoadingPublishers) return <Loading />
-  if (isErrorPublishers)
-    return <p style={{ marginTop: '1rem' }}>{errorPublishers.message}</p>
-  if (isLoadingAuthors) return <Loading />
-  if (isErrorAuthors)
-    return <p style={{ marginTop: '1rem' }}>{errorAuthors.message}</p>
-
+  
   if (isBookLoading) {
     return <Loading />
   }
@@ -239,7 +166,7 @@ const AddBook = ({ dataUpdated }) => {
               <div className="col-auto mt-2">
                 <SelectInput
                   label="Tác giả"
-                  list={authorsData.authors}
+                  list={authors}
                   name="author_id"
                   handleChoose={handleChange}
                 />
@@ -248,7 +175,7 @@ const AddBook = ({ dataUpdated }) => {
               <div className="col-auto mt-2">
                 <SelectInput
                   label="Thể loại"
-                  list={categoriesData.categories}
+                  list={categories}
                   name="category_id"
                   handleChoose={handleChange}
                 />
@@ -257,7 +184,7 @@ const AddBook = ({ dataUpdated }) => {
               <div className="col-auto mt-2">
                 <SelectInput
                   label="Nhà xuất bản"
-                  list={publishersData.publishers}
+                  list={publishers}
                   name="publisher_id"
                   handleChoose={handleChange}
                 />
@@ -294,7 +221,6 @@ export default AddBook
 const Wrapper = styled.section`
   margin-top: 6rem;
   .form {
-    
   }
   .container {
     padding: 2rem 0;

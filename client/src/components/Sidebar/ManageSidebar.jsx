@@ -25,12 +25,7 @@ const ManageSidebar = () => {
             </i>
             Thêm mới
           </NavLink>
-          <NavLink className="nav-link" to="/manager/coupon">
-            <i className="icon">
-              <MdClass />
-            </i>
-            Phân loại sách
-          </NavLink>
+          
           <NavLink className="nav-link" to="/manager/coupon">
             <i className="icon">
               <BiSolidCoupon />

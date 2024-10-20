@@ -8,12 +8,11 @@ import { useDispatch } from 'react-redux'
 
 import Pagination from 'react-bootstrap/Pagination'
 
-const PaginationContainer = ({ meta, handleChange }) => {
+const PaginationContainer = ({ meta, handleChange, pagingFor }) => {
   const dispatch = useDispatch()
 
   const handlePageChange = (pageNumber) => {
-    dispatch(handleChange({ name: 'page', value: pageNumber }))
-    // scrollToSection('breadcrumb')
+      dispatch(handleChange({ name: 'page', value: pageNumber }))
   }
 
   // const scrollToSection = (sectionId) => {

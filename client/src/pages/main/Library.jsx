@@ -3,10 +3,11 @@ import { LibraryContainer, MyBreadCrumb } from '../../components'
 import { customFetch } from '../../utils/axios'
 import styled from 'styled-components'
 import { quaternaryBgColorLight } from '../../assets/js/variables'
+import { useLoaderData } from 'react-router-dom'
 
 const url = '/books'
 
-const allProductsQuery = (queryParams) => {
+const allBookQuery = (queryParams) => {
   const { search, category, publisher, author, sort, page } = queryParams
   return {
     queryKey: [
@@ -22,19 +23,31 @@ const allProductsQuery = (queryParams) => {
   }
 }
 
+const allCategoriesQuery = () => {
+  return {
+    queryKey: ['categories'],
+    queryFn: () => customFetch('/categories'),
+  }
+}
+
+const allPublishersQuery = () => {
+  return {
+    queryKey: ['publishers'],
+    queryFn: () => customFetch('/publishers'),
+  }
+}
+
 export const loader =
   (queryClient) =>
-  async ({ request }) => {
-    const params = Object.fromEntries([
-      ...new URL(request.url).searchParams.entries(),
+  async () => {
+    const [responseCategories, responsePublishers] = await Promise.all([
+      queryClient.ensureQueryData(allCategoriesQuery()),
+      queryClient.ensureQueryData(allPublishersQuery()),
     ])
-    // new URL() trả về object dạng URL
-    // searchParams trả về object dạng URLSearchParams
-    // entries() trả về Iterator và để kiểm tra Iterator ta dung Spread Syntax
-    const response = await queryClient.ensureQueryData(allProductsQuery(params))
-    const books = response.data.books
-    const meta = response.data.meta
-    return { books, meta, params }
+   
+    const categories = responseCategories?.data?.categories || []
+    const publishers = responsePublishers?.data?.publishers || []
+    return { categories, publishers }
   }
 
 const Library = () => {
@@ -42,11 +55,12 @@ const Library = () => {
     { label: 'Trang chủ', path: '/', active: false },
     { label: 'Sách', path: '/library', active: true },
   ]
+
   return (
     <Wrapper>
       <div className="library">
         <MyBreadCrumb breadcrumbItems={breadcrumbItems} />
-        <LibraryContainer />
+        <LibraryContainer/>
       </div>
     </Wrapper>
   )

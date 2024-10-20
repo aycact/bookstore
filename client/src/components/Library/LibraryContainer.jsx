@@ -3,11 +3,10 @@ import Sidebar from '../Sidebar/Sidebar'
 import styled from 'styled-components'
 
 const LibraryContainer = () => {
-
   return (
     <Wrapper>
       <div className="library-container d-flex flex-row">
-        <Sidebar />
+        <Sidebar/>
         <BookList/>
       </div>
     </Wrapper>

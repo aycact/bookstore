@@ -12,7 +12,7 @@ import BookItem from './BookItem'
 import Loading from '../Loading'
 import { useDispatch, useSelector } from 'react-redux'
 import { useEffect } from 'react'
-import { getAllBooks, handleChange } from '../../features/books/booksSlice'
+import { getAllBooks, handleChangeBookFilter } from '../../features/books/booksSlice'
 
 const BookList = () => {
   const dispatch = useDispatch()
@@ -49,9 +49,7 @@ const BookList = () => {
   return (
     <Wrapper>
       <div className="segment">
-        <h3 className="mx-5 segment-heading mb-3">
-          {totalBooks} Kết quả
-        </h3>
+        <h3 className="mx-5 segment-heading mb-3">{totalBooks} Kết quả</h3>
 
         <Row xs={1} md={2} lg={3} className="g-5 mx-3">
           {bookList.map((book) => {
@@ -61,8 +59,9 @@ const BookList = () => {
 
         <PaginationContainer
           meta={meta}
-          handleChange={handleChange}
+          handleChange={handleChangeBookFilter}
           className="pagination"
+          pagingFor={'book'}
         />
       </div>
     </Wrapper>

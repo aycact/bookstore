@@ -12,7 +12,7 @@ const MyCarousel = () => {
   return (
     <Wrapper>
       <Carousel className="my-carousel">
-        <Carousel.Item interval={1000} className="my-carousel-item">
+        <Carousel.Item interval={3000} className="my-carousel-item">
           <CarouselImage
             text="First slide"
             src={slide1}
@@ -28,7 +28,7 @@ const MyCarousel = () => {
             </p>
           </Carousel.Caption>
         </Carousel.Item>
-        <Carousel.Item interval={1000} className="my-carousel-item">
+        <Carousel.Item interval={3000} className="my-carousel-item">
           <CarouselImage text="Second slide" src={slide2} />
           <Carousel.Caption>
             <h3>"Lê Phong phóng viên trinh thám" của Thế Lữ</h3>
@@ -39,7 +39,7 @@ const MyCarousel = () => {
             </p>
           </Carousel.Caption>
         </Carousel.Item>
-        <Carousel.Item interval={1000} className="my-carousel-item">
+        <Carousel.Item interval={3000} className="my-carousel-item">
           <CarouselImage text="Third slide" src={slide3} />
           <Carousel.Caption>
             <h3>Third slide label</h3>
@@ -48,7 +48,7 @@ const MyCarousel = () => {
             </p>
           </Carousel.Caption>
         </Carousel.Item>
-        <Carousel.Item className="my-carousel-item">
+        <Carousel.Item interval={3000} className="my-carousel-item">
           <CarouselImage text="Fourth slide" src={slide4} />
           <Carousel.Caption>
             <h3>Fourth slide label</h3>
