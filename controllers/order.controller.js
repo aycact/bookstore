@@ -101,7 +101,7 @@ const createPayOSBankingOrder = async (req, res) => {
       })
     const orderCode = Number(`${Date.now()}`)
     const order = {
-      amount: Math.ceil(total) * 100,
+      amount: Math.ceil(total) * 1000,
       orderCode,
       description: `Thanh toán từ PayOS`,
       buyerName: recipient_name,
