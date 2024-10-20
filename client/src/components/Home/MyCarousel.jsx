@@ -42,18 +42,22 @@ const MyCarousel = () => {
         <Carousel.Item interval={3000} className="my-carousel-item">
           <CarouselImage text="Third slide" src={slide3} />
           <Carousel.Caption>
-            <h3>Third slide label</h3>
+            <h3>Kawabata Yasunari</h3>
             <p>
-              Praesent commodo cursus magna, vel scelerisque nisl consectetur.
+              {' '}
+              Người Nhật đầu tiên và người châu Á thứ ba, sau Rabindranath
+              Tagore (Ấn Độ năm 1913) và Shmuel Yosef Agnon (Israel năm 1966),
+              đoạt Giải Nobel Văn học năm 1968
             </p>
           </Carousel.Caption>
         </Carousel.Item>
         <Carousel.Item interval={3000} className="my-carousel-item">
           <CarouselImage text="Fourth slide" src={slide4} />
           <Carousel.Caption>
-            <h3>Fourth slide label</h3>
+            <h3>Chủ nghĩa hậu hiên đại</h3>
             <p>
-              Praesent commodo cursus magna, vel scelerisque nisl consectetur.
+              Một xu hướng trong nền văn hóa đương đại được đặc trưng bởi sự
+              chối bỏ sự thật khách quan và siêu tự sự.
             </p>
           </Carousel.Caption>
         </Carousel.Item>
