@@ -101,7 +101,7 @@ export const approvePaypalOrder = async (data, actions) => {
         orderData?.purchase_units[0]?.payments?.captures[0]?.status ===
         'COMPLETED'
       ) {
-        dispatch(clearCart())
+        store.dispatch(clearCart())
         toast.success('Thanh toán thành công. Vui lòng kiểm tra đơn hàng!')
       }
     }

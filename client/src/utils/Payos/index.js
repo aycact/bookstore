@@ -4,11 +4,11 @@ import store from '../../store'
 import { toast } from 'react-toastify'
 
 
+
 export const handleSubmitPayOS =
   async ({ userData, values, cartItems, cartTotal, shippingFee, orderTotal, setLoading }) => {
    
     try {
-      setLoading(true)
       const order = {
         customer_email: userData.email,
         shipping_address: values.recipientAddress || userData.address,
@@ -39,7 +39,6 @@ export const handleSubmitPayOS =
     } catch (error) {
       console.log(error)
     } finally {
-      setLoading(false)
       store.dispatch(recalculateShipping(0))
       store.dispatch(clearCart())
     }
