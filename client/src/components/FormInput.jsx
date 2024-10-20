@@ -33,9 +33,9 @@ const FormInput = ({
           required={required}
           isInvalid={isInvalid} // Xử lý trạng thái lỗi
         />
-        <Form.Control.Feedback type="invalid">
+       {label && <Form.Control.Feedback type="invalid">
           {`Xin hãy điền ${label.toLowerCase()}`}
-        </Form.Control.Feedback>
+        </Form.Control.Feedback>}
       </Form.Group>
     </Wrapper>
   )

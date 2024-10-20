@@ -176,7 +176,7 @@ const forgotPassword = async (req, res) => {
   if (user) {
     const passwordToken = crypto.randomBytes(70).toString('hex')
 
-    const origin = 'http://localhost:3000'
+     const origin = process.env.ORIGIN
     await sendResetPasswordEmail({
       name: user.name,
       email: user.email,

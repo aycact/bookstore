@@ -1,6 +1,7 @@
 import store from '../../store'
 import { customFetch } from '../axios'
-import { recalculateShipping } from '../../features/cart/cartSlice'
+import { clearCart, recalculateShipping } from '../../features/cart/cartSlice'
+import { redirect } from 'react-router-dom'
 
 export const createPaypalOrder = async ({
   userData,
@@ -9,6 +10,7 @@ export const createPaypalOrder = async ({
   cartTotal,
   shippingFee,
   orderTotal,
+  setMessage,
 }) => {
   try {
     const order = {
@@ -90,9 +92,6 @@ export const approvePaypalOrder = async (data, actions) => {
       // (3) Successful transaction -> Show confirmation or thank you message
       // Or go to another URL:  actions.redirect('thank_you.html');
       const transaction = orderData.purchase_units[0].payments.captures[0]
-      setMessage(
-        `Transaction ${transaction.status}: ${transaction.id}. See console for all available details`
-      )
       console.log(
         'Capture result',
         orderData,
@@ -108,6 +107,7 @@ export const approvePaypalOrder = async (data, actions) => {
     }
   } catch (error) {
     console.error(error)
-    setMessage(`Sorry, your transaction could not be processed...${error}`)
+  } finally {
+    store.dispatch(clearCart())
   }
 }
