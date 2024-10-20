@@ -29,7 +29,6 @@ const reviewRouter = require('./routes/review.router')
 const orderItemRouter = require('./routes/oder_item.router')
 const couponRouter = require('./routes/coupon.router')
 
-
 // middleware
 const notFoundMiddleware = require('./middleware/not-found')
 const errorHandlerMiddleware = require('./middleware/error-handler')
@@ -61,6 +60,7 @@ app.use(
       'https://[2606:50c0:8002::153]',
       'https://[2606:50c0:8003::153]',
       'https://my.payos.vn/',
+      'https://pay.payos.vn/',
     ],
     credentials: true,
   })
